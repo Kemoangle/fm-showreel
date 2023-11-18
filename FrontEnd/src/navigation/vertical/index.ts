@@ -11,4 +11,9 @@ export default [
     to: { name: 'second-page' },
     icon: { icon: 'mdi-file-document-outline' },
   },
+  {
+    title: 'Building page',
+    to: { name: 'building-list' },
+    icon: { icon: 'mdi-file-document-outline' },
+  }
 ] as VerticalNavItems
