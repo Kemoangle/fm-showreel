@@ -15,13 +15,13 @@ const getAllBuilding = () => {
 const isAddNewUserDrawerVisible = ref(false);
 const addNewBuilding = (buildingData: Building) => {
     console.log(buildingData);
-    // axiosIns.post('Building',buildingData).then((response) => {
-    //     console.log('success');
-    // });
     delete buildingData.id;
-    axios.post('https://localhost:7284/api/Building',buildingData).then((response) => {
+    axiosIns.post('Building', buildingData).then((response) => {
         console.log('success');
     });
+    // axios.post('https://localhost:7284/api/Building',buildingData).then((response) => {
+    //     console.log('success');
+    // });
     // refetch User
     getAllBuilding();
 };
@@ -57,7 +57,7 @@ onMounted(() => {
                 <thead>
                     <tr>
                         <th scope="col">
-                            <div style="width: 1.875rem;">
+                            <div style="width: 1.875rem">
                                 <VCheckbox />
                             </div>
                         </th>
@@ -75,7 +75,7 @@ onMounted(() => {
                     <tr v-for="building in buildings" :key="building.id">
                         <!-- 👉 Checkbox -->
                         <td>
-                            <div style="width: 1.875rem;">
+                            <div style="width: 1.875rem">
                                 <VCheckbox :id="`check${building.id}`" />
                             </div>
                         </td>
@@ -94,9 +94,7 @@ onMounted(() => {
 
                         <!-- 👉 Role -->
                         <td>
-                            <span class="">{{
-                                building.district
-                            }}</span>
+                            <span class="">{{ building.district }}</span>
                         </td>
                         <td>
                             {{ building.postalCode }}
@@ -132,23 +130,23 @@ onMounted(() => {
 
 <style lang="scss">
 .app-user-search-filter {
-  inline-size: 24.0625rem;
+    inline-size: 24.0625rem;
 }
 
 .text-capitalize {
-  text-transform: capitalize;
+    text-transform: capitalize;
 }
 
 .user-list-name:not(:hover) {
-  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
 }
 </style>
 
 <style lang="scss" scope>
 .user-pagination-select {
-  .v-field__input,
-  .v-field__append-inner {
-    padding-block-start: 0.3rem;
-  }
+    .v-field__input,
+    .v-field__append-inner {
+        padding-block-start: 0.3rem;
+    }
 }
 </style>

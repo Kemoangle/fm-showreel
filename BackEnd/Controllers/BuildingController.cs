@@ -20,8 +20,9 @@ namespace Showreel.Controllers
         [HttpGet]
         public IActionResult GetAllBuildings()
         {
-            var buildings = _buildingService.GetAllBuilding();
-            return Ok(buildings);
+            //var buildings = _buildingService.GetAllBuilding();
+            //return Ok(buildings);
+            return Ok("kllk");
         }
 
         [HttpGet("{id}")]
@@ -64,7 +65,7 @@ namespace Showreel.Controllers
                 return NotFound(ModelState);
             }
 
-            existingBuilding.BuildingName = building.BuildingName; 
+            existingBuilding.BuildingName = building.BuildingName;
             _buildingService.UpdateBuilding(existingBuilding);
 
             return Ok();

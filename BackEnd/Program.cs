@@ -17,14 +17,24 @@ builder.Services.AddScoped<IVideoService, VideoService>();
 builder.Services.AddScoped<IRestrictionService, RestrictionService>();
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+// builder.Services.AddCors(options =>
+// {
+//     options.AddPolicy(name: MyAllowSpecificOrigins,
+//                       policy =>
+//                       {
+//                           policy.WithOrigins("http://localhost:5173", "http://192.168.1.14:5173");
+//                       });
+// });
+
 builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-                      policy =>
-                      {
-                          policy.WithOrigins("http://localhost:5173", "http://192.168.1.14:5173", "https://localhost:5173", "https://192.168.1.14:5173");
-                      });
-});
+           {
+               options.AddPolicy(MyAllowSpecificOrigins,
+                  builder => builder
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .SetIsOriginAllowed((host) => true)
+                .AllowCredentials());
+           });
 
 var connectionString = builder.Configuration.GetConnectionString("MyDB");
 var serverVersion = new MySqlServerVersion(new Version(8, 0, 33)); // Thay đổi phiên bản MySQL tương ứng
