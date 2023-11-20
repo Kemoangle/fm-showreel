@@ -19,11 +19,13 @@ axiosIns.interceptors.response.use(
         return originalResponse.data;
     },
     async (error) => {
-        if (error.response.status === 400)
+        console.log(error)
+        if (error.response?.status === 400)
+
             // Bad request
             return Promise.resolve(error.response);
 
-        if (error.response.status === 403 || error.response.status === 401) {
+        if (error.response?.status === 403 || error.response?.status === 401) {
             // Forbidden or unauthorized
             const router = useRouter();
 

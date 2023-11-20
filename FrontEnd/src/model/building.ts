@@ -9,6 +9,7 @@ export interface Building{
     createTime?: Date
     lastUpdateTime?: Date
     zone?: string
+    postalCode?: number
     restrictions?: Restriction[]
 }
 
