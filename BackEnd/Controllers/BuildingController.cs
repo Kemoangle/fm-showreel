@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
+using Showreel.DTO;
 using Showreel.Models;
 using Showreel.Service;
 using Showreel.Service.impl;
@@ -18,11 +20,10 @@ namespace Showreel.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllBuildings()
+        public ActionResult<Building> GetAllBuilding(string? keySearch = null)
         {
-            //var buildings = _buildingService.GetAllBuilding();
-            //return Ok(buildings);
-            return Ok("kllk");
+            var query = _buildingService.GetAllBuildings(keySearch);
+            return Ok(query);
         }
 
         [HttpGet("{id}")]
@@ -42,7 +43,7 @@ namespace Showreel.Controllers
         public IActionResult CreateBuilding([FromBody] Building building)
         {
             var buildingExist = _buildingService.GetAllBuildings().ToList();
-            if (buildingExist.Any(b => b.BuildingName.ToUpper() == building.BuildingName.ToUpper()))
+            if (buildingExist.Any(b => b.BuildingName?.ToUpper() == building.BuildingName?.ToUpper()))
             {
                 ModelState.AddModelError("Name", "The name already exists");
                 return BadRequest(ModelState);
@@ -54,19 +55,24 @@ namespace Showreel.Controllers
             return Ok("success");
         }
 
+
         [HttpPut("{id}")]
         public IActionResult UpdateBuilding(int id, [FromBody] Building building)
         {
             var existingBuilding = _buildingService.GetBuildingById(id);
             if (existingBuilding == null)
             {
-                ModelState.AddModelError("Id", "The Id not found");
-
-                return NotFound(ModelState);
+                return NotFound("Building not found");
             }
-
-            existingBuilding.BuildingName = building.BuildingName;
-            _buildingService.UpdateBuilding(existingBuilding);
+            var buildingName = _buildingService.GetAllBuildings().Where(b => b.Id != id).Select(b => b.BuildingName).ToList();
+            if (buildingName.Contains(building.BuildingName))
+            {
+                ModelState.AddModelError("Name", "The name already exists");
+                return BadRequest(ModelState);
+            }
+            building.LastUpdateTime = DateOnly.FromDateTime(DateTime.Now);
+            building.Landlordads = new List<Landlordad>();
+            _buildingService.UpdateBuilding(building);
 
             return Ok();
         }

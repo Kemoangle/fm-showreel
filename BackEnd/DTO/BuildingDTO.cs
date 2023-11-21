@@ -11,6 +11,7 @@ namespace Showreel.DTO
 
         public string? District { get; set; }
 
+        public int? PostalCode { get; set; }
         public string? Remark { get; set; }
 
         public DateOnly? CreateTime { get; set; }

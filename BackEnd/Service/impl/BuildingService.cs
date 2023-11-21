@@ -14,15 +14,20 @@ namespace Showreel.Service.impl
             _restrictionService = restrictionService;
         }
 
-        public IEnumerable<Building> GetAllBuildings()
+        public IEnumerable<Building> GetAllBuildings(string keySearch = "")
         {
-            
-            return _context.Buildings.ToList();
+            var query = _context.Buildings.AsQueryable();
+
+            if (!string.IsNullOrEmpty(keySearch))
+            {
+                query = query.Where(b => b.BuildingName.Contains(keySearch));
+            }
+            return query.ToList();
         }
 
         public Building GetBuildingById(int id)
         {
-            return _context.Buildings.FirstOrDefault(b => b.Id == id);
+            return _context.Buildings.FirstOrDefault((Building b) =>b.Id == id);
         }
 
         public void AddBuilding(Building building)
@@ -33,7 +38,7 @@ namespace Showreel.Service.impl
 
         public void UpdateBuilding(Building building)
         {
-            _context.Entry(building).State = EntityState.Modified;
+            _context.Update(building);
             _context.SaveChanges();
         }
 
@@ -49,7 +54,7 @@ namespace Showreel.Service.impl
 
         public IEnumerable<BuildingDTO> GetAllBuilding()
         {
-            var query = (from b in _context.Buildings
+            var query = from b in _context.Buildings
                              select new BuildingDTO
                              {
                                  Id = b.Id,
@@ -60,8 +65,9 @@ namespace Showreel.Service.impl
                                  CreateTime = b.CreateTime,
                                  LastUpdateTime = b.LastUpdateTime,
                                  Zone = b.Zone,
+                                 PostalCode = b.PostalCode,
                                  Restrictions = _restrictionService.GetRestrictionByBuildingId(b.Id)
-                             });
+                             };
     
             return query.ToList();
         }

@@ -4,6 +4,7 @@ import { PerfectScrollbar } from 'vue3-perfect-scrollbar';
 import type { VForm } from 'vuetify/components';
 
 import { Building } from '@/model/building';
+import { useBuildingStore } from '@/store/useBuildingStore';
 import { requiredValidator } from '@validators';
 
 interface Emit {
@@ -13,7 +14,10 @@ interface Emit {
 
 interface Props {
     isDrawerOpen: boolean;
+    buildingId?: number;
 }
+
+const buildingStore = useBuildingStore();
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emit>();
@@ -21,6 +25,27 @@ const emit = defineEmits<Emit>();
 const isFormValid = ref(false);
 const refForm = ref<VForm>();
 
+const buildingData = ref<Building | any>({
+    id: 0,
+    buildingName: '',
+    address: '',
+    district: '',
+    remark: '',
+    postalCode: 0,
+    zone: 'City',
+});
+
+
+watch(props, async (oldId, newId) => {
+    if(newId.buildingId){
+         buildingData.value = buildingStore.getBuildingById(newId.buildingId)
+        
+    }
+});
+
+onMounted(() => {
+    console.log(props.buildingId);
+});
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -31,16 +56,6 @@ const closeNavigationDrawer = () => {
         refForm.value?.resetValidation();
     });
 };
-
-const buildingData = ref<Building>({
-    id: 1,
-    buildingName: "",
-    address: "",
-    district: "",
-    remark: "",
-    postalCode: 0,
-    zone: "City",
-})
 
 const onSubmit = () => {
     refForm.value?.validate().then(({ valid }) => {
