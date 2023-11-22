@@ -39,7 +39,6 @@ const buildingData = ref<Building | any>({
 watch(props, async (oldId, newId) => {
     if(newId.buildingId){
          buildingData.value = buildingStore.getBuildingById(newId.buildingId)
-        
     }
 });
 

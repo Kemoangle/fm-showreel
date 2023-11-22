@@ -4,6 +4,7 @@ import { useBuildingStore } from '@/store/useBuildingStore';
 import { onMounted, ref } from 'vue';
 import Add from './add.vue';
 
+
 const buildingStore = useBuildingStore();
 const idUpdate = ref(0);
 
@@ -29,11 +30,8 @@ const selectedRows = ref<string[]>([]);
 const selectAllUser = ref(false);
 
 const addNewBuilding = (buildingData: Building) => {
+    console.log(buildingData);
     if (buildingData.id && buildingData.id > 0) {
-        console.log(buildingData.id);
-        console.log("ádasdasd");
-        console.log("ádasdasd");
-        console.log("ádasdasd");
         buildingStore.updateBuilding(buildingData);
     } else {
         buildingStore.addBuilding(buildingData);
@@ -44,7 +42,7 @@ const handleUpdate = (id: number) => {
     isAddNewBuilding.value = true;
 };
 onMounted(() => {
-    buildingStore.getBuilding("");
+    buildingStore.getBuilding('');
     totalPage.value = buildingStore.data.totalPage;
     totalUsers.value = buildingStore.data.length;
 });
@@ -52,7 +50,6 @@ onMounted(() => {
 const search = () => {
     buildingStore.getBuilding(keySearch.value);
 };
-
 </script>
 
 <template>
@@ -68,7 +65,13 @@ const search = () => {
 
                 <div class="app-user-search-filter d-flex align-center">
                     <!-- 👉 Search  -->
-                    <VTextField placeholder="Building Name" density="compact" class="me-3" @input="search" v-model="keySearch"/>
+                    <VTextField
+                        placeholder="Building Name"
+                        density="compact"
+                        class="me-3"
+                        @input="search"
+                        v-model="keySearch"
+                    />
 
                     <!-- 👉 Add user button -->
                     <VBtn @click="isAddNewBuilding = true"> Add New Building </VBtn>
@@ -92,7 +95,6 @@ const search = () => {
                         <th scope="col">POSTAL CODE</th>
                         <th scope="col">ZONE</th>
                         <th scope="col">REMAKE</th>
-                        <th scope="col">RESTRICTIONS</th>
                         <th scope="col">ACTION</th>
                     </tr>
                 </thead>
@@ -132,33 +134,50 @@ const search = () => {
                         <td>
                             {{ building.remark }}
                         </td>
+                        
                         <td>
-                            <p
-                                v-for="r in building.restrictions"
-                                :key="r.id"
-                                class="d-flex align-center mt-5"
-                            >
-                                {{ r.restrictionName }}
-                            </p>
-                        </td>
-                        <td>
-                            <VBtn
-                                variant="text"
-                                color="default"
-                                icon
-                                size="small"
-                                @click.stop="handleUpdate(building.id)"
-                            >
-                                <VIcon icon="mdi-pencil-outline" :size="20" class="me-3" />
-                            </VBtn>
-                            <VBtn
-                                variant="text"
-                                color="default"
-                                icon
-                                size="small"
-                                @click.stop="buildingStore.deleteBuilding(building.id)"
-                            >
-                                <VIcon size="24" icon="mdi-delete-outline" />
+                            <VBtn size="x-small" color="default" variant="plain" icon>
+                                <VIcon size="24" icon="mdi-dots-vertical" />
+
+                                <VMenu activator="parent">
+                                    <VList>
+                                        <VListItem :to="{ name: 'building-view-id', params: { id: building.id } }">
+                                            <template #prepend>
+                                                <VIcon
+                                                    icon="mdi-eye-outline"
+                                                    :size="20"
+                                                    class="me-3"
+                                                />
+                                            </template>
+                                            <VListItemTitle>View</VListItemTitle>
+                                        </VListItem>
+
+                                        <VListItem @click="handleUpdate(building.id)">
+                                            <template #prepend>
+                                                <VIcon
+                                                    icon="mdi-pencil-outline"
+                                                    :size="20"
+                                                    class="me-3"
+                                                />
+                                            </template>
+                                            <VListItemTitle>Edit</VListItemTitle>
+                                        </VListItem>
+
+                                        <VListItem
+                                            @click="buildingStore.deleteBuilding(building.id)"
+                                        >
+                                            <template #prepend>
+                                                <VIcon
+                                                    icon="mdi-delete-outline"
+                                                    :size="20"
+                                                    class="me-3"
+                                                />
+                                            </template>
+
+                                            <VListItemTitle>Delete</VListItemTitle>
+                                        </VListItem>
+                                    </VList>
+                                </VMenu>
                             </VBtn>
                         </td>
                     </tr>

@@ -79,5 +79,18 @@ namespace Showreel.Controllers
             _restrictionService.DeleteRestriction(id);
             return Ok();
         }
+
+        [HttpGet("building/{id}")]
+        public IActionResult GetRestrictionByBuildingId(int id)
+        {
+            var restriction = _restrictionService.GetRestrictionByBuildingId(id);
+            if (restriction == null)
+            {
+                ModelState.AddModelError("Id", "The Id not found");
+
+                return NotFound(ModelState);
+            }
+            return Ok(restriction);
+        }
     }
 }

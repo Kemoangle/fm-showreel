@@ -56,7 +56,7 @@ namespace Showreel.Controllers
         }
 
 
-        [HttpPut("{id}")]
+        [HttpPatch("{id}")]
         public IActionResult UpdateBuilding(int id, [FromBody] Building building)
         {
             var existingBuilding = _buildingService.GetBuildingById(id);

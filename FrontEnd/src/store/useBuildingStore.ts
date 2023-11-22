@@ -3,8 +3,9 @@ import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 
 export const useBuildingStore = defineStore('counter', {
-    state: (): { data: Building[] | any} => ({
-        data: []
+    state: (): { data: Building[] | any, building: Building | null} => ({
+        data: [],
+        building: null
     }),
     // could also be defined as
     // state: () => ({ count: 0 })
@@ -20,7 +21,9 @@ export const useBuildingStore = defineStore('counter', {
         },
 
          getBuildingById(id: number) {
-            return this.data.find((d: Building) => d.id == id)
+            var item = this.data.find((d: Building) => d.id == id);
+            this.building = item;
+            return item;
         },
 
         async addBuilding(building: Building) {
@@ -36,7 +39,7 @@ export const useBuildingStore = defineStore('counter', {
         },
 
         async updateBuilding(building: Building) {
-            await axiosIns.put('Building/' + building.id, building).then((response) => {
+            await axiosIns.patch('Building/' + building.id, building).then((response) => {
                 this.getBuilding("");
             });
         },

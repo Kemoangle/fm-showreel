@@ -43,6 +43,7 @@ var serverVersion = new MySqlServerVersion(new Version(8, 0, 33)); // Thay đổ
 builder.Services.AddDbContext<ShowreelContext>(options =>
 {
     options.UseMySql(connectionString, serverVersion);
+    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
 
 
