@@ -20,9 +20,37 @@ namespace Showreel.Controllers
         }
 
         [HttpGet]
-        public ActionResult<Building> GetAllBuilding(string? keySearch = null)
+        public ActionResult<Building> GetPageBuilding(string? keySearch = null,int page = 1, int pageSize = 10)
         {
             var query = _buildingService.GetAllBuildings(keySearch);
+            int startIndex = (page - 1) * pageSize;
+            int totalItems = query.Count();
+            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            var paginatedQuery = query.Skip(startIndex).Take(pageSize);
+            if(!paginatedQuery.ToList().Any()){
+                page = 1;
+                totalPages = 1;
+            }
+
+            var response = new
+            {
+                TotalItems = totalItems,
+                TotalPages = totalPages,
+                CurrentPage = page,
+                PageSize = pageSize,
+                Buildings = paginatedQuery.ToList()
+            };
+
+            return Ok(response);
+        }
+
+        [HttpGet("getAll")]
+        public ActionResult<Building> GetAllBuildings()
+        {
+            var query = _buildingService.GetAllBuildings(null);
+            
+
             return Ok(query);
         }
 
@@ -59,7 +87,7 @@ namespace Showreel.Controllers
         [HttpPatch("{id}")]
         public IActionResult UpdateBuilding(int id, [FromBody] Building building)
         {
-            var existingBuilding = _buildingService.GetBuildingById(id);
+            var existingBuilding = _buildingService.GetBuildingById(id);    
             if (existingBuilding == null)
             {
                 return NotFound("Building not found");

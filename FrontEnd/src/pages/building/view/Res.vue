@@ -1,90 +1,102 @@
 <script lang="ts" setup>
 import { Restriction } from '@/model/restriction';
 
-
 interface Props {
-  restrictionsData: Restriction[] | undefined;
+    restrictionsData: Restriction[] | undefined;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 </script>
 
 <template>
-  <VCard title="Connection">
-    <template #append>
-      <div class="me-n2">
-        <VBtn
-          icon
-          variant="text"
-          color="default"
-          size="x-small"
-        >
-          <VIcon
-            size="24"
-            icon="mdi-dots-vertical"
-          />
+    <section>
+        <VCard>
+            <VCardItem>
+                <template #prepend>
+                    <VIcon icon="mdi-chart-timeline-variant" color="success"/>
+                </template>
+                <VBtn class="float-right" icon="small">
+                    <VIcon icon="mdi-add-box" :size="40"/>
+                </VBtn>
+                <VCardTitle>Restriction</VCardTitle>
+                
+            </VCardItem>
 
-          <VMenu activator="parent">
-            <VList density="compact">
-              <VListItem
-                v-for="(item, index) in ['Share connections', 'Suggest edits', 'Report Bug']"
-                :key="index"
-                :value="index"
-              >
-                <VListItemTitle>{{ item }}</VListItemTitle>
-              </VListItem>
-            </VList>
-          </VMenu>
-        </VBtn>
-      </div>
-    </template>
+            <VDivider />
 
-    <VCardText>
-      <VList class="card-list">
-        <VListItem
-          v-for="data in restrictionsData"
-          :key="data.id"
-        >
-          <template #prepend>
-            <VAvatar
-              size="38"
-              :image="data.restrictionName"
-            />
-          </template>
+            <VTable class="text-no-wrap">
+                <!-- 👉 table head -->
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">RESTRICTION NAME</th>
+                        <th scope="col">EXCEPT</th>
+                        <th scope="col">ACTION</th>
+                    </tr>
+                </thead>
 
-          <VListItemTitle class="font-weight-medium">
-            {{ data.restrictionName }}
-          </VListItemTitle>
-          <VListItemSubtitle>{{ data.restrictionName }} Connections</VListItemSubtitle>
+                <!-- 👉 table body -->
+                <tbody>
+                    <tr v-for="(res, index) in restrictionsData" :key="res.id">
+                        <!-- 👉 User -->
+                        <td>{{ index + 1 }}</td>
+                        <td>
+                            <div class="d-flex align-center">
+                                {{ res.restrictionName }}
+                            </div>
+                        </td>
 
-          <template #append>
-            <VBtn
-              icon
-              size="34"
-              class="rounded"
-              :variant="data.restrictionName ? 'elevated' : 'outlined' "
-            >
-              <VIcon
-                size="24"
-                icon="mdi-account-outline"
-              />
-            </VBtn>
-          </template>
-        </VListItem>
+                        <!-- 👉 Email -->
+                        <td class="">
+                            {{ res.restrictionName }}
+                        </td>
 
-        <VListItem>
-          <VListItemTitle>
-            <VBtn
-              block
-              variant="text"
-            >
-              View all connections
-            </VBtn>
-          </VListItemTitle>
-        </VListItem>
-      </VList>
-    </VCardText>
-  </VCard>
+                        <td>
+                            <VBtn size="x-small" color="default" variant="plain" icon>
+                                <VIcon size="24" icon="mdi-dots-vertical" />
+
+                                <VMenu activator="parent">
+                                    <VList>
+                                        <VListItem href="javascript:void(0)">
+                                            <template #prepend>
+                                                <VIcon
+                                                    icon="mdi-pencil-outline"
+                                                    :size="20"
+                                                    class="me-3"
+                                                />
+                                            </template>
+                                            <VListItemTitle>Edit</VListItemTitle>
+                                        </VListItem>
+
+                                        <VListItem href="javascript:void(0)">
+                                            <template #prepend>
+                                                <VIcon
+                                                    icon="mdi-delete-outline"
+                                                    :size="20"
+                                                    class="me-3"
+                                                />
+                                            </template>
+
+                                            <VListItemTitle>Delete</VListItemTitle>
+                                        </VListItem>
+                                    </VList>
+                                </VMenu>
+                            </VBtn>
+                        </td>
+                    </tr>
+                </tbody>
+
+                <!-- 👉 table footer  -->
+                <tfoot v-show="!restrictionsData">
+                    <tr>
+                        <td colspan="7" class="text-center">No data available</td>
+                    </tr>
+                </tfoot>
+            </VTable>
+
+            <VDivider />
+        </VCard>
+    </section>
 </template>
 
 <style lang="scss" scoped>

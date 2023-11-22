@@ -15,7 +15,7 @@ export const useRestrictionStore = defineStore('counter', {
         },
 
         async getRestrictionByBuildingId(id: number) {
-            await axiosIns.get<Restriction>('Restrictions/' + id).then((response) => {
+            await axiosIns.get<Restriction>('Restrictions/building/' + id).then((response) => {
                 this.restriction = response.data;
             });
         },

@@ -3,45 +3,52 @@ import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 
 export const useBuildingStore = defineStore('counter', {
-    state: (): { data: Building[] | any, building: Building | null} => ({
+    state: (): { data: any, building: Building | null} => ({
         data: [],
         building: null
     }),
     // could also be defined as
     // state: () => ({ count: 0 })
     actions: {
-        async getBuilding(keySearch: string) {
+        async getPageBuilding(keySearch: string, page: number, pageSize: number) {
+            
             await axiosIns.get<Building[]>('Building', {
                 params: {
-                    keySearch: keySearch
+                    keySearch: keySearch,
+                    page: page,
+                    pageSize: pageSize
                 }
             }).then((response) => {
                 this.data = response;
             });
         },
+        
+
+        async getAllBuilding() {
+            await axiosIns.get<Building[]>('Building/getAll').then((response) => {
+                this.data.buildings = response;
+            });
+        },
 
          getBuildingById(id: number) {
-            var item = this.data.find((d: Building) => d.id == id);
+            var item = this.data.buildings.find((d: Building) => d.id == id);
             this.building = item;
             return item;
         },
 
         async addBuilding(building: Building) {
             await axiosIns.post('Building', building).then((response) => {
-                this.data.push(response);
-                this.getBuilding("");
             });
         },
         async deleteBuilding(id: number) {
             await axiosIns.delete('Building/' + id).then((response) => {
-                this.getBuilding("");
             });
         },
 
         async updateBuilding(building: Building) {
             await axiosIns.patch('Building/' + building.id, building).then((response) => {
-                this.getBuilding("");
             });
         },
     },
 });
+
