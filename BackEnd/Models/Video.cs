@@ -15,15 +15,13 @@ public partial class Video
 
     public string? KeyNo { get; set; }
 
-    public int? CategoryId { get; set; }
-
     public string? Rule { get; set; }
 
     public DateOnly? CreateTime { get; set; }
 
     public DateOnly? LastUpdateTime { get; set; }
 
-    public virtual Videocategory? Category { get; set; }
-
     public virtual ICollection<Landlordad> Landlordads { get; set; } = new List<Landlordad>();
+
+    public virtual ICollection<Videocategory> Videocategories { get; set; } = new List<Videocategory>();
 }

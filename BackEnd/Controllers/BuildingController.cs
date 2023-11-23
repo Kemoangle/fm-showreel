@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
-using Showreel.DTO;
 using Showreel.Models;
 using Showreel.Service;
 using Showreel.Service.impl;
@@ -49,8 +48,6 @@ namespace Showreel.Controllers
         public ActionResult<Building> GetAllBuildings()
         {
             var query = _buildingService.GetAllBuildings(null);
-            
-
             return Ok(query);
         }
 

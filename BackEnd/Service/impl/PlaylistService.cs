@@ -10,17 +10,6 @@ namespace Showreel.Service.impl
         {
             _context = context;
         }
-        public IList<Video> sortingVideo(List<Video> videos)
-        {
-            var sortedVideo = videos.OrderBy(v => v.Category).ToList();
-            for(int i = 0; i < sortedVideo.Count(); i++)
-            {
-                if (sortedVideo[i].CategoryId == sortedVideo[i+1].CategoryId)
-                {
-
-                }
-            }
-            throw new NotImplementedException();
-        }
+        
     }
 }

@@ -7,7 +7,11 @@ public partial class Videocategory
 {
     public int Id { get; set; }
 
-    public string CategoryName { get; set; } = null!;
+    public int? VideoId { get; set; }
 
-    public virtual ICollection<Video> Videos { get; set; } = new List<Video>();
+    public int? CategoryId { get; set; }
+
+    public virtual Category? Category { get; set; }
+
+    public virtual Video? Video { get; set; }
 }

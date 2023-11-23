@@ -14,7 +14,8 @@ namespace Showreel.Service.impl
 
         public IEnumerable<Video> GetAllVideos()
         {
-            return _context.Videos.ToList();
+            var query = _context.Videos.AsQueryable();
+            return query.ToList();
         }
 
         public Video GetVideoById(int id)

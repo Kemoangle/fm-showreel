@@ -43,7 +43,7 @@ watch(props, async (oldId, newId) => {
         });
     }
 });
-
+                        
 onMounted(() => {
     console.log(props.buildingId);
 });

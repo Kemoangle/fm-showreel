@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Showreel.DTO;
 using Showreel.Models;
 
 namespace Showreel.Service.impl
@@ -52,30 +51,17 @@ namespace Showreel.Service.impl
             }
         }
 
-        public IEnumerable<BuildingDTO> GetAllBuilding()
-        {
-            var query = from b in _context.Buildings
-                             select new BuildingDTO
-                             {
-                                 Id = b.Id,
-                                 BuildingName = b.BuildingName,
-                                 Address = b.Address,
-                                 District = b.District,
-                                 Remark = b.Remark,
-                                 CreateTime = b.CreateTime,
-                                 LastUpdateTime = b.LastUpdateTime,
-                                 Zone = b.Zone,
-                                 PostalCode = b.PostalCode,
-                                 Restrictions = _restrictionService.GetRestrictionByBuildingId(b.Id)
-                             };
-    
-            return query.ToList();
-        }
+       
 
         public void AddBuildingRestriction(Buildingrestriction buildingRestriction)
         {
             _context.Buildingrestrictions.Add(buildingRestriction);
             _context.SaveChanges();
+        }
+
+        public IEnumerable<Buildingrestriction> GetAllBuildingRestriction(int id)
+        {
+            return _context.Buildingrestrictions.Where((Buildingrestriction b) =>b.BuildingId == id);
         }
     }
 }

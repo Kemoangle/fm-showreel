@@ -1,5 +1,4 @@
-﻿using Showreel.DTO;
-using Showreel.Models;
+﻿using Showreel.Models;
 
 namespace Showreel.Service
 {
@@ -10,7 +9,7 @@ namespace Showreel.Service
         void AddBuilding(Building building);
         void UpdateBuilding(Building building);
         void DeleteBuilding(int id);
-        IEnumerable<BuildingDTO> GetAllBuilding();
         void AddBuildingRestriction(Buildingrestriction buildingrestriction);
+        IEnumerable<Buildingrestriction> GetAllBuildingRestriction(int id);
     }
 }

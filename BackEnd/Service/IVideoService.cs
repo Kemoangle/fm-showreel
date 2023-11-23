@@ -6,8 +6,8 @@ namespace Showreel.Service
     {
         IEnumerable<Video> GetAllVideos();
         Video GetVideoById(int id);
-        void AddVideo(Video building);
-        void UpdateVideo(Video building);
+        void AddVideo(Video video);
+        void UpdateVideo(Video video);
         void DeleteVideo(int id);
     }
 }

@@ -10,11 +10,15 @@ export default [
     title: 'Second page',
     to: { name: 'second-page' },
     icon: { icon: 'mdi-file-document-outline' },
-  }
-  ,
+  },
   {
     title: 'Building page',
     to: { name: 'building-list' },
-    icon: { icon: 'mdi-file-document-outline' },
+    icon: { icon: 'mdi-office-building-settings' },
+  },
+  {
+    title: 'Video page',
+    to: { name: 'videos-list' },
+    icon: { icon: 'mdi-videocam-outline' },
   }
 ] as HorizontalNavItems
