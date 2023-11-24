@@ -3,22 +3,27 @@ import { PerfectScrollbar } from 'vue3-perfect-scrollbar';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import type { VForm } from 'vuetify/components';
 
-import { Building } from '@/model/building';
+import { Category } from '@/model/category';
+import { Video } from '@/model/video';
 import axiosIns from '@/plugins/axios';
-import { useBuildingStore } from '@/store/useBuildingStore';
+import { useCategoryStore } from '@/store/useCategoryStore';
+import { useVideoStore } from '@/store/useVideoStore';
 import { requiredValidator } from '@validators';
+
+const categories = ref();
 
 interface Emit {
     (e: 'update:isDrawerOpen', value: boolean): void;
-    (e: 'buildingData', value: Building): void;
+    (e: 'videoData', value: Video): void;
 }
 
 interface Props {
     isDrawerOpen: boolean;
-    buildingId?: number;
+    videoId?: number;
 }
 
-const buildingStore = useBuildingStore();
+const categoryStore = useCategoryStore();
+const videoStore = useVideoStore();
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emit>();
@@ -26,29 +31,28 @@ const emit = defineEmits<Emit>();
 const isFormValid = ref(false);
 const refForm = ref<VForm>();
 
-const buildingData = ref<Building | any>({
+const videoData = ref<Video | any>({
     id: 0,
-    buildingName: '',
-    address: '',
-    district: '',
-    remark: '',
-    postalCode: 0,
-    zone: 'City',
+    title: '',
+    duration: 0,
+    keyNo: '',
+    rule: '',
+    category: [{id: 0, name: ''}]
 });
 
 watch(props, async (oldId, newId) => {
-    if (newId.buildingId) {
-        axiosIns.get<Building>('Building/' + newId.buildingId).then((reponse) => {
-            buildingData.value = reponse;
-        });
+    if (newId.videoId) {
+        videoData.value = videoStore.getVideoById(newId.videoId)        
+    }else{
+        videoData.value.category = new Array<Category>;
     }
+    await axiosIns.get<Category[]>('Category').then((response) => {
+        categories.value = response;
+    });
+});
+
+onMounted(() => {});
     
-});
-
-onMounted(() => {
-    console.log(props.buildingId);
-});
-
 // 👉 drawer close
 const closeNavigationDrawer = () => {
     emit('update:isDrawerOpen', false);
@@ -62,7 +66,7 @@ const closeNavigationDrawer = () => {
 const onSubmit = () => {
     refForm.value?.validate().then(({ valid }) => {
         if (valid) {
-            emit('buildingData', buildingData.value);
+            emit('videoData', videoData.value);
             emit('update:isDrawerOpen', false);
             nextTick(() => {
                 refForm.value?.reset();
@@ -75,6 +79,7 @@ const onSubmit = () => {
 const handleDrawerModelValueUpdate = (val: boolean) => {
     emit('update:isDrawerOpen', val);
 };
+
 </script>
 
 <template>
@@ -88,10 +93,8 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
     >
         <!-- 👉 Title -->
         <div class="d-flex align-center bg-var-theme-background px-5 py-2">
-            <h6 class="text-h6">Building </h6>
-
+            <h6 class="text-h6">Video</h6>
             <VSpacer />
-
             <VBtn
                 size="small"
                 color="secondary"
@@ -107,56 +110,52 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                     <!-- 👉 Form -->
                     <VForm ref="refForm" v-model="isFormValid" @submit.prevent="onSubmit">
                         <VRow>
-                            <!-- 👉 buildingName -->
+                            <!-- 👉 Title -->
                             <VCol cols="12">
                                 <VTextField
-                                    v-model="buildingData.buildingName"
+                                    v-model="videoData.title"
                                     :rules="[requiredValidator]"
-                                    label="Building Name"
+                                    label="Title"
                                 />
                             </VCol>
 
-                            <!-- 👉 address -->
                             <VCol cols="12">
                                 <VTextField
-                                    v-model="buildingData.address"
+                                    v-model="videoData.duration"
                                     :rules="[requiredValidator]"
-                                    label="Address"
+                                    label="Duration"
                                 />
                             </VCol>
 
-                            <!-- 👉 district -->
                             <VCol cols="12">
                                 <VTextField
-                                    v-model="buildingData.district"
+                                    v-model="videoData.keyNo"
                                     :rules="[requiredValidator]"
-                                    label="District"
+                                    label="Key no"
                                 />
                             </VCol>
 
-                            <!-- 👉 remark -->
                             <VCol cols="12">
                                 <VTextField
-                                    v-model="buildingData.remark"
+                                    v-model="videoData.rule"
                                     :rules="[requiredValidator]"
-                                    label="Remark"
+                                    label="Rule"
                                 />
                             </VCol>
+                            
                             <VCol cols="12">
-                                <VTextField
-                                    v-model="buildingData.postalCode"
-                                    :rules="[requiredValidator]"
-                                    label="Postal Code"
-                                />
-                            </VCol>
-                            <!-- 👉 Zone -->
-                            <VCol cols="12">
-                                <VSelect
-                                    v-model="buildingData.zone"
-                                    label="Select Zone"
-                                    :rules="[requiredValidator]"
-                                    :items="['City', 'West', 'South', 'Central', 'East', 'North']"
-                                />
+                                <VAutocomplete  
+                                    v-model="videoData.category"
+                                    chips
+                                    closable-chips
+                                    multiple
+                                    :items="categories"
+                                    item-title="name"
+                                    item-value="id"
+                                    label="Category"
+                                    return-object
+                                >
+                                </VAutocomplete>
                             </VCol>
 
                             <!-- 👉 Submit and Cancel -->

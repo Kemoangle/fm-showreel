@@ -2,7 +2,7 @@ import { Building } from '@/model/building';
 import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 
-export const useBuildingStore = defineStore('counter', {
+export const useBuildingStore = defineStore('building', {
     state: (): { data: any, building: Building | null} => ({
         data: [],
         building: null

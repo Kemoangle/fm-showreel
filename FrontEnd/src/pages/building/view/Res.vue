@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { Restriction } from '@/model/restriction';
 
 interface Props {
-    restrictionsData: Restriction[] | undefined;
+    restrictionsData: any;
 }
 
 const props = defineProps<Props>();

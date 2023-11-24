@@ -10,14 +10,26 @@ namespace Showreel.Service.impl
             _context = context;
         }
 
-        public void AddCategory(Category videocategory)
+        public void AddCategory(Category category)
         {
-            throw new NotImplementedException();
+            _context.Categories.Add(category);
+            _context.SaveChanges();
+        }
+
+        public void AddVideoCategory(Videocategory videocategory)
+        {
+            _context.Videocategories.Add(videocategory);
+            _context.SaveChanges();
         }
 
         public void DeleteCategory(int id)
         {
-            throw new NotImplementedException();
+            var categoryDelete = _context.Categories.Find(id);
+            if (categoryDelete != null)
+            {
+                _context.Categories.Remove(categoryDelete);
+                _context.SaveChanges();
+            }
         }
 
         public IEnumerable<Category> GetAllCategory()
@@ -29,7 +41,9 @@ namespace Showreel.Service.impl
         {
             var query = from v in _context.Videocategories
                         join c in _context.Categories on v.CategoryId equals c.Id
-                        select new Category{
+                        where v.VideoId == id
+                        select new Category
+                        {
                             Id = c.Id,
                             Name = c.Name
                         };
@@ -39,9 +53,34 @@ namespace Showreel.Service.impl
 
 
 
-        public void UpdateCategory(Category videocategory)
+        public void UpdateCategory(Category category)
         {
-            throw new NotImplementedException();
+            _context.Update(category);
+            _context.SaveChanges();
+        }
+
+        public void UpdateVideoCategory(Category[] categories, int videoId)
+        {
+            var existingCategories = _context.Videocategories
+                                            .Where(v => v.VideoId == videoId)
+                                            .ToList();
+            if (existingCategories.Any())
+            {
+                _context.Videocategories.RemoveRange(existingCategories);
+            }
+
+            foreach (var category in categories)
+            {
+                var newVideoCategory = new Videocategory
+                {
+                    VideoId = videoId,
+                    CategoryId = category.Id
+                };
+
+                _context.Videocategories.Add(newVideoCategory);
+            }
+
+            _context.SaveChanges();
         }
     }
 }
