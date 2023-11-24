@@ -15,6 +15,8 @@ builder.WebHost.UseUrls("http://localhost:5124");
 
 builder.Services.AddScoped<IBuildingService, BuildingService>();
 builder.Services.AddScoped<IVideoService, VideoService>();
+builder.Services.AddScoped<IVideoCategoryService, VideoCategoryService>();
+
 builder.Services.AddScoped<IRestrictionService, RestrictionService>();
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";

@@ -21,6 +21,8 @@ public partial class ShowreelContext : DbContext
 
     public virtual DbSet<Buildingrestriction> Buildingrestrictions { get; set; }
 
+    public virtual DbSet<Category> Categories { get; set; }
+
     public virtual DbSet<Landlordad> Landlordads { get; set; }
 
     public virtual DbSet<Playlist> Playlists { get; set; }
@@ -28,6 +30,8 @@ public partial class ShowreelContext : DbContext
     public virtual DbSet<Playlistvideo> Playlistvideos { get; set; }
 
     public virtual DbSet<Restriction> Restrictions { get; set; }
+
+    public virtual DbSet<Subcategory> Subcategories { get; set; }
 
     public virtual DbSet<Video> Videos { get; set; }
 
@@ -104,6 +108,9 @@ public partial class ShowreelContext : DbContext
             entity.HasIndex(e => e.RestrictionId, "restriction_id");
 
             entity.Property(e => e.BuildingId).HasColumnName("building_id");
+            entity.Property(e => e.Except)
+                .HasColumnType("text")
+                .HasColumnName("except");
             entity.Property(e => e.IsActive)
                 .HasDefaultValueSql("'1'")
                 .HasColumnName("is_active");
@@ -116,6 +123,18 @@ public partial class ShowreelContext : DbContext
             entity.HasOne(d => d.Restriction).WithMany()
                 .HasForeignKey(d => d.RestrictionId)
                 .HasConstraintName("buildingrestriction_ibfk_2");
+        });
+
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("category");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(255)
+                .HasColumnName("name");
         });
 
         modelBuilder.Entity<Landlordad>(entity =>
@@ -200,16 +219,32 @@ public partial class ShowreelContext : DbContext
                 .HasColumnName("restriction_name");
         });
 
+        modelBuilder.Entity<Subcategory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("subcategory");
+
+            entity.HasIndex(e => e.CategoryId, "category_id");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CategoryId).HasColumnName("category_id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(255)
+                .HasColumnName("name");
+
+            entity.HasOne(d => d.Category).WithMany(p => p.Subcategories)
+                .HasForeignKey(d => d.CategoryId)
+                .HasConstraintName("subcategory_ibfk_1");
+        });
+
         modelBuilder.Entity<Video>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
             entity.ToTable("video");
 
-            entity.HasIndex(e => e.CategoryId, "category_id");
-
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CategoryId).HasColumnName("category_id");
             entity.Property(e => e.CreateTime).HasColumnName("create_time");
             entity.Property(e => e.Duration).HasColumnName("duration");
             entity.Property(e => e.FilePath)
@@ -225,10 +260,6 @@ public partial class ShowreelContext : DbContext
             entity.Property(e => e.Title)
                 .HasMaxLength(255)
                 .HasColumnName("title");
-
-            entity.HasOne(d => d.Category).WithMany(p => p.Videos)
-                .HasForeignKey(d => d.CategoryId)
-                .HasConstraintName("video_ibfk_1");
         });
 
         modelBuilder.Entity<Videocategory>(entity =>
@@ -237,10 +268,21 @@ public partial class ShowreelContext : DbContext
 
             entity.ToTable("videocategory");
 
+            entity.HasIndex(e => e.CategoryId, "fk_category");
+
+            entity.HasIndex(e => e.VideoId, "fk_video");
+
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CategoryName)
-                .HasMaxLength(255)
-                .HasColumnName("category_name");
+            entity.Property(e => e.CategoryId).HasColumnName("category_id");
+            entity.Property(e => e.VideoId).HasColumnName("video_id");
+
+            entity.HasOne(d => d.Category).WithMany(p => p.Videocategories)
+                .HasForeignKey(d => d.CategoryId)
+                .HasConstraintName("fk_category");
+
+            entity.HasOne(d => d.Video).WithMany(p => p.Videocategories)
+                .HasForeignKey(d => d.VideoId)
+                .HasConstraintName("fk_video");
         });
 
         OnModelCreatingPartial(modelBuilder);

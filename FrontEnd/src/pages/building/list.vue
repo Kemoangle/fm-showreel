@@ -4,51 +4,63 @@ import { useBuildingStore } from '@/store/useBuildingStore';
 import { onMounted, ref } from 'vue';
 import Add from './add.vue';
 
-
 const buildingStore = useBuildingStore();
 const idUpdate = ref(0);
 
 const isAddNewBuilding = ref(false);
 const keySearch = ref('');
-const rowPerPage = ref(10);
+
+const pageSize = ref(3);
 const currentPage = ref(1);
-const totalPage = ref(1);
-const totalUsers = ref(0);
+const totalPages = ref(1);
+const totalItems = ref();
 
-// 👉 Computing pagination data
-const paginationData = computed(() => {
-    const firstIndex = buildingStore.data.length
-        ? (currentPage.value - 1) * rowPerPage.value + 1
-        : 0;
-    const lastIndex = buildingStore.data.length + (currentPage.value - 1) * rowPerPage.value;
-
-    return `${firstIndex}-${lastIndex} of ${totalUsers.value}`;
+const getAll = () => {
+    buildingStore.getPageBuilding(keySearch.value, currentPage.value, pageSize.value);
+};
+watchEffect(() => {
+    totalPages.value = buildingStore.data.totalPages;
+    totalItems.value = buildingStore.data.totalItems;
+    if (currentPage.value > totalPages.value) currentPage.value = totalPages.value;
 });
 
-// SECTION Checkbox toggle
-const selectedRows = ref<string[]>([]);
-const selectAllUser = ref(false);
+onMounted(() => {
+    getAll();
+});
+const changePage = (newPage: number) => {
+    currentPage.value = newPage;
+    getAll();
+};
+
+watch(currentPage, () => {
+    getAll();
+});
+
+watch(pageSize, () => {
+    getAll();
+});
 
 const addNewBuilding = (buildingData: Building) => {
-    console.log(buildingData);
     if (buildingData.id && buildingData.id > 0) {
-        buildingStore.updateBuilding(buildingData);
+        buildingStore.updateBuilding(buildingData).then((response) => {
+            getAll();
+        });
     } else {
-        buildingStore.addBuilding(buildingData);
+        buildingStore.addBuilding(buildingData).then((response) => {
+            getAll();
+        });
     }
 };
+
 const handleUpdate = (id: number) => {
     idUpdate.value = id;
     isAddNewBuilding.value = true;
 };
-onMounted(() => {
-    buildingStore.getBuilding('');
-    totalPage.value = buildingStore.data.totalPage;
-    totalUsers.value = buildingStore.data.length;
-});
 
-const search = () => {
-    buildingStore.getBuilding(keySearch.value);
+const deleteBuilding = (id: number) => {
+    buildingStore.deleteBuilding(id).then((response) => {
+        getAll();
+    });
 };
 </script>
 
@@ -69,7 +81,7 @@ const search = () => {
                         placeholder="Building Name"
                         density="compact"
                         class="me-3"
-                        @input="search"
+                        @input="getAll"
                         v-model="keySearch"
                     />
 
@@ -84,11 +96,7 @@ const search = () => {
                 <!-- 👉 table head -->
                 <thead>
                     <tr>
-                        <th scope="col">
-                            <div style="width: 1.875rem;">
-                                <VCheckbox />
-                            </div>
-                        </th>
+                        <th scope="col">#</th>
                         <th scope="col">NAME</th>
                         <th scope="col">ADDRESS</th>
                         <th scope="col">DISTRICT</th>
@@ -101,12 +109,13 @@ const search = () => {
 
                 <!-- 👉 table body -->
                 <tbody>
-                    <tr v-for="building in buildingStore.data" :key="building.id">
+                    <tr
+                        v-for="(building, index) in buildingStore.data.buildings"
+                        :key="building.id"
+                    >
                         <!-- 👉 Checkbox -->
                         <td>
-                            <div style="width: 1.875rem;">
-                                <VCheckbox :id="`check${building.id}`" />
-                            </div>
+                            {{ (currentPage - 1) * pageSize + index + 1 }}
                         </td>
 
                         <!-- 👉 User -->
@@ -134,14 +143,19 @@ const search = () => {
                         <td>
                             {{ building.remark }}
                         </td>
-                        
+
                         <td>
                             <VBtn size="x-small" color="default" variant="plain" icon>
                                 <VIcon size="24" icon="mdi-dots-vertical" />
 
                                 <VMenu activator="parent">
                                     <VList>
-                                        <VListItem :to="{ name: 'building-view-id', params: { id: building.id } }">
+                                        <VListItem
+                                            :to="{
+                                                name: 'building-view-id',
+                                                params: { id: building.id },
+                                            }"
+                                        >
                                             <template #prepend>
                                                 <VIcon
                                                     icon="mdi-eye-outline"
@@ -163,9 +177,7 @@ const search = () => {
                                             <VListItemTitle>Edit</VListItemTitle>
                                         </VListItem>
 
-                                        <VListItem
-                                            @click="buildingStore.deleteBuilding(building.id)"
-                                        >
+                                        <VListItem @click="deleteBuilding(building.id)">
                                             <template #prepend>
                                                 <VIcon
                                                     icon="mdi-delete-outline"
@@ -184,7 +196,7 @@ const search = () => {
                 </tbody>
 
                 <!-- 👉 table footer  -->
-                <tfoot v-show="!buildingStore.data.length">
+                <tfoot v-show="!buildingStore.data.buildings">
                     <tr>
                         <td colspan="7" class="text-center">No data available</td>
                     </tr>
@@ -192,35 +204,32 @@ const search = () => {
             </VTable>
 
             <VDivider />
-
-            <VCardText class="d-flex align-center flex-wrap justify-end gap-4 pa-2">
+            <!-- SECTION Pagination -->
+            <VCardText class="d-flex flex-wrap justify-end gap-4 pa-2">
+                <!-- 👉 Rows per page -->
                 <div class="d-flex align-center me-3" style="width: 171px;">
                     <span class="text-no-wrap me-3">Rows per page:</span>
 
                     <VSelect
-                        v-model="rowPerPage"
+                        v-model="pageSize"
                         density="compact"
                         variant="plain"
                         class="user-pagination-select"
-                        :items="[10, 20, 30, 50]"
+                        :items="[5, 10, 20, 30, 50]"
                     />
                 </div>
 
+                <!-- 👉 Pagination and pagination meta -->
                 <div class="d-flex align-center">
-                    <h6 class="text-sm font-weight-regular">
-                        {{ paginationData }}
-                    </h6>
-
                     <VPagination
                         v-model="currentPage"
-                        size="small"
-                        :total-visible="1"
-                        :length="totalPage"
-                        @next="selectedRows = []"
-                        @prev="selectedRows = []"
+                        :length="totalPages"
+                        rounded="circle"
+                        @input="changePage"
                     />
                 </div>
             </VCardText>
+            <!-- !SECTION -->
         </VCard>
         <Add
             v-model:isDrawerOpen="isAddNewBuilding"

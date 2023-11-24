@@ -4,6 +4,7 @@ import { PerfectScrollbar } from 'vue3-perfect-scrollbar';
 import type { VForm } from 'vuetify/components';
 
 import { Building } from '@/model/building';
+import axiosIns from '@/plugins/axios';
 import { useBuildingStore } from '@/store/useBuildingStore';
 import { requiredValidator } from '@validators';
 
@@ -35,13 +36,14 @@ const buildingData = ref<Building | any>({
     zone: 'City',
 });
 
-
 watch(props, async (oldId, newId) => {
-    if(newId.buildingId){
-         buildingData.value = buildingStore.getBuildingById(newId.buildingId)
+    if (newId.buildingId) {
+        axiosIns.get<Building>('Building/' + newId.buildingId).then((reponse) => {
+            buildingData.value = reponse;
+        });
     }
 });
-
+                        
 onMounted(() => {
     console.log(props.buildingId);
 });

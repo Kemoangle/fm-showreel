@@ -14,7 +14,12 @@ export default [
     {
         title: 'Building page',
         to: { name: 'building-list' },
-        icon: { icon: 'mdi-file-document-outline' },
+        icon: { icon: 'mdi-office-building-settings' },
+    },
+    {
+        title: 'Video page',
+        to: { name: 'videos-list' },
+        icon: { icon: 'mdi-videocam-outline' },
     },
     {
         title: 'Playlist Generator',

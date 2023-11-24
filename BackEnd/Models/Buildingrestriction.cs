@@ -11,6 +11,8 @@ public partial class Buildingrestriction
 
     public bool? IsActive { get; set; }
 
+    public string? Except { get; set; }
+
     public virtual Building? Building { get; set; }
 
     public virtual Restriction? Restriction { get; set; }

@@ -11,17 +11,25 @@ namespace Showreel.Controllers
     public class VideoController : ControllerBase
     {
         private readonly IVideoService _videoService;
-
-        public VideoController(IVideoService videoService)
+        private readonly IVideoCategoryService _categoryService;
+        public VideoController(IVideoService videoService, IVideoCategoryService categoryService)
         {
             _videoService = videoService;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
         public IActionResult GetAllVideos()
         {
-            var buildings = _videoService.GetAllVideos();
-            return Ok(buildings);
+            var videos = _videoService.GetAllVideos();
+            var videocategory = _categoryService.GetAllCategory();
+            var query = from v in videos
+                        select new {
+                            videos = v,
+                            category = _categoryService.GetCategoryByVideoId(v.Id)
+                        };
+
+            return Ok(query.ToList());
         }
 
         [HttpGet("{id}")]
