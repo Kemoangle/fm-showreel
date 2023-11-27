@@ -11,7 +11,6 @@ import { useVideoStore } from '@/store/useVideoStore';
 import { requiredValidator } from '@validators';
 
 const categories = ref();
-
 interface Emit {
     (e: 'update:isDrawerOpen', value: boolean): void;
     (e: 'videoData', value: Video): void;
@@ -39,10 +38,6 @@ const videoData = ref<Video | any>({
     rule: '',
     category: [{id: 0, name: ''}]
 });
-
-watchEffect(()=>{
-    console.log('oldProps.videoId:',props.videoId);
-})
 
 watch(props, async (oldId, newId) => {
     if (newId.videoId) {
@@ -131,6 +126,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                 <VTextField
                                     v-model="videoData.duration"
                                     :rules="[requiredValidator]"
+                                    type="number"
                                     label="Duration"
                                 />
                             </VCol>
@@ -146,7 +142,6 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                             <VCol cols="12">
                                 <VTextField
                                     v-model="videoData.rule"
-                                    :rules="[requiredValidator]"
                                     label="Rule"
                                 />
                             </VCol>

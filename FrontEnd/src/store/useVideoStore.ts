@@ -30,11 +30,18 @@ export const useVideoStore = defineStore('video', {
             return item;
         },
    
-        async addVideo(video: Video) {
-            return await axiosIns.post('Video', video);
+        async addVideo(video: Video): Promise<Video> {
+            try {
+                const response = await axiosIns.post('Video', video);
+                return response as Video;
+            } catch (error) {
+                console.error('Error adding video:', error);
+                throw error;
+            }
         },
         async deleteVideo(id: number) {
-            return axiosIns.delete('Video/' + id);
+            return axiosIns.delete('Video/' + id).then((response) => {
+            });
         },
 
         async updateVideo(video: Video) {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { Category } from '@/model/category';
 import { Video } from '@/model/video';
-import axiosIns from '@/plugins/axios';
 import { useCategoryStore } from '@/store/useCategoryStore';
 import { useVideoStore } from '@/store/useVideoStore';
 import { onMounted, ref } from 'vue';
@@ -30,8 +30,6 @@ watchEffect(() => {
 
 onMounted(() => {
     getAll();
-    console.log(videoStore.data.videos);
-
 });
 const changePage = (newPage: number) => {
     currentPage.value = newPage;
@@ -57,21 +55,20 @@ const deleteVideo = (id: number) => {
     });
 };
 
-const addNewVideo = (videoData: Video) => {
-    const {category, ...rest} = videoData;
+const addNewVideo = async (videoData: Video) => {
+    const { category, ...rest } = videoData;
     if (videoData.id && videoData.id > 0) {
-        
-        videoStore.updateVideo(rest).then((response) => {
-            getAll();
-        });
-        axiosIns.patch('Category/' + videoData.id, videoData.category).then((response) => {
-            getAll();
-        });
+        videoStore.updateVideo(rest);
+        categoryStore.updateVideoCategory(videoData.id, videoData.category);
     } else {
-        axiosIns.post('Video', rest).then((response) => {
-            getAll();
-        });
+        let categoryOld: Category[] = [];
+        if (videoData.category) {
+            categoryOld = [...videoData.category];
+        }
+        const responseAddVideo = await videoStore.addVideo(rest);
+        categoryStore.updateVideoCategory(responseAddVideo.id, categoryOld);
     }
+    getAll();
 };
 </script>
 
@@ -132,14 +129,15 @@ const addNewVideo = (videoData: Video) => {
                         </td>
 
                         <td>
-                                <VChip
-                                    color="success"
-                                    size="small"
-                                    class="text-capitalize ml-2"
-                                    v-for="item in video.category" :key="item.id" 
-                                >
+                            <VChip
+                                color="success"
+                                size="small"
+                                class="text-capitalize ml-2"
+                                v-for="item in video.category"
+                                :key="item.id"
+                            >
                                 {{ item.name }}
-                                </VChip>
+                            </VChip>
                         </td>
 
                         <td>

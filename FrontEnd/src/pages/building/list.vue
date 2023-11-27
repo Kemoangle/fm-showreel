@@ -40,16 +40,13 @@ watch(pageSize, () => {
     getAll();
 });
 
-const addNewBuilding = (buildingData: Building) => {
+const addNewBuilding = async (buildingData: Building) => {
     if (buildingData.id && buildingData.id > 0) {
-        buildingStore.updateBuilding(buildingData).then((response) => {
-            getAll();
-        });
+        await buildingStore.updateBuilding(buildingData);
     } else {
-        buildingStore.addBuilding(buildingData).then((response) => {
-            getAll();
-        });
+        await buildingStore.addBuilding(buildingData);
     }
+    getAll();
 };
 
 const handleUpdate = (id: number) => {
@@ -138,7 +135,10 @@ const deleteBuilding = (id: number) => {
                                 <VMenu activator="parent">
                                     <VList>
                                         <VListItem
-                                            :to="{name: 'building-view-id', params: { id: building.id },}"
+                                            :to="{
+                                                name: 'building-view-id',
+                                                params: { id: building.id },
+                                            }"
                                         >
                                             <template #prepend>
                                                 <VIcon

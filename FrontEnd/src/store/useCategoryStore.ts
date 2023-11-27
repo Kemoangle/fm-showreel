@@ -2,7 +2,7 @@ import { Category } from '@/model/category';
 import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 
-export const useCategoryStore = defineStore('video', {
+export const useCategoryStore = defineStore('category', {
     state: (): { data: any, video: Category | null} => ({
         data: [],
         video: null
@@ -18,7 +18,7 @@ export const useCategoryStore = defineStore('video', {
                 this.data = response;
             });
         },
-        async updateVideoCategory(videoId: number, categories: Category[] | undefined) {
+        async updateVideoCategory(videoId: number | undefined, categories: Category[] | undefined) {
             await axiosIns.patch('Category/' + videoId, categories).then((response) => {
             });
         },

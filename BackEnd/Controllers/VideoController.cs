@@ -90,6 +90,12 @@ namespace Showreel.Controllers
         [HttpPost]
         public IActionResult CreateVideo([FromBody] Video video)
         {
+            var videoExist = _videoService.GetAllVideos().ToList();
+            if (videoExist.Any(b => b.KeyNo?.ToUpper() == video.KeyNo?.ToUpper()))
+            {
+                ModelState.AddModelError("KeyNo", "The video already exists");
+                return BadRequest(ModelState);
+            }
             video.CreateTime = DateOnly.FromDateTime(DateTime.Now);
             video.LastUpdateTime = null;
             video.Landlordads = new List<Landlordad>();
