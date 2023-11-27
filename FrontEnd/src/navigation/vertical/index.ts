@@ -18,8 +18,11 @@ export default [
     },
     {
         title: 'Video page',
-        to: { name: 'videos-list' },
         icon: { icon: 'mdi-videocam-outline' },
+        children: [
+          { title: 'Video', to: 'videos-list' },
+          { title: 'Category', to: { name: 'videos-category-category'} },
+        ],
     },
     {  
         title: 'Playlist Generator',

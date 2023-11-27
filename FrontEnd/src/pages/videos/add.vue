@@ -46,7 +46,9 @@ watchEffect(()=>{
 
 watch(props, async (oldId, newId) => {
     if (newId.videoId) {
-        videoData.value = videoStore.getVideoById(newId.videoId)        
+        axiosIns.get('http://localhost:5124/api/Video/' + newId.videoId).then(response => {
+            videoData.value = response;
+        })
     }else{
         refForm.value?.reset();
         refForm.value?.resetValidation();

@@ -30,6 +30,8 @@ watchEffect(() => {
 
 onMounted(() => {
     getAll();
+    console.log(videoStore.data.videos);
+
 });
 const changePage = (newPage: number) => {
     currentPage.value = newPage;
