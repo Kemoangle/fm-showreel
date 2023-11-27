@@ -77,7 +77,7 @@ const deleteBuilding = (id: number) => {
                         @input="getAll"
                         v-model="keySearch"
                     />
-                    <VBtn @click="isAddNewBuilding = true"> Add New Building </VBtn>
+                    <VBtn @click="handleUpdate(0)"> Add New Building </VBtn>
                 </div>
             </VCardText>
 
@@ -138,10 +138,7 @@ const deleteBuilding = (id: number) => {
                                 <VMenu activator="parent">
                                     <VList>
                                         <VListItem
-                                            :to="{
-                                                name: 'building-view-id',
-                                                params: { id: building.id },
-                                            }"
+                                            :to="{name: 'building-view-id', params: { id: building.id },}"
                                         >
                                             <template #prepend>
                                                 <VIcon

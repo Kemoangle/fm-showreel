@@ -40,10 +40,16 @@ const videoData = ref<Video | any>({
     category: [{id: 0, name: ''}]
 });
 
+watchEffect(()=>{
+    console.log('oldProps.videoId:',props.videoId);
+})
+
 watch(props, async (oldId, newId) => {
     if (newId.videoId) {
         videoData.value = videoStore.getVideoById(newId.videoId)        
     }else{
+        refForm.value?.reset();
+        refForm.value?.resetValidation();
         videoData.value.category = new Array<Category>;
     }
     await axiosIns.get<Category[]>('Category').then((response) => {

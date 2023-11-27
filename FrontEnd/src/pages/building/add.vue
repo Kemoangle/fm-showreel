@@ -41,6 +41,9 @@ watch(props, async (oldId, newId) => {
         axiosIns.get<Building>('Building/' + newId.buildingId).then((reponse) => {
             buildingData.value = reponse;
         });
+    }else{
+        refForm.value?.reset();
+        refForm.value?.resetValidation();
     }
     
 });

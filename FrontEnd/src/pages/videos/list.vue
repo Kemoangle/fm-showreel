@@ -89,7 +89,7 @@ const addNewVideo = (videoData: Video) => {
                     />
 
                     <!-- 👉 Add user button -->
-                    <VBtn @click="isAddNewVideo = true"> Add New Video </VBtn>
+                    <VBtn @click="handleUpdate(0)"> Add New Video </VBtn>
                 </div>
             </VCardText>
 
