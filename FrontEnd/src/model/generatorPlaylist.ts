@@ -22,6 +22,6 @@ export interface IPlaylist {
 }
 
 export interface IListPlaylist {
-    companyName: string;
+    buildingName: string;
     playlist: IPlaylist[];
 }
