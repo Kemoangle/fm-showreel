@@ -1,9 +1,9 @@
 export interface IVideos {
-    key: number;
+    key: string;
     name: string;
-    durations: number;
+    durations?: number;
     loop: number;
-    category: string;
+    category?: string;
     restriction: string;
 }
 
@@ -15,13 +15,15 @@ export interface IListInfoCompany {
 
 export interface IPlaylist {
     title: string;
-    duration: number;
-    keyNo: string;
-    category: string;
-    remasks: string;
+    duration?: number;
+    key: string;
+    category?: string;
+    remarks: string;
+    order: number;
 }
 
 export interface IListPlaylist {
+    id: number;
     buildingName: string;
     playlist: IPlaylist[];
 }

@@ -11,6 +11,7 @@ interface IProps {
 
 interface Emit {
     (e: 'close', value: boolean): void;
+    (e: 'update:isDialogVisible', value: boolean): void;
     (e: 'submit:save', value: boolean): void;
 }
 
@@ -37,11 +38,13 @@ onMounted(() => {
 });
 
 const handleSave = () => {
+    emit('update:isDialogVisible', false);
+
     emit('submit:save', false);
 };
 
 const handleClose = () => {
-    emit('close', false);
+    emit('update:isDialogVisible', false);
 };
 
 const getListVideo = (videos: IVideo[]) => {

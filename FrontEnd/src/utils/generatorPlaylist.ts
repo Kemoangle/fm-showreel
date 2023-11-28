@@ -1,5 +1,6 @@
-import { IVideos } from '@/model/generatorPlaylist';
-
+import { IPlaylist, IVideos } from '@/model/generatorPlaylist';
+import _ from 'lodash';
+import { list } from 'postcss';
 export class generatorPlaylist {
     createVideo = (data: IVideos) => {
         const newArr = [];
@@ -9,7 +10,7 @@ export class generatorPlaylist {
         return newArr;
     };
 
-    checkCategoriesCloselyTogether = (listVideo: IVideos[]) => {
+    checkCategoriesCloselyTogether = (listVideo: IVideos[] | IPlaylist[]) => {
         const indexVideo = listVideo.findIndex((x, i) => {
             if (i == listVideo.length - 1) {
                 return x.category == listVideo[0].category && x.category && listVideo[0].category;
@@ -36,27 +37,29 @@ export class generatorPlaylist {
                     switch (btbName) {
                         case 'FMSG Contents':
                             if (
-                                listVideo[i - 1]?.name == 'FMSG Hiring' ||
-                                listVideo[i + 1]?.name == 'FMSG Hiring'
+                                listVideo[i - 1]?.name.includes('FMSG') ||
+                                listVideo[i + 1]?.name.includes('FMSG')
                             ) {
                                 return {
                                     status: true,
                                     index: i,
-                                    indexReject:
-                                        listVideo[i - 1]?.name == 'FMSG Hiring' ? i - 1 : i + 1,
+                                    indexReject: listVideo[i - 1]?.name.includes('FMSG')
+                                        ? i - 1
+                                        : i + 1,
                                 };
                             }
                             break;
                         case 'Crystal Tomato':
                             if (
-                                listVideo[i - 1]?.name == 'Crystal Tomato' ||
-                                listVideo[i + 1]?.name == 'Crystal Tomato'
+                                listVideo[i - 1]?.name.includes('Crystal Tomato') ||
+                                listVideo[i + 1]?.name.includes('Crystal Tomato')
                             ) {
                                 return {
                                     status: true,
                                     index: i,
-                                    indexReject:
-                                        listVideo[i - 1]?.name == 'Crystal Tomato' ? i - 1 : i + 1,
+                                    indexReject: listVideo[i - 1]?.name.includes('Crystal Tomato')
+                                        ? i - 1
+                                        : i + 1,
                                 };
                             }
                             break;
@@ -101,9 +104,10 @@ export class generatorPlaylist {
             });
 
             const newListVideo = [...listVideo];
-            let swapVideo: IVideos = newListVideo[indexVideo];
-            newListVideo[indexVideo] = newListVideo[indexSwap];
-            newListVideo[indexSwap] = swapVideo;
+
+            let swapVideo: IVideos = _.clone(newListVideo[indexVideo]);
+            newListVideo[indexVideo] = _.clone(newListVideo[indexSwap]);
+            newListVideo[indexSwap] = _.clone(swapVideo);
 
             return newListVideo;
         }
@@ -156,8 +160,9 @@ export class generatorPlaylist {
             });
 
             if (indexSwap >= -1) {
-                const swapVideo: IVideos = { ...newListVideo[indexReject] };
-                newListVideo[indexReject] = { ...newListVideo[indexSwap] };
+                const swapVideo: IVideos = _.clone(newListVideo[indexReject]);
+                newListVideo[indexReject] = _.clone(newListVideo[indexSwap]);
+                newListVideo[indexSwap] = _.clone(swapVideo);
 
                 return newListVideo;
             }
@@ -169,12 +174,14 @@ export class generatorPlaylist {
         let isCategoriesCloselyTogether = this.checkCategoriesCloselyTogether(listVideo);
 
         let newListVideo: IVideos[] = [];
+        let i = 0;
         do {
+            i++;
             newListVideo = this.handleCategoriesCloselyTogether(
                 newListVideo.length ? newListVideo : listVideo
             );
             isCategoriesCloselyTogether = this.checkCategoriesCloselyTogether(newListVideo);
-        } while (isCategoriesCloselyTogether);
+        } while (isCategoriesCloselyTogether && i < 20);
 
         return newListVideo;
     };
@@ -209,24 +216,52 @@ export class generatorPlaylist {
     handleRemoveVideos = (listVideo: IVideos[]) => {
         const newList: IVideos[] = [];
         listVideo.forEach((video) => {
-            if (video.loop > 1) {
+            if (video.loop && video.loop > 1) {
                 newList.push({ ...video, loop: video.loop - 1 });
             }
         });
         return newList;
     };
 
+    addLandLordAds = (listVideo: IVideos[], videos: IVideos[]) => {
+        let newListVideo: IVideos[] = [...listVideo];
+        const newVideosAds = [...videos];
+        const loop = newVideosAds.reduce((prev, currentValue) => prev + currentValue.loop, 0);
+
+        const index = +((listVideo.length + loop) / (loop + 1)).toFixed(0);
+
+        let indexVideoAds = 0;
+
+        for (let i = 0; i < loop; i++) {
+            newListVideo.splice(index * (i + 1), 0, videos[indexVideoAds]);
+            const loopVideo = newVideosAds[indexVideoAds].loop - 1;
+            newVideosAds[indexVideoAds].loop = newVideosAds[indexVideoAds].loop - 1;
+            if (loopVideo == 0) {
+                indexVideoAds++;
+            }
+        }
+        newListVideo = this.handleCheckAndSortCategoriesCloselyTogether(newListVideo);
+        newListVideo = this.handleCheckAndSortNoBackToBack(newListVideo);
+        return newListVideo;
+    };
+
     createListVideo = (listVideo: IVideos[]) => {
         let oldListVideo = [...listVideo];
 
-        oldListVideo.sort((a, b) => b.loop - a.loop);
+        oldListVideo.sort((a, b) => {
+            if (a.loop && b.loop) {
+                return b.loop - a.loop;
+            }
+            return 0;
+        });
 
         let newListVideo = [];
-
+        let i = 0;
         do {
+            i++;
             newListVideo.push(...this.handleCustomeVideo(oldListVideo));
             oldListVideo = this.handleRemoveVideos(oldListVideo);
-        } while (oldListVideo.length);
+        } while (oldListVideo.length && i < 20);
 
         newListVideo = this.handleCheckAndSortCategoriesCloselyTogether(newListVideo);
         newListVideo = this.handleCheckAndSortNoBackToBack(newListVideo);
