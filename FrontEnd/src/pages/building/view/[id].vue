@@ -70,16 +70,11 @@ const fetchRestrictionData = () => {
         .get('Restrictions/building/' + Number(router.params.id))
         .then((response) => {
             restrictionData.value = response;
-            
         });
 };
 
 onMounted(() => {
     fetchRestrictionData();
-    console.log(restrictionData);
-            console.log(restrictionData);
-            console.log(restrictionData);
-            console.log(restrictionData);
 });
 </script>
 

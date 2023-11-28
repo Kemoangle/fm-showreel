@@ -26,7 +26,7 @@ namespace Showreel.Service.impl
 
         public Building GetBuildingById(int id)
         {
-            return _context.Buildings.FirstOrDefault((Building b) =>b.Id == id);
+            return _context.Buildings.FirstOrDefault((Building b) => b.Id == id);
         }
 
         public void AddBuilding(Building building)
@@ -51,7 +51,7 @@ namespace Showreel.Service.impl
             }
         }
 
-       
+
 
         public void AddBuildingRestriction(Buildingrestriction buildingRestriction)
         {
@@ -61,7 +61,7 @@ namespace Showreel.Service.impl
 
         public IEnumerable<Buildingrestriction> GetAllBuildingRestriction(int id)
         {
-            return _context.Buildingrestrictions.Where((Buildingrestriction b) =>b.BuildingId == id);
+            return _context.Buildingrestrictions.Where((Buildingrestriction b) => b.BuildingId == id);
         }
     }
 }

@@ -6,8 +6,10 @@ namespace Showreel.Service
     {
         IEnumerable<Category> GetAllCategory();
         IEnumerable<Category> GetCategoryByVideoId(int id);
-        void AddCategory(Category videocategory);
-        void UpdateCategory(Category videocategory);
+        void AddCategory(Category category);
+        void AddVideoCategory(Videocategory videocategory);
+        void UpdateCategory(Category category);
+        void UpdateVideoCategory(Category[] categories, int videoId);
         void DeleteCategory(int id);
     }
 }

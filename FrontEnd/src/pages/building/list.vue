@@ -10,7 +10,7 @@ const idUpdate = ref(0);
 const isAddNewBuilding = ref(false);
 const keySearch = ref('');
 
-const pageSize = ref(3);
+const pageSize = ref(5);
 const currentPage = ref(1);
 const totalPages = ref(1);
 const totalItems = ref();
@@ -40,16 +40,13 @@ watch(pageSize, () => {
     getAll();
 });
 
-const addNewBuilding = (buildingData: Building) => {
+const addNewBuilding = async (buildingData: Building) => {
     if (buildingData.id && buildingData.id > 0) {
-        buildingStore.updateBuilding(buildingData).then((response) => {
-            getAll();
-        });
+        await buildingStore.updateBuilding(buildingData);
     } else {
-        buildingStore.addBuilding(buildingData).then((response) => {
-            getAll();
-        });
+        await buildingStore.addBuilding(buildingData);
     }
+    getAll();
 };
 
 const handleUpdate = (id: number) => {
@@ -68,15 +65,8 @@ const deleteBuilding = (id: number) => {
     <section>
         <VCard>
             <VCardText class="d-flex flex-wrap gap-4">
-                <!-- 👉 Export button -->
-                <VBtn variant="tonal" color="secondary" prepend-icon="mdi-tray-arrow-up">
-                    Export
-                </VBtn>
-
                 <VSpacer />
-
                 <div class="app-user-search-filter d-flex align-center">
-                    <!-- 👉 Search  -->
                     <VTextField
                         placeholder="Building Name"
                         density="compact"
@@ -84,9 +74,7 @@ const deleteBuilding = (id: number) => {
                         @input="getAll"
                         v-model="keySearch"
                     />
-
-                    <!-- 👉 Add user button -->
-                    <VBtn @click="isAddNewBuilding = true"> Add New Building </VBtn>
+                    <VBtn @click="handleUpdate(0)"> Add New Building </VBtn>
                 </div>
             </VCardText>
 
@@ -113,24 +101,20 @@ const deleteBuilding = (id: number) => {
                         v-for="(building, index) in buildingStore.data.buildings"
                         :key="building.id"
                     >
-                        <!-- 👉 Checkbox -->
                         <td>
                             {{ (currentPage - 1) * pageSize + index + 1 }}
                         </td>
 
-                        <!-- 👉 User -->
                         <td>
                             <div class="d-flex align-center">
                                 {{ building.buildingName }}
                             </div>
                         </td>
 
-                        <!-- 👉 Email -->
                         <td class="">
                             {{ building.address }}
                         </td>
 
-                        <!-- 👉 Role -->
                         <td>
                             <span class="">{{ building.district }}</span>
                         </td>
@@ -225,7 +209,8 @@ const deleteBuilding = (id: number) => {
                         v-model="currentPage"
                         :length="totalPages"
                         rounded="circle"
-                        @input="changePage"
+                        :total-visible="1"
+                        @input="changePage(currentPage)"
                     />
                 </div>
             </VCardText>
