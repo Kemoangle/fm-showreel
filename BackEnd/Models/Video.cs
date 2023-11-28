@@ -21,7 +21,11 @@ public partial class Video
 
     public DateOnly? LastUpdateTime { get; set; }
 
+    public bool? IsActive { get; set; }
+
     public virtual ICollection<Landlordad> Landlordads { get; set; } = new List<Landlordad>();
+
+    public virtual ICollection<VideoVideolist> VideoVideolists { get; set; } = new List<VideoVideolist>();
 
     public virtual ICollection<Videocategory> Videocategories { get; set; } = new List<Videocategory>();
 }

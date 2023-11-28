@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { VueDraggableNext } from 'vue-draggable-next';
-import { generatorPlaylist } from '@/utils/generatorPlaylist';
-import { IVideos, IListInfoCompany, IListPlaylist, IPlaylist } from '@/model/generatorPlaylist';
 import PopupCreateListVideo from '@/components/PopupCreateListVideo.vue';
 import PopupViewListVideo from '@/components/PopupViewListVideo.vue';
+import { IListPlaylist, IPlaylist, IVideos } from '@/model/generatorPlaylist';
 import { listVideo1, listVideo2, listVideo3 } from '@/utils/constant';
 import { useSnackbar } from '@/components/Snackbar.vue';
+import { generatorPlaylist } from '@/utils/generatorPlaylist';
 import _ from 'lodash';
 
 const { showSnackbar } = useSnackbar();
@@ -346,9 +345,10 @@ const handleSaveOnePlaylist = (playlist: IPlaylist[]) => {
         padding-block-start: 0.3rem;
     }
 }
+
 .position-absolute {
-    top: 20px;
-    right: 20px;
+    inset-block-start: 20px;
+    inset-inline-end: 20px;
 }
 .flip-list-move {
     transition: transform 0.5s;

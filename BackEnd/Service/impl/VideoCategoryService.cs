@@ -37,6 +37,8 @@ namespace Showreel.Service.impl
             return _context.Categories.ToList();
         }
 
+        
+
         public IEnumerable<Category> GetCategoryByVideoId(int id)
         {
             var query = from v in _context.Videocategories
@@ -51,7 +53,15 @@ namespace Showreel.Service.impl
             return query.ToList();
         }
 
-
+        public IEnumerable<Category> GetPageCategory(string keySearch = "")
+        {
+            var query = _context.Categories.AsQueryable();
+            if (!string.IsNullOrEmpty(keySearch))
+            {
+                query = query.Where(c => c.Name.Contains(keySearch));
+            }
+            return query.ToList();
+        }
 
         public void UpdateCategory(Category category)
         {
@@ -81,6 +91,18 @@ namespace Showreel.Service.impl
             }
 
             _context.SaveChanges();
+        }
+
+
+        // SubCategory
+        public IEnumerable<Subcategory> GetAllSubCategory()
+        {
+            return _context.Subcategories.ToList();
+        }
+
+        public IEnumerable<Subcategory> GetSubCategory(int id)
+        {
+            return _context.Subcategories.Where(s => s.CategoryId == id).ToList();
         }
     }
 }

@@ -59,14 +59,14 @@ const addNewVideo = async (videoData: Video) => {
     const { category, ...rest } = videoData;
     if (videoData.id && videoData.id > 0) {
         videoStore.updateVideo(rest);
-        categoryStore.updateVideoCategory(videoData.id, videoData.category);
+        await categoryStore.updateVideoCategory(videoData.id, videoData.category);
     } else {
         let categoryOld: Category[] = [];
         if (videoData.category) {
             categoryOld = [...videoData.category];
         }
         const responseAddVideo = await videoStore.addVideo(rest);
-        categoryStore.updateVideoCategory(responseAddVideo.id, categoryOld);
+        await categoryStore.updateVideoCategory(responseAddVideo.id, categoryOld);
     }
     getAll();
 };
@@ -74,36 +74,44 @@ const addNewVideo = async (videoData: Video) => {
 
 <template>
     <section>
-        <VCard>
-            <VCardText class="d-flex flex-wrap gap-4">
-                <VSpacer />
-                <div class="app-user-search-filter d-flex align-center">
-                    <!-- 👉 Search  -->
-                    <VTextField
-                        placeholder="Building Name"
+        <VCard class="mb-6">
+            <VCardText>
+                <VRow>
+                    <VCol cols="12" sm="4">
+                        <VBtn
+                            variant="tonal"
+                            color="secondary"
+                            prepend-icon="mdi-tray-arrow-down"
+                            @click="handleUpdate(0)"
+                        >
+                            Create New Video
+                        </VBtn>
+                    </VCol>
+                    <VCol cols="12" sm="8" class="display">
+                        <VTextField
+                        placeholder="Search"
                         density="compact"
                         class="me-3"
                         @input="getAll"
                         v-model="keySearch"
                     />
-
-                    <!-- 👉 Add user button -->
-                    <VBtn @click="handleUpdate(0)"> Add New Video </VBtn>
-                </div>
+                    </VCol>
+                </VRow>
             </VCardText>
-
+        </VCard>
+        <VCard>
             <VDivider />
-
             <VTable class="text-no-wrap">
                 <!-- 👉 table head -->
                 <thead>
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">TITLE</th>
-                        <th scope="col">KEY NO</th>
+                        <th scope="col" class="text-center">DURATION</th>
+                        <th scope="col" class="text-center">KEY NO</th>
                         <th scope="col">RULE</th>
                         <th scope="col">CATEGORIES</th>
-                        <th scope="col">ACTION</th>
+                        <th scope="col" class="text-center">ACTION</th>
                     </tr>
                 </thead>
 
@@ -120,7 +128,11 @@ const addNewVideo = async (videoData: Video) => {
                             </div>
                         </td>
 
-                        <td class="">
+                        <td class="text-center">
+                            {{ video.duration }}
+                        </td>
+
+                        <td class="text-center">
                             {{ video.keyNo }}
                         </td>
 
@@ -140,7 +152,7 @@ const addNewVideo = async (videoData: Video) => {
                             </VChip>
                         </td>
 
-                        <td>
+                        <td class="text-center">
                             <VBtn size="x-small" color="default" variant="plain" icon>
                                 <VIcon size="24" icon="mdi-dots-vertical" />
 

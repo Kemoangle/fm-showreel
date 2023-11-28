@@ -29,7 +29,6 @@ namespace Showreel.Controllers
         public IActionResult GetPageVideos(string? keySearch = null, int page = 1, int pageSize = 10)
         {
             var videos = _videoService.GetPageVideos(keySearch);
-            var videocategory = _categoryService.GetAllCategory();
             var query = from v in videos
                         select new
                         {

@@ -27,6 +27,7 @@
         "pinia": "^2.0.24",
         "prismjs": "^1.29.0",
         "sass": "^1.56.1",
+        "tagify": "^0.1.1",
         "unplugin-vue-define-options": "^0.12.8",
         "vue": "^3.2.45",
         "vue-chartjs": "^4.1.1",

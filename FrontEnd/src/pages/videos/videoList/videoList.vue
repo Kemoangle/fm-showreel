@@ -1,23 +1,35 @@
 <script setup lang="ts">
-import { useCategoryStore } from '@/store/useCategoryStore';
+import PopupCreateListVideo from '@/components/PopupCreateListVideo.vue';
+import { useVideoListStore } from '@/store/useVideoListStore';
 import { onMounted, ref } from 'vue';
 
-const categoryStore = useCategoryStore();
-
+const videoListStore = useVideoListStore();
 
 const keySearch = ref('');
-
 const pageSize = ref(3);
 const currentPage = ref(1);
 const totalPages = ref(1);
 const totalItems = ref();
 
+const selectedListVideo = ref();
+const isDialogListVideoVisible = ref(false);
+const isDialogListVideoCurrent = ref(false);
+const handleCloseDialog = () => {
+    isDialogListVideoVisible.value = !isDialogListVideoVisible.value;
+};
+const handleCloseDialogShowListVideo = () => {
+    isDialogListVideoCurrent.value = !isDialogListVideoCurrent.value;
+};
+const handleClickCreateListVideo = () => {
+    isDialogListVideoVisible.value = !isDialogListVideoVisible.value;
+};
+
 const getAll = () => {
-    categoryStore.getPageCategory(keySearch.value, currentPage.value, pageSize.value);
+    videoListStore.getPageVideoList(keySearch.value, currentPage.value, pageSize.value);
 };
 watchEffect(() => {
-    totalPages.value = categoryStore.data.totalPages;
-    totalItems.value = categoryStore.data.totalItems;
+    totalPages.value = videoListStore.data.totalPages;
+    totalItems.value = videoListStore.data.totalItems;
     if (currentPage.value > totalPages.value) currentPage.value = totalPages.value;
 });
 
@@ -49,8 +61,9 @@ watch(pageSize, () => {
                             variant="tonal"
                             color="secondary"
                             prepend-icon="mdi-tray-arrow-down"
+                            @click="handleClickCreateListVideo"
                         >
-                            Create New Category
+                            Create List Video
                         </VBtn>
                     </VCol>
                     <VCol cols="12" sm="8" class="display">
@@ -72,35 +85,35 @@ watch(pageSize, () => {
                 <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Category name</th>
-                        <th scope="col" class="text-center">Sub Category</th>
-                        <th scope="col" class="text-center">ACTION</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Remark</th>
+                        <th scope="col">Create time</th>
+                        <th scope="col">Last update time</th>
+                        <th scope="col" class="text-center">Action</th>
                     </tr>
                 </thead>
 
                 <!-- 👉 table body -->
                 <tbody>
-                    <tr v-for="(category, index) in categoryStore.data.categories" :key="category.id">
+                    <tr v-for="(item, index) in videoListStore.data.videolist" :key="item.id">
                         <td>
                             {{ (currentPage - 1) * pageSize + index + 1 }}
                         </td>
 
                         <td>
                             <div class="d-flex align-center">
-                                {{ category.name }}
+                                {{ item.title }}
                             </div>
                         </td>
 
                         <td>
-                            <VChip
-                                color="success"
-                                size="small"
-                                class="text-capitalize ml-2"
-                                v-for="item in category.subCategory"
-                                :key="item.id"
-                            >
-                                {{ item.name }}
-                            </VChip>
+                            {{ item.remark }}
+                        </td>
+                        <td>
+                            {{ item.createTime }}
+                        </td>
+                        <td>
+                            {{ item.lastUpdateTime }}
                         </td>
 
                         <td class="text-center">
@@ -138,7 +151,7 @@ watch(pageSize, () => {
                 </tbody>
 
                 <!-- 👉 table footer  -->
-                <tfoot v-show="!categoryStore.data.categories">
+                <tfoot v-show="!videoListStore.data.videolist">
                     <tr>
                         <td colspan="7" class="text-center">No data available</td>
                     </tr>
@@ -173,7 +186,11 @@ watch(pageSize, () => {
             </VCardText>
             <!-- !SECTION -->
         </VCard>
-        
+        <PopupCreateListVideo
+            :is-dialog-visible="isDialogListVideoVisible"
+            @close="handleCloseDialog"
+        />
+
     </section>
 </template>
 

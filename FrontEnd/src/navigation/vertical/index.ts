@@ -22,6 +22,7 @@ export default [
         children: [
           { title: 'Video', to: 'videos-list' },
           { title: 'Category', to: { name: 'videos-category-category'} },
+          { title: 'Video List', to: { name: 'videos-videoList-videoList'} },
         ],
     },
     {  

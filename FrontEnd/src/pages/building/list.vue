@@ -63,23 +63,33 @@ const deleteBuilding = (id: number) => {
 
 <template>
     <section>
-        <VCard>
-            <VCardText class="d-flex flex-wrap gap-4">
-                <VSpacer />
-                <div class="app-user-search-filter d-flex align-center">
-                    <VTextField
-                        placeholder="Building Name"
+        <VCard class="mb-6">
+            <VCardText>
+                <VRow>
+                    <VCol cols="12" sm="4">
+                        <VBtn
+                            variant="tonal"
+                            color="secondary"
+                            prepend-icon="mdi-tray-arrow-down"
+                            @click="handleUpdate(0)"
+                        >
+                            Create New Building
+                        </VBtn>
+                    </VCol>
+                    <VCol cols="12" sm="8" class="display">
+                        <VTextField
+                        placeholder="Search"
                         density="compact"
                         class="me-3"
                         @input="getAll"
                         v-model="keySearch"
                     />
-                    <VBtn @click="handleUpdate(0)"> Add New Building </VBtn>
-                </div>
+                    </VCol>
+                </VRow>
             </VCardText>
-
+        </VCard>
+        <VCard>
             <VDivider />
-
             <VTable class="text-no-wrap">
                 <!-- 👉 table head -->
                 <thead>
@@ -91,7 +101,7 @@ const deleteBuilding = (id: number) => {
                         <th scope="col">POSTAL CODE</th>
                         <th scope="col">ZONE</th>
                         <th scope="col">REMAKE</th>
-                        <th scope="col">ACTION</th>
+                        <th scope="col"  class="text-center">ACTION</th>
                     </tr>
                 </thead>
 
@@ -128,7 +138,7 @@ const deleteBuilding = (id: number) => {
                             {{ building.remark }}
                         </td>
 
-                        <td>
+                        <td  class="text-center">
                             <VBtn size="x-small" color="default" variant="plain" icon>
                                 <VIcon size="24" icon="mdi-dots-vertical" />
 

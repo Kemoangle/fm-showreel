@@ -22,6 +22,20 @@ export const useCategoryStore = defineStore('category', {
             await axiosIns.patch('Category/' + videoId, categories).then((response) => {
             });
         },
+
+        async getPageCategory(keySearch: string, page: number, pageSize: number) {
+            await axiosIns.get<Video[]>('Category/GetPageCategory', {
+                params: {
+                    keySearch: keySearch,
+                    page: page,
+                    pageSize: pageSize
+                }
+            }).then((response) => {
+                this.data = response;
+            });
+        },
+
+        // Sub
     },
 });
 
