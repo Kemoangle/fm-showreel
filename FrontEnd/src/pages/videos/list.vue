@@ -74,26 +74,33 @@ const addNewVideo = async (videoData: Video) => {
 
 <template>
     <section>
-        <VCard>
-            <VCardText class="d-flex flex-wrap gap-4">
-                <VSpacer />
-                <div class="app-user-search-filter d-flex align-center">
-                    <!-- 👉 Search  -->
-                    <VTextField
-                        placeholder="Building Name"
+        <VCard class="mb-6">
+            <VCardText>
+                <VRow>
+                    <VCol cols="12" sm="4">
+                        <VBtn
+                            variant="tonal"
+                            color="secondary"
+                            prepend-icon="mdi-tray-arrow-down"
+                            @click="handleUpdate(0)"
+                        >
+                            Create New Video
+                        </VBtn>
+                    </VCol>
+                    <VCol cols="12" sm="8" class="display">
+                        <VTextField
+                        placeholder="Search"
                         density="compact"
                         class="me-3"
                         @input="getAll"
                         v-model="keySearch"
                     />
-
-                    <!-- 👉 Add user button -->
-                    <VBtn @click="handleUpdate(0)"> Add New Video </VBtn>
-                </div>
+                    </VCol>
+                </VRow>
             </VCardText>
-
+        </VCard>
+        <VCard>
             <VDivider />
-
             <VTable class="text-no-wrap">
                 <!-- 👉 table head -->
                 <thead>

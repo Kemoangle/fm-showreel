@@ -7,6 +7,7 @@ export interface Video{
     duration?: number
     keyNo?: string
     rule?: string
+    isActive?: boolean
     createTime?: Date
     lastUpdateTime?: Date
     category?: Category[]

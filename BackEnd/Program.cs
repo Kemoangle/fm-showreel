@@ -16,6 +16,7 @@ builder.WebHost.UseUrls("http://localhost:5124");
 builder.Services.AddScoped<IBuildingService, BuildingService>();
 builder.Services.AddScoped<IVideoService, VideoService>();
 builder.Services.AddScoped<IVideoCategoryService, VideoCategoryService>();
+builder.Services.AddScoped<IVideoListService, VideoListService>();
 
 builder.Services.AddScoped<IRestrictionService, RestrictionService>();
 

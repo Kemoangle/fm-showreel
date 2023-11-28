@@ -254,6 +254,7 @@ public partial class ShowreelContext : DbContext
             entity.Property(e => e.FilePath)
                 .HasMaxLength(255)
                 .HasColumnName("file_path");
+            entity.Property(e => e.IsActive).HasColumnName("is_active");
             entity.Property(e => e.KeyNo)
                 .HasMaxLength(45)
                 .HasColumnName("key_no");

@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { VueDraggableNext } from 'vue-draggable-next';
-import { generatorPlaylist } from '@/utils/generatorPlaylist';
-import { IVideos, IListInfoCompany, IListPlaylist, IPlaylist } from '@/model/generatorPlaylist';
 import PopupCreateListVideo from '@/components/PopupCreateListVideo.vue';
 import PopupViewListVideo from '@/components/PopupViewListVideo.vue';
+import { IListPlaylist, IPlaylist, IVideos } from '@/model/generatorPlaylist';
 import { listVideo1, listVideo2, listVideo3 } from '@/utils/constant';
+import { generatorPlaylist } from '@/utils/generatorPlaylist';
 const selectedBuilding = ref<string[]>([]);
 const selectedListVideo = ref();
 
@@ -300,27 +299,28 @@ const handleCloseDialogShowListVideo = () => {
 
 <style lang="scss">
 .app-user-search-filter {
-    inline-size: 24.0625rem;
+  inline-size: 24.0625rem;
 }
 
 .text-capitalize {
-    text-transform: capitalize;
+  text-transform: capitalize;
 }
 
 .user-list-name:not(:hover) {
-    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
 }
 </style>
 
 <style lang="scss" scope>
 .user-pagination-select {
-    .v-field__input,
-    .v-field__append-inner {
-        padding-block-start: 0.3rem;
-    }
+  .v-field__input,
+  .v-field__append-inner {
+    padding-block-start: 0.3rem;
+  }
 }
+
 .position-absolute {
-    top: 20px;
-    right: 20px;
+  inset-block-start: 20px;
+  inset-inline-end: 20px;
 }
 </style>
