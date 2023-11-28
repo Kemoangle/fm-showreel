@@ -59,14 +59,14 @@ const addNewVideo = async (videoData: Video) => {
     const { category, ...rest } = videoData;
     if (videoData.id && videoData.id > 0) {
         videoStore.updateVideo(rest);
-        categoryStore.updateVideoCategory(videoData.id, videoData.category);
+        await categoryStore.updateVideoCategory(videoData.id, videoData.category);
     } else {
         let categoryOld: Category[] = [];
         if (videoData.category) {
             categoryOld = [...videoData.category];
         }
         const responseAddVideo = await videoStore.addVideo(rest);
-        categoryStore.updateVideoCategory(responseAddVideo.id, categoryOld);
+        await categoryStore.updateVideoCategory(responseAddVideo.id, categoryOld);
     }
     getAll();
 };
@@ -100,10 +100,11 @@ const addNewVideo = async (videoData: Video) => {
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">TITLE</th>
-                        <th scope="col">KEY NO</th>
+                        <th scope="col" class="text-center">DURATION</th>
+                        <th scope="col" class="text-center">KEY NO</th>
                         <th scope="col">RULE</th>
                         <th scope="col">CATEGORIES</th>
-                        <th scope="col">ACTION</th>
+                        <th scope="col" class="text-center">ACTION</th>
                     </tr>
                 </thead>
 
@@ -120,7 +121,11 @@ const addNewVideo = async (videoData: Video) => {
                             </div>
                         </td>
 
-                        <td class="">
+                        <td class="text-center">
+                            {{ video.duration }}
+                        </td>
+
+                        <td class="text-center">
                             {{ video.keyNo }}
                         </td>
 
@@ -140,7 +145,7 @@ const addNewVideo = async (videoData: Video) => {
                             </VChip>
                         </td>
 
-                        <td>
+                        <td class="text-center">
                             <VBtn size="x-small" color="default" variant="plain" icon>
                                 <VIcon size="24" icon="mdi-dots-vertical" />
 

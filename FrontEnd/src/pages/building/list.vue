@@ -91,7 +91,7 @@ const deleteBuilding = (id: number) => {
                         <th scope="col">POSTAL CODE</th>
                         <th scope="col">ZONE</th>
                         <th scope="col">REMAKE</th>
-                        <th scope="col">ACTION</th>
+                        <th scope="col"  class="text-center">ACTION</th>
                     </tr>
                 </thead>
 
@@ -128,7 +128,7 @@ const deleteBuilding = (id: number) => {
                             {{ building.remark }}
                         </td>
 
-                        <td>
+                        <td  class="text-center">
                             <VBtn size="x-small" color="default" variant="plain" icon>
                                 <VIcon size="24" icon="mdi-dots-vertical" />
 

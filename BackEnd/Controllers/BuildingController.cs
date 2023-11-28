@@ -32,7 +32,6 @@ namespace Showreel.Controllers
                 page = 1;
                 totalPages = 1;
             }
-
             var response = new
             {
                 TotalItems = totalItems,

@@ -26,6 +26,40 @@ namespace Showreel.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetPageCategory")]
+        public IActionResult GetPageCategoriess(string? keySearch = null, int page = 1, int pageSize = 10)
+        {
+            var categories = _categoryService.GetPageCategory(keySearch);
+            var query = from c in categories
+                        select new
+                        {
+                            c.Id,
+                            c.Name,
+                            subCategory = _categoryService.GetSubCategory(c.Id)
+                        };
+
+            int startIndex = (page - 1) * pageSize;
+            int totalItems = query.Count();
+            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            var paginatedQuery = query.Skip(startIndex).Take(pageSize);
+            if (!paginatedQuery.ToList().Any())
+            {
+                page = 1;
+                totalPages = 1;
+            }
+            var response = new
+            {
+                TotalItems = totalItems,
+                TotalPages = totalPages,
+                CurrentPage = page,
+                PageSize = pageSize,
+                categories = paginatedQuery.ToList()
+            };
+
+            return Ok(response);
+        }
+
         [HttpGet("GetCategoryByVideo/{id}")]
         public IActionResult GetCategoryByVideoId(int id)
         {

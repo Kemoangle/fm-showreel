@@ -1,104 +1,195 @@
-<script lang="ts" setup>
+<script setup lang="ts">
+import { useCategoryStore } from '@/store/useCategoryStore';
+import { onMounted, ref } from 'vue';
+
+const categoryStore = useCategoryStore();
+
+
+const keySearch = ref('');
+
+const pageSize = ref(3);
+const currentPage = ref(1);
+const totalPages = ref(1);
+const totalItems = ref();
+
+const getAll = () => {
+    categoryStore.getPageCategory(keySearch.value, currentPage.value, pageSize.value);
+};
+watchEffect(() => {
+    totalPages.value = categoryStore.data.totalPages;
+    totalItems.value = categoryStore.data.totalItems;
+    if (currentPage.value > totalPages.value) currentPage.value = totalPages.value;
+});
+
+onMounted(() => {
+    getAll();
+});
+const changePage = (newPage: number) => {
+    currentPage.value = newPage;
+    getAll();
+};
+
+watch(currentPage, () => {
+    getAll();
+});
+
+watch(pageSize, () => {
+    getAll();
+});
+
 </script>
 
 <template>
-  <VCard>
-    <VCardItem>
-      <template #prepend>
-        <VIcon icon="mdi-chart-timeline-variant" />
-      </template>
+    <section>
+        <VCard>
+            <VCardText class="d-flex flex-wrap gap-4">
+                <VSpacer />
+                <div class="app-user-search-filter d-flex align-center">
+                    <!-- 👉 Search  -->
+                    <VTextField
+                        placeholder="Building Name"
+                        density="compact"
+                        class="me-3"
+                        @input="getAll"
+                        v-model="keySearch"
+                    />
 
-      <VCardTitle>Activity Timeline</VCardTitle>
-    </VCardItem>
+                    <!-- 👉 Add user button -->
+                    <VBtn> Add New Video </VBtn>
+                </div>
+            </VCardText>
 
-    <VCardText>
-      <VTimeline
-        density="compact"
-        truncate-line="both"
-        :line-inset="12"
-        class="v-timeline-density-compact"
-      >
-        <VTimelineItem
-          dot-color="error"
-          size="x-small"
-        >
-          <div class="d-flex justify-space-between align-center flex-wrap">
-            <h4 class="text-base font-weight-medium me-1 mb-2">
-              8 Invoices have been paid
-            </h4>
-            <span class="text-xs text-disabled text-no-wrap">Wednesday</span>
-          </div>
-          <p class="mb-2">
-            Invoices have been paid to the company.
-          </p>
-          <div class="d-flex align-center mt-2">
-            <VIcon
-              color="error"
-              icon="mdi-file-pdf-box"
-              size="26"
-              class="me-2"
-            />
-            <h6 class="font-weight-medium text-sm">
-              Invoices.pdf
-            </h6>
-          </div>
-        </VTimelineItem>
+            <VDivider />
 
-        <VTimelineItem
-          dot-color="primary"
-          size="x-small"
-        >
-          <div class="d-flex justify-space-between align-center flex-wrap">
-            <h4 class="text-base font-weight-medium me-1 mb-2">
-              Create a new project for client 😎
-            </h4>
-            <span class="text-xs text-disabled text-no-wrap">April, 18</span>
-          </div>
+            <VTable class="text-no-wrap">
+                <!-- 👉 table head -->
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Category name</th>
+                        <th scope="col" class="text-center">Sub Category</th>
+                        <th scope="col" class="text-center">ACTION</th>
+                    </tr>
+                </thead>
 
-          <p class="mb-1">
-            Invoices have been paid to the company.
-          </p>
+                <!-- 👉 table body -->
+                <tbody>
+                    <tr v-for="(category, index) in categoryStore.data.categories" :key="category.id">
+                        <td>
+                            {{ (currentPage - 1) * pageSize + index + 1 }}
+                        </td>
 
-          <div class="d-flex align-center mt-3">
-            <VAvatar
-              size="24"
-              class="me-2"
-            />
-            <div>
-              <span class="text-sm font-weight-medium mb-0">
-                John Doe (Client)
-              </span>
-            </div>
-          </div>
-        </VTimelineItem>
+                        <td>
+                            <div class="d-flex align-center">
+                                {{ category.name }}
+                            </div>
+                        </td>
 
-        <VTimelineItem
-          dot-color="info"
-          size="x-small"
-        >
-          <div class="d-flex justify-space-between align-center flex-wrap">
-            <h4 class="text-base font-weight-medium me-1 mb-2">
-              Order #37745 from September
-            </h4>
-            <span class="text-xs text-disabled text-no-wrap">January, 10</span>
-          </div>
-          <p class="mb-0">
-            Invoices have been paid to the company.
-          </p>
-        </VTimelineItem>
+                        <td>
+                            <VChip
+                                color="success"
+                                size="small"
+                                class="text-capitalize ml-2"
+                                v-for="item in category.subCategory"
+                                :key="item.id"
+                            >
+                                {{ item.name }}
+                            </VChip>
+                        </td>
 
-        <VTimelineItem
-          dot-color="success"
-          size="x-small"
-        >
-          <div class="d-flex justify-space-between align-center flex-wrap">
-            <h4 class="text-base font-weight-medium me-1 mb-3">
-              Public Meeting
-            </h4>
-            <span class="text-xs text-disabled text-no-wrap">September, 30</span>
-          </div>
-        </VTimelineItem>
-      </VTimeline>
-    </VCardText>
-  </VCard>
+                        <td class="text-center">
+                            <VBtn size="x-small" color="default" variant="plain" icon>
+                                <VIcon size="24" icon="mdi-dots-vertical" />
+
+                                <VMenu activator="parent">
+                                    <VList>
+                                        <VListItem >
+                                            <template #prepend>
+                                                <VIcon
+                                                    icon="mdi-pencil-outline"
+                                                    :size="20"
+                                                    class="me-3"
+                                                />
+                                            </template>
+                                            <VListItemTitle>Edit</VListItemTitle>
+                                        </VListItem>
+
+                                        <VListItem >
+                                            <template #prepend>
+                                                <VIcon
+                                                    icon="mdi-delete-outline"
+                                                    :size="20"
+                                                    class="me-3"
+                                                />
+                                            </template>
+                                            <VListItemTitle>Delete</VListItemTitle>
+                                        </VListItem>
+                                    </VList>
+                                </VMenu>
+                            </VBtn>
+                        </td>
+                    </tr>
+                </tbody>
+
+                <!-- 👉 table footer  -->
+                <tfoot v-show="!categoryStore.data.categories">
+                    <tr>
+                        <td colspan="7" class="text-center">No data available</td>
+                    </tr>
+                </tfoot>
+            </VTable>
+            <VDivider />
+            <!-- SECTION Pagination -->
+            <VCardText class="d-flex flex-wrap justify-end gap-4 pa-2">
+                <!-- 👉 Rows per page -->
+                <div class="d-flex align-center me-3" style="width: 171px;">
+                    <span class="text-no-wrap me-3">Rows per page:</span>
+
+                    <VSelect
+                        v-model="pageSize"
+                        density="compact"
+                        variant="plain"
+                        class="user-pagination-select"
+                        :items="[5, 10, 20, 30, 50]"
+                    />
+                </div>
+
+                <!-- 👉 Pagination and pagination meta -->
+                <div class="d-flex align-center">
+                    <VPagination
+                        v-model="currentPage"
+                        :length="totalPages"
+                        :total-visible="1"
+                        rounded="circle"
+                        @input="changePage"
+                    />
+                </div>
+            </VCardText>
+            <!-- !SECTION -->
+        </VCard>
+        
+    </section>
 </template>
+
+<style lang="scss">
+.app-user-search-filter {
+  inline-size: 24.0625rem;
+}
+
+.text-capitalize {
+  text-transform: capitalize;
+}
+
+.user-list-name:not(:hover) {
+  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+}
+</style>
+
+<style lang="scss" scope>
+.user-pagination-select {
+  .v-field__input,
+  .v-field__append-inner {
+    padding-block-start: 0.3rem;
+  }
+}
+</style>

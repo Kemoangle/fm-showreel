@@ -36,26 +36,31 @@ const videoData = ref<Video | any>({
     duration: 0,
     keyNo: '',
     rule: '',
-    category: [{id: 0, name: ''}]
+    category: new Array<Category[]>(),
 });
 
 watch(props, async (oldId, newId) => {
-    if (newId.videoId) {
-        axiosIns.get('http://localhost:5124/api/Video/' + newId.videoId).then(response => {
-            videoData.value = response;
-        })
-    }else{
-        refForm.value?.reset();
-        refForm.value?.resetValidation();
-        videoData.value.category = new Array<Category>;
-    }
     await axiosIns.get<Category[]>('Category').then((response) => {
         categories.value = response;
     });
+
+    if (newId.videoId) {
+        axiosIns.get('http://localhost:5124/api/Video/' + newId.videoId).then((response: any) => {
+            videoData.value = response;   
+            const matchingCategories = response.category.map((category: any) => {
+                return categories.value.find((c: Category) => c.name === category.name);
+            });
+            videoData.value.category = matchingCategories.filter((category: any) => category !== null);
+        });
+    } else {
+        refForm.value?.reset();
+        refForm.value?.resetValidation();
+        videoData.value.category = new Array<Category>();
+    }
 });
 
 onMounted(() => {});
-    
+
 // 👉 drawer close
 const closeNavigationDrawer = () => {
     emit('update:isDrawerOpen', false);
@@ -82,7 +87,6 @@ const onSubmit = () => {
 const handleDrawerModelValueUpdate = (val: boolean) => {
     emit('update:isDrawerOpen', val);
 };
-
 </script>
 
 <template>
@@ -140,25 +144,35 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                             </VCol>
 
                             <VCol cols="12">
-                                <VTextField
-                                    v-model="videoData.rule"
-                                    label="Rule"
-                                />
+                                <VTextField v-model="videoData.rule" label="Rule" />
                             </VCol>
-                            
+
                             <VCol cols="12">
-                                <VAutocomplete  
+                                
+                                <VAutocomplete
                                     v-model="videoData.category"
                                     chips
                                     closable-chips
                                     multiple
                                     :items="categories"
                                     item-title="name"
-                                    item-value="id"
                                     label="Category"
                                     return-object
                                 >
-                                </VAutocomplete>
+                                    <template #chip="{ props, item }">
+                                        <VChip
+                                            v-bind="props"
+                                            :text="item.raw.name"
+                                        />
+                                    </template>
+
+                                    <template #item="{ props, item }">
+                                        <VListItem
+                                            v-bind="props"
+                                            :title="item?.raw?.name"
+                                        />
+                                    </template>
+                                </VAutocomplete> 
                             </VCol>
 
                             <!-- 👉 Submit and Cancel -->

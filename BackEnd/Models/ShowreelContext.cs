@@ -35,7 +35,11 @@ public partial class ShowreelContext : DbContext
 
     public virtual DbSet<Video> Videos { get; set; }
 
+    public virtual DbSet<VideoVideolist> VideoVideolists { get; set; }
+
     public virtual DbSet<Videocategory> Videocategories { get; set; }
+
+    public virtual DbSet<Videolist> Videolists { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
@@ -262,6 +266,30 @@ public partial class ShowreelContext : DbContext
                 .HasColumnName("title");
         });
 
+        modelBuilder.Entity<VideoVideolist>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("video_videolist");
+
+            entity.HasIndex(e => e.VideoListId, "videoList_id");
+
+            entity.HasIndex(e => e.VideoId, "video_id");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.LoopNum).HasColumnName("loop_num");
+            entity.Property(e => e.VideoId).HasColumnName("video_id");
+            entity.Property(e => e.VideoListId).HasColumnName("videoList_id");
+
+            entity.HasOne(d => d.Video).WithMany(p => p.VideoVideolists)
+                .HasForeignKey(d => d.VideoId)
+                .HasConstraintName("video_videolist_ibfk_1");
+
+            entity.HasOne(d => d.VideoList).WithMany(p => p.VideoVideolists)
+                .HasForeignKey(d => d.VideoListId)
+                .HasConstraintName("video_videolist_ibfk_2");
+        });
+
         modelBuilder.Entity<Videocategory>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
@@ -283,6 +311,23 @@ public partial class ShowreelContext : DbContext
             entity.HasOne(d => d.Video).WithMany(p => p.Videocategories)
                 .HasForeignKey(d => d.VideoId)
                 .HasConstraintName("fk_video");
+        });
+
+        modelBuilder.Entity<Videolist>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("videolist");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreatedTime).HasColumnName("createdTime");
+            entity.Property(e => e.LastUpdatedTime).HasColumnName("lastUpdatedTime");
+            entity.Property(e => e.Remark)
+                .HasMaxLength(255)
+                .HasColumnName("remark");
+            entity.Property(e => e.Title)
+                .HasMaxLength(255)
+                .HasColumnName("title");
         });
 
         OnModelCreatingPartial(modelBuilder);
