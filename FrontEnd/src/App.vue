@@ -2,6 +2,7 @@
 import { useTheme } from 'vuetify';
 import { useThemeConfig } from '@core/composable/useThemeConfig';
 import { hexToRgb } from '@layouts/utils';
+import Snackbar from './components/Snackbar.vue';
 
 const {
     syncInitialLoaderTheme,
@@ -23,4 +24,5 @@ syncConfigThemeWithVuetifyTheme();
             <RouterView />
         </VApp>
     </VLocaleProvider>
+    <Snackbar />
 </template>
