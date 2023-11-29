@@ -13,9 +13,11 @@ namespace Showreel.Controllers
     public class VideoListController : ControllerBase
     {
         private readonly IVideoListService videoListService;
-        public VideoListController(IVideoListService _videoListService)
+        private readonly IVideoService videoService;
+        public VideoListController(IVideoListService _videoListService, IVideoService _videoService)
         {
             videoListService = _videoListService;
+            videoService = _videoService;
         }
         
         [HttpGet("getAll")]
@@ -49,6 +51,53 @@ namespace Showreel.Controllers
             };
 
             return Ok(response);
+        }
+
+        [HttpPost]
+        public IActionResult Create([FromBody] Videolist videoList)
+        {
+            videoList.CreatedTime = DateOnly.FromDateTime(DateTime.Now);
+            videoList.LastUpdatedTime = DateOnly.FromDateTime(DateTime.Now);
+            var item = videoListService.AddVideoList(videoList);
+
+            return Ok(item);
+        }
+
+        [HttpPatch("{id}")]
+        public IActionResult CreateVideoList(int id, [FromBody] VideoVideolist[] videoVideolist)
+        {
+            foreach (var video in videoVideolist)
+            {
+                var newVideo = new VideoVideolist
+                {
+                    VideoId = video.VideoId,
+                    LoopNum = video.LoopNum,
+                    VideoListId = id
+                };
+                videoListService.AddVideoVideoList(newVideo);
+            }
+            
+            return Ok();
+        }
+
+
+        [HttpGet("{id}")]
+        public IActionResult GetAllVideoInList(int id)
+        {
+            var videoList = videoListService.GetVideoVideolist(id);
+            var query = (from v in videoList 
+                        select new{
+                            video = videoService.GetVideoById((int)v.VideoId),
+                            loopNum = v.LoopNum
+                        }).ToList(); 
+            return Ok(query);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteVideo(int id)
+        {
+            videoListService.DeleteVideoList(id);
+            return Ok();
         }
     }
 }

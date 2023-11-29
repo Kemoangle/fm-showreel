@@ -1,4 +1,5 @@
 import { Category } from '@/model/category';
+import { Video } from '@/model/video';
 import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 

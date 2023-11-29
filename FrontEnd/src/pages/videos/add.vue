@@ -6,8 +6,6 @@ import type { VForm } from 'vuetify/components';
 import { Category } from '@/model/category';
 import { Video } from '@/model/video';
 import axiosIns from '@/plugins/axios';
-import { useCategoryStore } from '@/store/useCategoryStore';
-import { useVideoStore } from '@/store/useVideoStore';
 import { requiredValidator } from '@validators';
 
 const categories = ref();
@@ -21,8 +19,6 @@ interface Props {
     videoId?: number;
 }
 
-const categoryStore = useCategoryStore();
-const videoStore = useVideoStore();
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emit>();
@@ -53,13 +49,21 @@ watch(props, async (oldId, newId) => {
             videoData.value.category = matchingCategories.filter((category: any) => category !== null);
         });
     } else {
+        videoData.value = {
+            id: 0,
+            title: '',
+            duration: 0,
+            keyNo: '',
+            rule: '',
+            category: new Array<Category[]>(),
+        }
         refForm.value?.reset();
-        refForm.value?.resetValidation();
-        videoData.value.category = new Array<Category>();
+        refForm.value?.resetValidation();                                                                                                   
     }
 });
 
-onMounted(() => {});
+onMounted(() => {
+});
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -144,11 +148,13 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                             </VCol>
 
                             <VCol cols="12">
-                                <VTextField v-model="videoData.rule" label="Rule" />
+                                <VTextField 
+                                    v-model="videoData.rule" 
+                                    label="Rule" 
+                                />
                             </VCol>
 
                             <VCol cols="12">
-                                
                                 <VAutocomplete
                                     v-model="videoData.category"
                                     chips
@@ -157,6 +163,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                     :items="categories"
                                     item-title="name"
                                     label="Category"
+                                    :rules="[requiredValidator]"
                                     return-object
                                 >
                                     <template #chip="{ props, item }">

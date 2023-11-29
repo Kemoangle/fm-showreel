@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Category } from '@/model/category';
 import { Video } from '@/model/video';
 import { useCategoryStore } from '@/store/useCategoryStore';
 import { useVideoStore } from '@/store/useVideoStore';
@@ -59,14 +58,10 @@ const addNewVideo = async (videoData: Video) => {
     const { category, ...rest } = videoData;
     if (videoData.id && videoData.id > 0) {
         videoStore.updateVideo(rest);
-        await categoryStore.updateVideoCategory(videoData.id, videoData.category);
+        await categoryStore.updateVideoCategory(videoData.id, category);
     } else {
-        let categoryOld: Category[] = [];
-        if (videoData.category) {
-            categoryOld = [...videoData.category];
-        }
         const responseAddVideo = await videoStore.addVideo(rest);
-        await categoryStore.updateVideoCategory(responseAddVideo.id, categoryOld);
+        await categoryStore.updateVideoCategory(responseAddVideo.id, category);
     }
     getAll();
 };

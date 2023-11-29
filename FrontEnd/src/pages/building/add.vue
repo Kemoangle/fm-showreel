@@ -5,7 +5,6 @@ import type { VForm } from 'vuetify/components';
 
 import { Building } from '@/model/building';
 import axiosIns from '@/plugins/axios';
-import { useBuildingStore } from '@/store/useBuildingStore';
 import { requiredValidator } from '@validators';
 
 interface Emit {
@@ -18,8 +17,6 @@ interface Props {
     buildingId?: number;
 }
 
-const buildingStore = useBuildingStore();
-
 const props = defineProps<Props>();
 const emit = defineEmits<Emit>();
 
@@ -27,29 +24,39 @@ const isFormValid = ref(false);
 const refForm = ref<VForm>();
 
 const buildingData = ref<Building | any>({
-    id: 0,
-    buildingName: '',
-    address: '',
-    district: '',
-    remark: '',
-    postalCode: 0,
-    zone: 'City',
-});
+            id: 0,
+            buildingName: '',
+            address: '',
+            district: '',
+            remark: '',
+            postalCode: 0,
+            zone: 'City',
+        });
 
 watch(props, async (oldId, newId) => {
-    if (newId.buildingId) {
+    console.log(newId.buildingId);
+    
+    if (newId.buildingId && newId.buildingId > 0 ) {
         axiosIns.get<Building>('Building/' + newId.buildingId).then((reponse) => {
             buildingData.value = reponse;
         });
-    }else{
+    }
+    else{
+        buildingData.value = {
+            id: 0,
+            buildingName: '',
+            address: '',
+            district: '',
+            remark: '',
+            postalCode: 0,
+            zone: 'City',
+        }
         refForm.value?.reset();
         refForm.value?.resetValidation();
     }
-    
 });
 
 onMounted(() => {
-    console.log(props.buildingId);
 });
 
 // 👉 drawer close

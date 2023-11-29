@@ -7,7 +7,9 @@ namespace Showreel.Service
         IEnumerable<Videolist> GetAllVideoList();
         IEnumerable<Videolist> GetPageVideoList(string keySearch = "");
         Videolist GetVideoListById(int id);
-        void AddVideoList(Videolist videoList);
+        IEnumerable<VideoVideolist> GetVideoVideolist(int id);
+        Videolist AddVideoList(Videolist videoList);
+        void AddVideoVideoList(VideoVideolist videoVideolist);
         void UpdateVideoList(Videolist videoList);
         void DeleteVideoList(int id);
     }

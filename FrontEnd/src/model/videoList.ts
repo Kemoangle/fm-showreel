@@ -1,8 +1,10 @@
+import { VideoVideolist } from "./videoVideolist"
 
 export interface VideoList{
     id?: number
     title?: string
     remark?: string
-    createTime?: Date
-    lastUpdateTime?: Date
+    createdTime?: Date
+    lastUpdatedTime?: Date
+    videoVideoList?: VideoVideolist[]
 }

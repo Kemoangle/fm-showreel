@@ -47,6 +47,10 @@ namespace Showreel.Service.impl
                                             .ToList();
 
             _context.Videocategories.RemoveRange(videoCategoriesToDelete);
+            var videoListToDelete = _context.VideoVideolists
+                                            .Where(v => v.VideoId == id)
+                                            .ToList();
+            _context.VideoVideolists.RemoveRange(videoListToDelete);
             var videoDelete = _context.Videos.Find(id);
             if (videoDelete != null)
             {
@@ -63,6 +67,15 @@ namespace Showreel.Service.impl
         public Video GetVideoByKeyNo(string keyNo)
         {
             return _context.Videos.FirstOrDefault(v => v.KeyNo == keyNo);
+        }
+
+        public IEnumerable<Video> GetVideoByList(int id)
+        {
+            var query = (from v in _context.Videos
+                        join l in _context.VideoVideolists on v.Id equals l.VideoId
+                        where l.VideoListId == id
+                        select v).ToList();
+            return query;
         }
     }
 }

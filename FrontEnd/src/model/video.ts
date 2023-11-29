@@ -11,4 +11,5 @@ export interface Video{
     createTime?: Date
     lastUpdateTime?: Date
     category?: Category[]
+    loop?: number
 }
