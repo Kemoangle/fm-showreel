@@ -5,6 +5,7 @@ import { IListPlaylist, IPlaylist, IVideos } from '@/model/generatorPlaylist';
 import { listVideo1, listVideo2, listVideo3 } from '@/utils/constant';
 import { useSnackbar } from '@/components/Snackbar.vue';
 import { generatorPlaylist } from '@/utils/generatorPlaylist';
+import { VueDraggableNext } from 'vue-draggable-next';
 import _ from 'lodash';
 
 const { showSnackbar } = useSnackbar();
@@ -149,7 +150,6 @@ const handleSaveOnePlaylist = (playlist: IPlaylist[]) => {
     const exportPlaylist = new generatorPlaylist();
 
     const listVideoCurrent = listVideos.find((x) => x.value == selectedListVideo.value)?.videos;
-    console.log('listVideoCurrent:', listVideoCurrent);
 
     const isCheckCategoriesCloselyTogether =
         exportPlaylist.checkCategoriesCloselyTogether(playlist);
