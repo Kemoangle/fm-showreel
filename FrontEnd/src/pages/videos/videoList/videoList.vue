@@ -1,28 +1,21 @@
 <script setup lang="ts">
 import PopupCreateListVideo from '@/components/PopupCreateListVideo.vue';
+import ViewListVideo from '@/components/ViewListVideo.vue';
+import { VideoList } from '@/model/videoList';
 import { useVideoListStore } from '@/store/useVideoListStore';
+import moment from 'moment';
 import { onMounted, ref } from 'vue';
 
 const videoListStore = useVideoListStore();
-
+const videoListId = ref(0);
+const isViewListVideo = ref(false);
 const keySearch = ref('');
 const pageSize = ref(3);
 const currentPage = ref(1);
 const totalPages = ref(1);
 const totalItems = ref();
 
-const selectedListVideo = ref();
 const isDialogListVideoVisible = ref(false);
-const isDialogListVideoCurrent = ref(false);
-const handleCloseDialog = () => {
-    isDialogListVideoVisible.value = !isDialogListVideoVisible.value;
-};
-const handleCloseDialogShowListVideo = () => {
-    isDialogListVideoCurrent.value = !isDialogListVideoCurrent.value;
-};
-const handleClickCreateListVideo = () => {
-    isDialogListVideoVisible.value = !isDialogListVideoVisible.value;
-};
 
 const getAll = () => {
     videoListStore.getPageVideoList(keySearch.value, currentPage.value, pageSize.value);
@@ -49,6 +42,23 @@ watch(pageSize, () => {
     getAll();
 });
 
+const handleSubmit = async (videoListData: VideoList) => {
+    const { videoVideoList, ...rest } = videoListData;
+    const response = await videoListStore.addVideoList(rest);
+    await videoListStore.addVideoVideoList(videoVideoList, response.id);
+    getAll();
+};
+
+const viewListVideo = (id: number) => {
+    videoListId.value = id;
+    isViewListVideo.value = true;
+};
+
+const deleteList = async (id: number) => {
+    await videoListStore.deleteList(id).then((response) => {
+        getAll();
+    });
+};
 </script>
 
 <template>
@@ -61,7 +71,7 @@ watch(pageSize, () => {
                             variant="tonal"
                             color="secondary"
                             prepend-icon="mdi-tray-arrow-down"
-                            @click="handleClickCreateListVideo"
+                            @click="isDialogListVideoVisible = true"
                         >
                             Create List Video
                         </VBtn>
@@ -86,7 +96,6 @@ watch(pageSize, () => {
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Title</th>
-                        <th scope="col">Remark</th>
                         <th scope="col">Create time</th>
                         <th scope="col">Last update time</th>
                         <th scope="col" class="text-center">Action</th>
@@ -107,13 +116,11 @@ watch(pageSize, () => {
                         </td>
 
                         <td>
-                            {{ item.remark }}
+                            {{ moment(item.createdTime).format('DD-MM-YYYY')}}
                         </td>
+
                         <td>
-                            {{ item.createTime }}
-                        </td>
-                        <td>
-                            {{ item.lastUpdateTime }}
+                            {{ moment(item.lastUpdatedTime).format('DD-MM-YYYY') }}
                         </td>
 
                         <td class="text-center">
@@ -122,18 +129,18 @@ watch(pageSize, () => {
 
                                 <VMenu activator="parent">
                                     <VList>
-                                        <VListItem >
+                                        <VListItem @click="viewListVideo(item.id)">
                                             <template #prepend>
                                                 <VIcon
-                                                    icon="mdi-pencil-outline"
+                                                    icon="mdi-eye-outline"
                                                     :size="20"
                                                     class="me-3"
                                                 />
                                             </template>
-                                            <VListItemTitle>Edit</VListItemTitle>
+                                            <VListItemTitle>View</VListItemTitle>
                                         </VListItem>
 
-                                        <VListItem >
+                                        <VListItem @click="deleteList(item.id)">
                                             <template #prepend>
                                                 <VIcon
                                                     icon="mdi-delete-outline"
@@ -187,10 +194,13 @@ watch(pageSize, () => {
             <!-- !SECTION -->
         </VCard>
         <PopupCreateListVideo
-            :is-dialog-visible="isDialogListVideoVisible"
-            @close="handleCloseDialog"
+            v-model:is-dialog-visible="isDialogListVideoVisible"
+            @video-list-data="handleSubmit"
         />
-
+        <ViewListVideo
+        v-model:videoListId="videoListId"
+        v-model:isDrawerOpen="isViewListVideo"
+        />
     </section>
 </template>
 
