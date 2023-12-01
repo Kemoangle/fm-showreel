@@ -31,13 +31,7 @@ export const useVideoStore = defineStore('video', {
         },
    
         async addVideo(video: Video): Promise<Video> {
-            try {
-                const response = await axiosIns.post('Video', video);
-                return response as Video;
-            } catch (error) {
-                console.error('Error adding video:', error);
-                throw error;
-            }
+            return await axiosIns.post('Video', video);
         },
         async deleteVideo(id: number) {
             return axiosIns.delete('Video/' + id).then((response) => {
@@ -45,8 +39,7 @@ export const useVideoStore = defineStore('video', {
         },
 
         async updateVideo(video: Video) {
-            await axiosIns.patch('Video/' + video.id, video).then((response) => {
-            });
+            await axiosIns.patch('Video/' + video.id, video);
         },
         
     },

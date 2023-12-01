@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useSnackbar } from '@/components/Snackbar.vue';
 import { Video } from '@/model/video';
 import { useCategoryStore } from '@/store/useCategoryStore';
 import { useVideoStore } from '@/store/useVideoStore';
@@ -13,10 +14,11 @@ const idUpdate = ref(0);
 const isAddNewVideo = ref(false);
 const keySearch = ref('');
 
-const pageSize = ref(3);
+const pageSize = ref(10);
 const currentPage = ref(1);
 const totalPages = ref(1);
 const totalItems = ref();
+const { showSnackbar } = useSnackbar();
 
 const getAll = () => {
     videoStore.getPageVideo(keySearch.value, currentPage.value, pageSize.value);
@@ -57,13 +59,31 @@ const deleteVideo = (id: number) => {
 const addNewVideo = async (videoData: Video) => {
     const { category, ...rest } = videoData;
     if (videoData.id && videoData.id > 0) {
-        videoStore.updateVideo(rest);
-        await categoryStore.updateVideoCategory(videoData.id, category);
+        await videoStore
+            .updateVideo(rest)
+            .then((response) => {
+                categoryStore.updateVideoCategory(videoData.id, category);
+            })
+            .catch((error) => {
+                showSnackbar(error.data.Video[0], 'error');
+            });
     } else {
-        const responseAddVideo = await videoStore.addVideo(rest);
-        await categoryStore.updateVideoCategory(responseAddVideo.id, category);
+        await videoStore
+            .addVideo(rest)
+            .then((response) => {
+                categoryStore.updateVideoCategory(response.id, category);
+            })
+            .catch((error) => {
+                showSnackbar(error.data.Video[0], 'error');
+            });
     }
     getAll();
+};
+
+const randomColor = () => {
+    const colors = ['primary', 'secondary', 'success', 'info', 'warning', 'error'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    return randomColor;
 };
 </script>
 
@@ -84,12 +104,12 @@ const addNewVideo = async (videoData: Video) => {
                     </VCol>
                     <VCol cols="12" sm="8" class="display">
                         <VTextField
-                        placeholder="Search"
-                        density="compact"
-                        class="me-3"
-                        @input="getAll"
-                        v-model="keySearch"
-                    />
+                            placeholder="Search"
+                            density="compact"
+                            class="me-3"
+                            @input="getAll"
+                            v-model="keySearch"
+                        />
                     </VCol>
                 </VRow>
             </VCardText>
@@ -132,16 +152,16 @@ const addNewVideo = async (videoData: Video) => {
                         </td>
 
                         <td>
-                            <span class="">{{ video.rule }}</span>
+                            <span style="color: rgb(248, 114, 114);">{{ video.rule }}</span>
                         </td>
 
                         <td>
                             <VChip
-                                color="success"
                                 size="small"
                                 class="text-capitalize ml-2"
                                 v-for="item in video.category"
                                 :key="item.id"
+                                :color="randomColor()"
                             >
                                 {{ item.name }}
                             </VChip>
@@ -159,6 +179,7 @@ const addNewVideo = async (videoData: Video) => {
                                                     icon="mdi-pencil-outline"
                                                     :size="20"
                                                     class="me-3"
+                                                    color="warning"
                                                 />
                                             </template>
                                             <VListItemTitle>Edit</VListItemTitle>
@@ -170,6 +191,7 @@ const addNewVideo = async (videoData: Video) => {
                                                     icon="mdi-delete-outline"
                                                     :size="20"
                                                     class="me-3"
+                                                    color="error"
                                                 />
                                             </template>
                                             <VListItemTitle>Delete</VListItemTitle>
@@ -184,7 +206,12 @@ const addNewVideo = async (videoData: Video) => {
                 <!-- 👉 table footer  -->
                 <tfoot v-show="!videoStore.data.videos">
                     <tr>
-                        <td colspan="7" class="text-center">No data available</td>
+                        <td colspan="7" class="item-center">
+                            <VProgressCircular
+                                indeterminate
+                                color="info"
+                                />
+                        </td>
                     </tr>
                 </tfoot>
             </VTable>

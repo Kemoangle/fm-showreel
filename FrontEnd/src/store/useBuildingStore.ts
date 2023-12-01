@@ -37,17 +37,14 @@ export const useBuildingStore = defineStore('building', {
         },
 
         async addBuilding(building: Building) {
-            await axiosIns.post('Building', building).then((response) => {
-            });
+            return await axiosIns.post('Building', building);
         },
         async deleteBuilding(id: number) {
-            await axiosIns.delete('Building/' + id).then((response) => {
-            });
+            return await axiosIns.delete('Building/' + id);
         },
 
         async updateBuilding(building: Building) {
-            await axiosIns.patch('Building/' + building.id, building).then((response) => {
-            });
+           return await axiosIns.patch('Building/' + building.id, building);
         },
     },
 });

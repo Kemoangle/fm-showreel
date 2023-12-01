@@ -70,7 +70,7 @@ namespace Showreel.Controllers
             var buildingExist = _buildingService.GetAllBuildings().ToList();
             if (buildingExist.Any(b => b.BuildingName?.ToUpper() == building.BuildingName?.ToUpper()))
             {
-                ModelState.AddModelError("Name", "The name already exists");
+                ModelState.AddModelError("Building", "The name already exists");
                 return BadRequest(ModelState);
             }
             building.CreateTime = DateOnly.FromDateTime(DateTime.Now);
@@ -92,7 +92,7 @@ namespace Showreel.Controllers
             var buildingName = _buildingService.GetAllBuildings().Where(b => b.Id != id).Select(b => b.BuildingName).ToList();
             if (buildingName.Contains(building.BuildingName))
             {
-                ModelState.AddModelError("Name", "The name already exists");
+                ModelState.AddModelError("Building", "The name already exists");
                 return BadRequest(ModelState);
             }
             building.LastUpdateTime = DateOnly.FromDateTime(DateTime.Now);

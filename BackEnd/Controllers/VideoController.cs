@@ -92,7 +92,7 @@ namespace Showreel.Controllers
             var videoExist = _videoService.GetAllVideos().ToList();
             if (videoExist.Any(b => b.KeyNo?.ToUpper() == video.KeyNo?.ToUpper()))
             {
-                ModelState.AddModelError("KeyNo", "The video already exists");
+                ModelState.AddModelError("Video", "The video already exists");
                 return BadRequest(ModelState);
             }
             video.CreateTime = DateOnly.FromDateTime(DateTime.Now);
@@ -111,8 +111,15 @@ namespace Showreel.Controllers
             var existingVideo = _videoService.GetVideoById(id);
             if (existingVideo == null)
             {
-                return NotFound("Building not found");
+                return NotFound("Video not found");
             }
+            var videoKeyNo = _videoService.GetAllVideos().Where(b => b.Id != id).Select(b => b.KeyNo).ToList();
+            if (videoKeyNo.Contains(video.KeyNo))
+            {
+                ModelState.AddModelError("Video", "The video already exists");
+                return BadRequest(ModelState);
+            }
+
             video.LastUpdateTime = DateOnly.FromDateTime(DateTime.Now);
             video.Landlordads = new List<Landlordad>();
             video.Videocategories = new List<Videocategory>();

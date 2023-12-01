@@ -34,29 +34,22 @@ const buildingData = ref<Building | any>({
         });
 
 watch(props, async (oldId, newId) => {
-    console.log(newId.buildingId);
-    
+    refForm.value?.reset();
+    refForm.value?.resetValidation();
     if (newId.buildingId && newId.buildingId > 0 ) {
         axiosIns.get<Building>('Building/' + newId.buildingId).then((reponse) => {
             buildingData.value = reponse;
         });
     }
     else{
-        buildingData.value = {
-            id: 0,
-            buildingName: '',
-            address: '',
-            district: '',
-            remark: '',
-            postalCode: 0,
-            zone: 'City',
-        }
+        buildingData.value.id = 0;
         refForm.value?.reset();
         refForm.value?.resetValidation();
     }
 });
 
 onMounted(() => {
+    
 });
 
 // 👉 drawer close
@@ -68,6 +61,7 @@ const closeNavigationDrawer = () => {
         refForm.value?.resetValidation();
     });
 };
+
 
 const onSubmit = () => {
     refForm.value?.validate().then(({ valid }) => {

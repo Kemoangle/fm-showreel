@@ -21,6 +21,7 @@ namespace Showreel.Service.impl
             {
                 query = query.Where(b => b.BuildingName.Contains(keySearch));
             }
+            query = query.OrderByDescending(b => b.Id);
             return query.ToList();
         }
 

@@ -29,17 +29,18 @@ const refForm = ref<VForm>();
 const videoData = ref<Video | any>({
     id: 0,
     title: '',
-    duration: 0,
+    duration: '',
     keyNo: '',
     rule: '',
-    category: new Array<Category[]>(),
+    category: [],
 });
 
 watch(props, async (oldId, newId) => {
+    refForm.value?.reset();
+    refForm.value?.resetValidation();
     await axiosIns.get<Category[]>('Category').then((response) => {
         categories.value = response;
     });
-
     if (newId.videoId) {
         axiosIns.get('http://localhost:5124/api/Video/' + newId.videoId).then((response: any) => {
             videoData.value = response;   
@@ -49,17 +50,8 @@ watch(props, async (oldId, newId) => {
             videoData.value.category = matchingCategories.filter((category: any) => category !== null);
         });
     } else {
-        videoData.value = {
-            id: 0,
-            title: '',
-            duration: 0,
-            keyNo: '',
-            rule: '',
-            category: new Array<Category[]>(),
-        }
-        refForm.value?.reset();
-        refForm.value?.resetValidation();                                                                                                   
-    }
+        videoData.value.id = 0;
+    }   
 });
 
 onMounted(() => {
@@ -91,6 +83,7 @@ const onSubmit = () => {
 const handleDrawerModelValueUpdate = (val: boolean) => {
     emit('update:isDrawerOpen', val);
 };
+
 </script>
 
 <template>
@@ -138,7 +131,6 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                     label="Duration"
                                 />
                             </VCol>
-
                             <VCol cols="12">
                                 <VTextField
                                     v-model="videoData.keyNo"
@@ -153,17 +145,16 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                     label="Rule" 
                                 />
                             </VCol>
-
                             <VCol cols="12">
                                 <VAutocomplete
                                     v-model="videoData.category"
                                     chips
                                     closable-chips
-                                    multiple
                                     :items="categories"
                                     item-title="name"
                                     label="Category"
                                     :rules="[requiredValidator]"
+                                    multiple
                                     return-object
                                 >
                                     <template #chip="{ props, item }">
@@ -201,3 +192,11 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
         </PerfectScrollbar>
     </VNavigationDrawer>
 </template>
+<style scoped>
+.v-autocomplete {
+  /* stylelint-disable-next-line liberty/use-logical-spec */
+  max-height: 50px; /* Set your desired maximum height */
+  /* stylelint-disable-next-line order/properties-order */
+  overflow: hidden; /* Hide content that exceeds the maximum height */
+}
+</style>

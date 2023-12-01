@@ -26,18 +26,11 @@ export const useVideoListStore = defineStore('videoList', {
         
         
         async addVideoList(videoList: VideoList): Promise<VideoList> {
-            try {
-                const response = await await axiosIns.post('VideoList/' , videoList);
-                return response as VideoList;
-            } catch (error) {
-                console.error('Error adding video:', error);
-                throw error;
-            }
+            return await axiosIns.post('VideoList/' , videoList);
         },
 
         async addVideoVideoList(videoVideolist: VideoVideolist[] | undefined, id: number | undefined) {
-            await axiosIns.patch('VideoList/' + id , videoVideolist).then((response) => {
-            });
+            await axiosIns.patch('VideoList/' + id , videoVideolist);
         },
 
         async getVideoByListId(id: number) {
@@ -45,8 +38,7 @@ export const useVideoListStore = defineStore('videoList', {
         },
 
         async deleteList(id: number) {
-            await axiosIns.delete('VideoList/' + id).then((response) => {
-            });
+            await axiosIns.delete('VideoList/' + id);
         },
     },                             
 });

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useSnackbar } from '@/components/Snackbar.vue';
 import { Building } from '@/model/building';
 import { useBuildingStore } from '@/store/useBuildingStore';
 import { onMounted, ref } from 'vue';
@@ -10,10 +11,12 @@ const idUpdate = ref(0);
 const isAddNewBuilding = ref(false);
 const keySearch = ref('');
 
-const pageSize = ref(5);
+const pageSize = ref(10);
 const currentPage = ref(1);
 const totalPages = ref(1);
 const totalItems = ref();
+
+const { showSnackbar } = useSnackbar();
 
 const getAll = () => {
     buildingStore.getPageBuilding(keySearch.value, currentPage.value, pageSize.value);
@@ -40,12 +43,17 @@ watch(pageSize, () => {
     getAll();
 });
 
-const addNewBuilding = async (buildingData: Building) => {
+const handleSubmit = async (buildingData: Building) => {
     if (buildingData.id && buildingData.id > 0) {
-        await buildingStore.updateBuilding(buildingData);
+        await buildingStore.updateBuilding(buildingData).catch((error) => {
+            showSnackbar(error.data.Building[0], 'error');
+        });
     } else {
-        await buildingStore.addBuilding(buildingData);
+        await buildingStore.addBuilding(buildingData).catch((error) => {
+            showSnackbar(error.data.Building[0], 'error');
+        });
     }
+
     getAll();
 };
 
@@ -78,12 +86,12 @@ const deleteBuilding = (id: number) => {
                     </VCol>
                     <VCol cols="12" sm="8" class="display">
                         <VTextField
-                        placeholder="Search"
-                        density="compact"
-                        class="me-3"
-                        @input="getAll"
-                        v-model="keySearch"
-                    />
+                            placeholder="Search"
+                            density="compact"
+                            class="me-3"
+                            @input="getAll"
+                            v-model="keySearch"
+                        />
                     </VCol>
                 </VRow>
             </VCardText>
@@ -101,7 +109,7 @@ const deleteBuilding = (id: number) => {
                         <th scope="col">POSTAL CODE</th>
                         <th scope="col">ZONE</th>
                         <th scope="col">REMAKE</th>
-                        <th scope="col"  class="text-center">ACTION</th>
+                        <th scope="col" class="text-center">ACTION</th>
                     </tr>
                 </thead>
 
@@ -138,7 +146,7 @@ const deleteBuilding = (id: number) => {
                             {{ building.remark }}
                         </td>
 
-                        <td  class="text-center">
+                        <td class="text-center">
                             <VBtn size="x-small" color="default" variant="plain" icon>
                                 <VIcon size="24" icon="mdi-dots-vertical" />
 
@@ -155,6 +163,7 @@ const deleteBuilding = (id: number) => {
                                                     icon="mdi-eye-outline"
                                                     :size="20"
                                                     class="me-3"
+                                                    color="info"
                                                 />
                                             </template>
                                             <VListItemTitle>View</VListItemTitle>
@@ -166,6 +175,7 @@ const deleteBuilding = (id: number) => {
                                                     icon="mdi-pencil-outline"
                                                     :size="20"
                                                     class="me-3"
+                                                    color="warning"
                                                 />
                                             </template>
                                             <VListItemTitle>Edit</VListItemTitle>
@@ -177,6 +187,7 @@ const deleteBuilding = (id: number) => {
                                                     icon="mdi-delete-outline"
                                                     :size="20"
                                                     class="me-3"
+                                                    color="error"
                                                 />
                                             </template>
 
@@ -228,7 +239,7 @@ const deleteBuilding = (id: number) => {
         </VCard>
         <Add
             v-model:isDrawerOpen="isAddNewBuilding"
-            @building-data="addNewBuilding"
+            @building-data="handleSubmit"
             v-model:buildingId="idUpdate"
         />
     </section>

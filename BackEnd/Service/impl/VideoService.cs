@@ -20,6 +20,7 @@ namespace Showreel.Service.impl
             {
                 query = query.Where(b => b.Title.Contains(keySearch));
             }
+            query = query.OrderByDescending(b => b.Id);
             return query.ToList();
         }
 

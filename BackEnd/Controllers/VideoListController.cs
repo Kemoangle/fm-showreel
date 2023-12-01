@@ -56,6 +56,12 @@ namespace Showreel.Controllers
         [HttpPost]
         public IActionResult Create([FromBody] Videolist videoList)
         {
+            var videoListExist = videoListService.GetAllVideoList().ToList();
+            if (videoListExist.Any(b => b.Title?.ToUpper() == videoList.Title?.ToUpper()))
+            {
+                ModelState.AddModelError("VideoList", "The video list already exists");
+                return BadRequest(ModelState);
+            }
             videoList.CreatedTime = DateOnly.FromDateTime(DateTime.Now);
             videoList.LastUpdatedTime = DateOnly.FromDateTime(DateTime.Now);
             var item = videoListService.AddVideoList(videoList);

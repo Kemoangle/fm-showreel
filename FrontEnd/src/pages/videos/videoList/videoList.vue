@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PopupCreateListVideo from '@/components/PopupCreateListVideo.vue';
+import { useSnackbar } from '@/components/Snackbar.vue';
 import ViewListVideo from '@/components/ViewListVideo.vue';
 import { VideoList } from '@/model/videoList';
 import { useVideoListStore } from '@/store/useVideoListStore';
@@ -10,10 +11,11 @@ const videoListStore = useVideoListStore();
 const videoListId = ref(0);
 const isViewListVideo = ref(false);
 const keySearch = ref('');
-const pageSize = ref(3);
+const pageSize = ref(10);
 const currentPage = ref(1);
 const totalPages = ref(1);
 const totalItems = ref();
+const { showSnackbar } = useSnackbar();
 
 const isDialogListVideoVisible = ref(false);
 
@@ -44,8 +46,14 @@ watch(pageSize, () => {
 
 const handleSubmit = async (videoListData: VideoList) => {
     const { videoVideoList, ...rest } = videoListData;
-    const response = await videoListStore.addVideoList(rest);
-    await videoListStore.addVideoVideoList(videoVideoList, response.id);
+    await videoListStore
+        .addVideoList(rest)
+        .then((response) => {
+            videoListStore.addVideoVideoList(videoVideoList, response.id);
+        })
+        .catch((error) => {
+            showSnackbar(error.data.VideoList[0], 'error');
+        });
     getAll();
 };
 
@@ -78,12 +86,12 @@ const deleteList = async (id: number) => {
                     </VCol>
                     <VCol cols="12" sm="8" class="display">
                         <VTextField
-                        placeholder="Search"
-                        density="compact"
-                        class="me-3"
-                        @input="getAll"
-                        v-model="keySearch"
-                    />
+                            placeholder="Search"
+                            density="compact"
+                            class="me-3"
+                            @input="getAll"
+                            v-model="keySearch"
+                        />
                     </VCol>
                 </VRow>
             </VCardText>
@@ -97,7 +105,6 @@ const deleteList = async (id: number) => {
                         <th scope="col">#</th>
                         <th scope="col">Title</th>
                         <th scope="col">Create time</th>
-                        <th scope="col">Last update time</th>
                         <th scope="col" class="text-center">Action</th>
                     </tr>
                 </thead>
@@ -116,11 +123,7 @@ const deleteList = async (id: number) => {
                         </td>
 
                         <td>
-                            {{ moment(item.createdTime).format('DD-MM-YYYY')}}
-                        </td>
-
-                        <td>
-                            {{ moment(item.lastUpdatedTime).format('DD-MM-YYYY') }}
+                            {{ moment(item.createdTime).format('DD-MM-YYYY') }}
                         </td>
 
                         <td class="text-center">
@@ -135,6 +138,7 @@ const deleteList = async (id: number) => {
                                                     icon="mdi-eye-outline"
                                                     :size="20"
                                                     class="me-3"
+                                                    color="info"
                                                 />
                                             </template>
                                             <VListItemTitle>View</VListItemTitle>
@@ -146,6 +150,7 @@ const deleteList = async (id: number) => {
                                                     icon="mdi-delete-outline"
                                                     :size="20"
                                                     class="me-3"
+                                                    color="error"
                                                 />
                                             </template>
                                             <VListItemTitle>Delete</VListItemTitle>
@@ -197,10 +202,7 @@ const deleteList = async (id: number) => {
             v-model:is-dialog-visible="isDialogListVideoVisible"
             @video-list-data="handleSubmit"
         />
-        <ViewListVideo
-        v-model:videoListId="videoListId"
-        v-model:isDrawerOpen="isViewListVideo"
-        />
+        <ViewListVideo v-model:videoListId="videoListId" v-model:isDrawerOpen="isViewListVideo" />
     </section>
 </template>
 
