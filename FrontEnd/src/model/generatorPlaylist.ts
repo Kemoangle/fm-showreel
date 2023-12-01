@@ -14,8 +14,8 @@ export interface IListInfoCompany {
 }
 
 export interface IPlaylist {
-    title: string;
-    duration?: number;
+    name: string;
+    durations?: number;
     key: string;
     category?: string;
     remarks: string;

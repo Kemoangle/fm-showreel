@@ -1,6 +1,5 @@
 import { IPlaylist, IVideos } from '@/model/generatorPlaylist';
 import _ from 'lodash';
-import { list } from 'postcss';
 export class generatorPlaylist {
     createVideo = (data: IVideos) => {
         const newArr = [];
@@ -267,5 +266,10 @@ export class generatorPlaylist {
         newListVideo = this.handleCheckAndSortNoBackToBack(newListVideo);
 
         return newListVideo;
+    };
+
+    handleRestrictionBuilding = (building: any, videos: IVideos[]) => {
+        console.log('videos:', videos);
+        console.log('building:', building);
     };
 }

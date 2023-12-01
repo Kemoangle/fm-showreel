@@ -3,7 +3,7 @@ import PopupCreateListVideo from '@/components/PopupCreateListVideo.vue';
 import PopupViewListVideo from '@/components/PopupViewListVideo.vue';
 import { useSnackbar } from '@/components/Snackbar.vue';
 import { IListPlaylist, IPlaylist, IVideos } from '@/model/generatorPlaylist';
-import { listVideo1, listVideo2, listVideo3 } from '@/utils/constant';
+import { listVideo1, listVideo2, listVideo3, listVideo4 } from '@/utils/constant';
 import { generatorPlaylist } from '@/utils/generatorPlaylist';
 import _ from 'lodash';
 import { VueDraggableNext } from 'vue-draggable-next';
@@ -15,6 +15,8 @@ const selectedListVideo = ref();
 
 const isDialogListVideoVisible = ref(false);
 const isDialogListVideoCurrent = ref(false);
+const isViewPlaylistGeneric = ref(false);
+const playlistGeneric = ref<IPlaylist[]>([]);
 
 const dragOptions = () => {
     return {
@@ -41,6 +43,13 @@ const buildings = [
                 restriction: 'No Back to Back With F&B',
             },
         ],
+        restriction: [
+            {
+                category: 'Movie',
+                except: ['Mac'],
+                exclude: ['Mo'],
+            },
+        ],
     },
     { title: 'OGW', value: 'ogw', landlordAds: [] },
     {
@@ -56,6 +65,35 @@ const buildings = [
                 restriction: 'No Back to Back With F&B',
             },
         ],
+        restriction: [
+            {
+                category: 'Movie',
+                except: [],
+                exclude: [],
+            },
+        ],
+    },
+    {
+        title: 'UOL United Sq Off Twr_(RN)',
+        value: 'UOLUnitedSqOffTwr',
+        landlordAds: [
+            {
+                key: 'sUOL029',
+                name: 'UOL - UPOPP',
+                durations: 15,
+                loop: 4,
+                category: 'UOL',
+                restriction: '',
+            },
+            {
+                key: 'sUOL032',
+                name: 'sUOL032 UOL - Pinetree Hill 15s',
+                durations: 15,
+                loop: 2,
+                category: 'UOL',
+                restriction: '',
+            },
+        ],
     },
 ];
 
@@ -63,6 +101,7 @@ const listVideos = [
     { title: 'listvideo 1', value: 'admin', videos: listVideo1 },
     { title: 'listvideo 2', value: 'author', videos: listVideo2 },
     { title: 'listvideo 3', value: 'editor', videos: listVideo3 },
+    { title: 'listvideo 4', value: 'video4', videos: listVideo4 },
 ];
 
 onMounted(() => {
@@ -74,64 +113,6 @@ onMounted(() => {
 
 // 👉 listPlaylist list
 const listPlaylist = ref<IListPlaylist[]>();
-
-const handleGeneratorPlaylist = () => {
-    const exportPlaylist = new generatorPlaylist();
-    const newPlaylistBuilding: IListPlaylist[] = [];
-
-    if (_.isEmpty(selectedBuilding.value)) {
-        showSnackbar("You haven't selected a building yet !", 'error');
-        return;
-    }
-
-    if (_.isEmpty(selectedListVideo.value)) {
-        showSnackbar("You haven't selected a list video yet !", 'error');
-        return;
-    }
-
-    const genPlaylist = (list: IVideos[], landLordAds: IVideos[]) => {
-        const playlist: IPlaylist[] = [];
-        let newList = [...list];
-        if (!_.isEmpty(landLordAds)) {
-            newList = exportPlaylist.addLandLordAds(newList, landLordAds);
-        }
-
-        newList.forEach((l, index) => {
-            if (l) {
-                playlist.push({
-                    category: l.category,
-                    duration: l.durations,
-                    key: l.key,
-                    remarks: '1',
-                    title: l.name,
-                    order: index,
-                });
-            }
-        });
-
-        return playlist;
-    };
-
-    buildings.forEach((building, index) => {
-        if (selectedBuilding.value.includes(building.value)) {
-            const playlist = exportPlaylist.createListVideo(
-                listVideos.find((x) => x.value == selectedListVideo.value)?.videos as IVideos[]
-            );
-
-            newPlaylistBuilding.push({
-                id: index + 1,
-                buildingName: 'building ' + building.title,
-                playlist: genPlaylist(playlist, building.landlordAds),
-            });
-        }
-    });
-
-    listPlaylist.value = newPlaylistBuilding;
-};
-
-const handleClickCreateListVideo = () => {
-    isDialogListVideoVisible.value = !isDialogListVideoVisible.value;
-};
 
 const handleClickShowListVideo = () => {
     isDialogListVideoCurrent.value = !isDialogListVideoCurrent.value;
@@ -145,8 +126,7 @@ const handleCloseDialogShowListVideo = () => {
     isDialogListVideoCurrent.value = !isDialogListVideoCurrent.value;
 };
 
-const handleSaveOnePlaylist = (playlist: IPlaylist[]) => {
-    console.log(playlist);
+const checkPlaylistInvalid = (playlist: IPlaylist[]) => {
     const exportPlaylist = new generatorPlaylist();
 
     const listVideoCurrent = listVideos.find((x) => x.value == selectedListVideo.value)?.videos;
@@ -155,7 +135,7 @@ const handleSaveOnePlaylist = (playlist: IPlaylist[]) => {
         exportPlaylist.checkCategoriesCloselyTogether(playlist);
 
     const listVideo: IVideos[] = playlist.map((x) => ({
-        name: x.title,
+        name: x.name,
         restriction: listVideoCurrent?.find((l) => l.key == x.key)?.restriction || '',
         key: x.key,
         loop: 1,
@@ -164,13 +144,106 @@ const handleSaveOnePlaylist = (playlist: IPlaylist[]) => {
     const isCheckNoBackToBack = exportPlaylist.checkNoBackToBack(listVideo);
     if (isCheckCategoriesCloselyTogether) {
         showSnackbar('Category conflicts in playlists, please double-check?', 'error');
-        return;
+        return false;
     }
 
     if (isCheckNoBackToBack.status) {
         showSnackbar('Back to back conflicts in playlists, please double-check?', 'error');
+        return false;
+    }
+    return true;
+};
+
+const handleSaveOnePlaylist = (playlist: IPlaylist[]) => {
+    checkPlaylistInvalid(playlist);
+};
+
+const handleCreatePlaylistGeneric = () => {
+    if (_.isEmpty(selectedListVideo.value)) {
+        showSnackbar("You haven't selected a list video yet !", 'error');
         return;
     }
+
+    isViewPlaylistGeneric.value = true;
+    playlistGeneric.value = [];
+
+    const exportPlaylist = new generatorPlaylist();
+    const playlist = exportPlaylist.createListVideo(
+        listVideos.find((x) => x.value == selectedListVideo.value)?.videos as IVideos[]
+    );
+
+    playlist.forEach((l, index) => {
+        if (l) {
+            playlistGeneric.value.push({
+                category: l.category,
+                durations: l.durations,
+                key: l.key,
+                remarks: '1',
+                name: l.name,
+                order: index,
+            });
+        }
+    });
+};
+
+const convertPlaylistToListVideo = (playlist: IPlaylist[]) => {
+    const newListVideo: IVideos[] = [];
+
+    playlist.forEach((element: unknown) => {
+        newListVideo.push(element as IVideos);
+    });
+    return newListVideo;
+};
+
+const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
+    if (checkPlaylistInvalid(playlist)) {
+        const exportPlaylist = new generatorPlaylist();
+        const newPlaylistBuilding: IListPlaylist[] = [];
+
+        isViewPlaylistGeneric.value = false;
+
+        const genPlaylist = (listVideo: IVideos[], landLordAds: IVideos[]) => {
+            const playlist: IPlaylist[] = [];
+            let newList = [...listVideo];
+            if (!_.isEmpty(landLordAds)) {
+                newList = exportPlaylist.addLandLordAds(newList, landLordAds);
+            }
+
+            newList.forEach((l, index) => {
+                if (l) {
+                    playlist.push({
+                        category: l.category,
+                        durations: l.durations,
+                        key: l.key,
+                        remarks: '1',
+                        name: l.name,
+                        order: index,
+                    });
+                }
+            });
+
+            return playlist;
+        };
+
+        buildings.forEach((building, index) => {
+            if (selectedBuilding.value.includes(building.value)) {
+                newPlaylistBuilding.push({
+                    id: index + 1,
+                    buildingName: 'building ' + building.title,
+                    playlist: genPlaylist(
+                        convertPlaylistToListVideo(playlistGeneric.value),
+                        building.landlordAds
+                    ),
+                });
+            }
+        });
+
+        listPlaylist.value = newPlaylistBuilding;
+    }
+};
+
+const handleViewPlaylistGeneric = () => {
+    isViewPlaylistGeneric.value = !isViewPlaylistGeneric.value;
 };
 </script>
 
@@ -196,33 +269,41 @@ const handleSaveOnePlaylist = (playlist: IPlaylist[]) => {
                             clearable
                             clear-icon="mdi-close"
                             multiple
-                        />
-                    </VCol>
-                    <VCol cols="12" sm="4">
-                        <VBtn
-                            variant="tonal"
-                            color="secondary"
-                            prepend-icon="mdi-tray-arrow-down"
-                            @click="handleGeneratorPlaylist"
                         >
-                            Generator
-                        </VBtn>
+                            <template v-slot:selection="{ item, index }">
+                                <span>{{ item.title }}</span>
+                                <span
+                                    v-if="index === 1"
+                                    class="text-grey text-caption align-self-center"
+                                >
+                                    (+{{ selectedBuilding.length - 1 }} others)
+                                </span>
+                            </template>
+                        </VSelect>
                     </VCol>
                 </VRow>
                 <VRow>
-                    <VCol cols="12" sm="4">
+                    <VCol cols="12" sm="3" v-if="_.isEmpty(playlistGeneric)">
                         <VBtn
                             variant="tonal"
                             color="secondary"
-                            prepend-icon="mdi-tray-arrow-down"
-                            @click="handleClickCreateListVideo"
+                            @click="handleCreatePlaylistGeneric"
                         >
-                            Create List Video
+                            Generator Playlist Generic
+                        </VBtn>
+                    </VCol>
+                    <VCol cols="12" sm="3" v-else>
+                        <VBtn variant="tonal" color="secondary" @click="handleViewPlaylistGeneric">
+                            {{
+                                isViewPlaylistGeneric
+                                    ? 'View All Playlist'
+                                    : 'View Playlist Generic'
+                            }}
                         </VBtn>
                     </VCol>
                     <VCol
                         cols="12"
-                        sm="4"
+                        sm="3"
                         v-if="listVideos.find((x) => x.value == selectedListVideo)?.videos"
                     >
                         <VBtn
@@ -239,10 +320,94 @@ const handleSaveOnePlaylist = (playlist: IPlaylist[]) => {
         </VCard>
 
         <VCard
+            title="Playlist Generic"
+            class="mb-6 position-relative"
+            v-if="!_.isEmpty(playlistGeneric) && isViewPlaylistGeneric"
+        >
+            <VBtn
+                color="primary"
+                class="position-absolute"
+                @click="handleGeneratorPlaylistBuildings(playlistGeneric)"
+            >
+                Generator PlayList Buildings
+            </VBtn>
+            <VTable class="text-no-wrap">
+                <thead>
+                    <tr>
+                        <th scope="col">STT</th>
+                        <th scope="col">TITLE</th>
+                        <th scope="col">DURATION</th>
+                        <th scope="col">KEY NO</th>
+                        <th scope="col">CATEGORY</th>
+                        <th scope="col">REMARK</th>
+                    </tr>
+                </thead>
+
+                <VueDraggableNext
+                    class="list-group"
+                    tag="tbody"
+                    handle=".handle"
+                    :list="playlistGeneric"
+                    v-bind="dragOptions"
+                    @start="isDragging = true"
+                    @end="isDragging = false"
+                >
+                    <transition-group type="transition" name="flip-list">
+                        <tr
+                            class="handle"
+                            v-for="(paylist, index) in playlistGeneric"
+                            :key="paylist.order"
+                        >
+                            <td>
+                                {{ index + 1 }}
+                            </td>
+                            <td>
+                                {{ paylist.name }}
+                            </td>
+
+                            <td class="text-medium-emphasis">
+                                {{ paylist.durations }}
+                            </td>
+
+                            <td>
+                                {{ paylist.key }}
+                            </td>
+
+                            <td class="text-capitalize">
+                                {{ paylist.category }}
+                            </td>
+
+                            <td>
+                                {{ paylist.remarks }}
+                            </td>
+                        </tr>
+                        <tr key="j">
+                            <td></td>
+                            <td></td>
+                            <td class="text-medium-emphasis">
+                                {{ playlistGeneric.reduce((a, b) => a + (b?.durations || 0), 0) }}
+                            </td>
+                            <td></td>
+                            <td class="text-capitalize"></td>
+                            <td></td>
+                        </tr>
+                    </transition-group>
+                </VueDraggableNext>
+
+                <tfoot v-show="!playlistGeneric.length">
+                    <tr>
+                        <td colspan="7" class="text-center">No data available</td>
+                    </tr>
+                </tfoot>
+            </VTable>
+        </VCard>
+
+        <VCard
             :title="`Playlist ${building.buildingName}`"
             v-for="building in listPlaylist"
             :key="building.buildingName"
             class="mb-6 position-relative"
+            v-if="!isViewPlaylistGeneric"
         >
             <VBtn
                 color="primary"
@@ -266,35 +431,46 @@ const handleSaveOnePlaylist = (playlist: IPlaylist[]) => {
                 <VueDraggableNext
                     class="list-group"
                     tag="tbody"
+                    handle=".handle"
                     :list="building.playlist"
                     v-bind="dragOptions"
                     @start="isDragging = true"
                     @end="isDragging = false"
                 >
                     <transition-group type="transition" name="flip-list">
-                        <tr v-for="(paylist, index) in building.playlist" :key="paylist.order">
+                        <tr
+                            class="handle"
+                            v-for="(paylist, index) in building.playlist"
+                            :key="paylist.order"
+                        >
                             <td>
                                 {{ index + 1 }}
                             </td>
                             <td>
-                                {{ paylist.title }}
+                                {{ paylist.name }}
                             </td>
-
                             <td class="text-medium-emphasis">
-                                {{ paylist.duration }}
+                                {{ paylist.durations }}
                             </td>
-
                             <td>
                                 {{ paylist.key }}
                             </td>
-
                             <td class="text-capitalize">
                                 {{ paylist.category }}
                             </td>
-
                             <td>
                                 {{ paylist.remarks }}
                             </td>
+                        </tr>
+                        <tr key="j">
+                            <td></td>
+                            <td></td>
+                            <td class="text-medium-emphasis">
+                                {{ building.playlist.reduce((a, b) => a + (b?.durations || 0), 0) }}
+                            </td>
+                            <td></td>
+                            <td class="text-capitalize"></td>
+                            <td></td>
                         </tr>
                     </transition-group>
                 </VueDraggableNext>

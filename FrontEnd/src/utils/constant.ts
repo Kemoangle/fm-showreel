@@ -254,3 +254,62 @@ export const listVideo3 = [
         restriction: '',
     },
 ];
+
+export const listVideo4 = [
+    {
+        key: 'sT4380',
+        name: 'WB - Blue Beetle Cinemas Now',
+        durations: 30,
+        loop: 3,
+        category: 'Movie',
+        restriction: '',
+    },
+    {
+        key: 'sT4383',
+        name: 'Firefly - Book Now',
+        durations: 25,
+        loop: 3,
+        category: 'Travel',
+        restriction: '',
+    },
+    {
+        key: 'sT4384',
+        name: 'Skechers - Slip Ins',
+        durations: 30,
+        loop: 4,
+        category: 'Product',
+        restriction: '',
+    },
+    {
+        key: 'sT4387',
+        name: 'Live Nation - SMSP Aug23',
+        durations: 15,
+        loop: 3,
+        category: 'Event/concert',
+        restriction: '',
+    },
+    {
+        key: 'sCM008',
+        name: 'FMSG Hiring',
+        durations: 15,
+        loop: 1,
+        category: 'Hiring',
+        restriction: '',
+    },
+    {
+        key: 'sT4386',
+        name: 'Tour de France - Singapore Criterium23',
+        durations: 40,
+        loop: 2,
+        category: 'Travel',
+        restriction: '',
+    },
+    {
+        key: 'sCM012',
+        name: 'OOH',
+        durations: 10,
+        loop: 1,
+        category: 'Media',
+        restriction: 'No Back to Back With FMSG Contents',
+    },
+];
