@@ -4,33 +4,37 @@ import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 
 export const useVideoListStore = defineStore('videoList', {
-    state: (): { data: any} => ({
-        data: []
+    state: (): { data: any } => ({
+        data: [],
     }),
     actions: {
         async getAllVideoList() {
-            await axiosIns.get<VideoList[]>('VideoList/getAll').then((response) => {
-            });
-        },
-        async getPageVideoList(keySearch: string, page: number, pageSize: number) {
-            await axiosIns.get<VideoList[]>('VideoList', {
-                params: {
-                    keySearch: keySearch,
-                    page: page,
-                    pageSize: pageSize
-                }
-            }).then((response) => {
-                this.data = response;
-            });
-        },
-        
-        
-        async addVideoList(videoList: VideoList): Promise<VideoList> {
-            return await axiosIns.post('VideoList/' , videoList);
+            await axiosIns.get<VideoList[]>('VideoList/getAll').then((response) => {});
         },
 
-        async addVideoVideoList(videoVideolist: VideoVideolist[] | undefined, id: number | undefined) {
-            await axiosIns.patch('VideoList/' + id , videoVideolist);
+        async getPageVideoList(keySearch: string, page: number, pageSize: number) {
+            await axiosIns
+                .get<VideoList[]>('VideoList', {
+                    params: {
+                        keySearch: keySearch,
+                        page: page,
+                        pageSize: pageSize,
+                    },
+                })
+                .then((response) => {
+                    this.data = response;
+                });
+        },
+
+        async addVideoList(videoList: VideoList): Promise<VideoList> {
+            return await axiosIns.post('VideoList/', videoList);
+        },
+
+        async addVideoVideoList(
+            videoVideolist: VideoVideolist[] | undefined,
+            id: number | undefined
+        ) {
+            await axiosIns.patch('VideoList/' + id, videoVideolist);
         },
 
         async getVideoByListId(id: number) {
@@ -40,6 +44,5 @@ export const useVideoListStore = defineStore('videoList', {
         async deleteList(id: number) {
             await axiosIns.delete('VideoList/' + id);
         },
-    },                             
+    },
 });
-
