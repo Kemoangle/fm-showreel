@@ -7,5 +7,11 @@ public partial class Restriction
 {
     public int Id { get; set; }
 
-    public string? RestrictionName { get; set; }
+    public int? BuildingId { get; set; }
+
+    public int? VideoId { get; set; }
+
+    public virtual Building? Building { get; set; }
+
+    public virtual Video? Video { get; set; }
 }

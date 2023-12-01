@@ -6,11 +6,9 @@ namespace Showreel.Service.impl
     public class BuildingService : IBuildingService
     {
         private readonly ShowreelContext _context;
-        private readonly IRestrictionService _restrictionService;
-        public BuildingService(ShowreelContext context, IRestrictionService restrictionService)
+        public BuildingService(ShowreelContext context)
         {
             _context = context;
-            _restrictionService = restrictionService;
         }
 
         public IEnumerable<Building> GetAllBuildings(string keySearch = "")
@@ -53,16 +51,5 @@ namespace Showreel.Service.impl
         }
 
 
-
-        public void AddBuildingRestriction(Buildingrestriction buildingRestriction)
-        {
-            _context.Buildingrestrictions.Add(buildingRestriction);
-            _context.SaveChanges();
-        }
-
-        public IEnumerable<Buildingrestriction> GetAllBuildingRestriction(int id)
-        {
-            return _context.Buildingrestrictions.Where((Buildingrestriction b) => b.BuildingId == id);
-        }
     }
 }

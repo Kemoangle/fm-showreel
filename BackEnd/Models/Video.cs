@@ -25,6 +25,8 @@ public partial class Video
 
     public virtual ICollection<Landlordad> Landlordads { get; set; } = new List<Landlordad>();
 
+    public virtual ICollection<Restriction> Restrictions { get; set; } = new List<Restriction>();
+
     public virtual ICollection<VideoVideolist> VideoVideolists { get; set; } = new List<VideoVideolist>();
 
     public virtual ICollection<Videocategory> Videocategories { get; set; } = new List<Videocategory>();
