@@ -154,6 +154,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                     item-title="name"
                                     label="Category"
                                     :rules="[requiredValidator]"
+                                    :menu-props="{ maxHeight: 250 }"
                                     multiple
                                     return-object
                                 >

@@ -160,6 +160,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                     label="Select Zone"
                                     :rules="[requiredValidator]"
                                     :items="['City', 'West', 'South', 'Central', 'East', 'North']"
+                                    :menu-props="{ maxHeight: 200 }"
                                 />
                             </VCol>
 

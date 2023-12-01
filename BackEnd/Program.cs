@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BackEnd.Service;
+using BackEnd.Service.impl;
+using Microsoft.EntityFrameworkCore;
 using Showreel.Models;
 using Showreel.Service;
 using Showreel.Service.impl;
@@ -17,6 +19,7 @@ builder.Services.AddScoped<IBuildingService, BuildingService>();
 builder.Services.AddScoped<IVideoService, VideoService>();
 builder.Services.AddScoped<IVideoCategoryService, VideoCategoryService>();
 builder.Services.AddScoped<IVideoListService, VideoListService>();
+builder.Services.AddScoped<ILanlordAdsService, LandlordAdsService>();
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 //  builder.Services.AddCors(options =>

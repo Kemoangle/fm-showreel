@@ -1,0 +1,41 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Showreel.Models;
+
+namespace BackEnd.Service.impl
+{
+    public class LandlordAdsService : ILanlordAdsService
+    {
+        private readonly ShowreelContext _context;
+        public LandlordAdsService(ShowreelContext context)
+        {
+            _context = context;
+        }
+        public void AddLandlordAds(Landlordad landlordad)
+        {
+            _context.Landlordads.Add(landlordad);
+            _context.SaveChanges();
+        }
+
+        public void DeleteLandlordAds(int id)
+        {
+            var landlordadDelete = _context.Landlordads.Find(id);
+            if(landlordadDelete != null){
+                _context.Landlordads.Remove(landlordadDelete);
+            }
+        }
+
+        public IEnumerable<Landlordad> GetAllLandlordAds(int id)
+        {
+            return _context.Landlordads.Where(l => l.BuildingId == id).ToList();
+        }
+
+        public void UpdateLandlordAds(Landlordad landlordad)
+        {
+            _context.Update(landlordad);
+            _context.SaveChanges();
+        }
+    }
+}

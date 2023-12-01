@@ -1,108 +1,118 @@
 <script lang="ts" setup>
-import avatar2 from '@images/avatars/avatar-2.png';
+import { LandlordAds } from '@/model/landlordAds';
+
+interface Props {
+    landlordAdsData: LandlordAds[];
+}
+
+const props = defineProps<Props>();
 </script>
 
 <template>
-  <VCard>
-    <VCardItem>
-      <template #prepend>
-        <VIcon icon="mdi-chart-timeline-variant" />
-      </template>
+    <section>
+        <VCard>
+            <VCardItem>
+                <template #prepend>
+                    <VIcon icon="mdi-chart-timeline-variant" color="success" />
+                </template>
+                <VBtn variant="tonal" color="secondary" prepend-icon="mdi-tray-arrow-down" style="float: inline-end;">
+                    Add Video
+                </VBtn>
+                <VCardTitle>LandlordAds</VCardTitle>
+            </VCardItem>
 
-      <VCardTitle>Lanlord Ads</VCardTitle>
-    </VCardItem>
+            <VDivider />
 
-    <VCardText>
-      <VTimeline
-        density="compact"
-        align="start"
-        truncate-line="both"
-        :line-inset="12"
-        class="v-timeline-density-compact"
-      >
-        <VTimelineItem
-          dot-color="error"
-          size="x-small"
-        >
-          <div class="d-flex justify-space-between align-center flex-wrap">
-            
-            <h4 class="text-base font-weight-medium me-1 mb-2">
-              8 Invoices have been paid
-            </h4>
-            <span class="text-xs text-disabled text-no-wrap">Wednesday</span>
-          </div>
-          <p class="mb-2">
-            Invoices have been paid to the company.
-          </p>
-          <div class="d-flex align-center mt-2">
-            <VAvatar
-              size="24"
-              class="me-2"
-              :image="avatar2"
-            />
-            
-            <h6 class="font-weight-medium text-sm">
-              Invoices.pdf
-            </h6>
-          </div>
-        </VTimelineItem>
+            <VTable class="text-no-wrap">
+                <!-- 👉 table head -->
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Video Title</th>
+                        <th scope="col">Duration</th>
+                        <th scope="col">Key No</th>
+                        <th scope="col">Loop</th>
+                        <th scope="col">Start Date</th>
+                        <th scope="col">End Date</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
 
-        <VTimelineItem
-          dot-color="primary"
-          size="x-small"
-        >
-          <div class="d-flex justify-space-between align-center flex-wrap">
-            <h4 class="text-base font-weight-medium me-1 mb-2">
-              Create a new project for client 😎
-            </h4>
-            <span class="text-xs text-disabled text-no-wrap">April, 18</span>
-          </div>
+                <!-- 👉 table body -->
+                <tbody>
+                    <tr v-for="(item, index) in landlordAdsData" :key="item.id">
+                        <!-- 👉 User -->
+                        <td>{{ index + 1 }}</td>
+                        <td>
+                            <div class="d-flex align-center">
+                                {{ item.video?.title }}
+                            </div>
+                        </td>
 
-          <p class="mb-1">
-            Invoices have been paid to the company.
-          </p>
+                        <!-- 👉 Email -->
+                        <td class="">
+                            {{ item.video?.duration }}
+                        </td>
 
-          <div class="d-flex align-center mt-3">
-            <VAvatar
-              size="24"
-              class="me-2"
-              :image="avatar2"
-            />
-            <div>
-              <span class="text-sm font-weight-medium mb-0">
-                John Doe (Client)
-              </span>
-            </div>
-          </div>
-        </VTimelineItem>
+                        <td class="">
+                            {{ item.video?.keyNo }}
+                        </td>
 
-        <VTimelineItem
-          dot-color="info"
-          size="x-small"
-        >
-          <div class="d-flex justify-space-between align-center flex-wrap">
-            <h4 class="text-base font-weight-medium me-1 mb-2">
-              Order #37745 from September
-            </h4>
-            <span class="text-xs text-disabled text-no-wrap">January, 10</span>
-          </div>
-          <p class="mb-0">
-            Invoices have been paid to the company.
-          </p>
-        </VTimelineItem>
+                        <td class="">
+                            {{ item.loop }}
+                        </td>
 
-        <VTimelineItem
-          dot-color="success"
-          size="x-small"
-        >
-          <div class="d-flex justify-space-between align-center flex-wrap">
-            <h4 class="text-base font-weight-medium me-1 mb-3">
-              Public Meeting
-            </h4>
-            <span class="text-xs text-disabled text-no-wrap">September, 30</span>
-          </div>
-        </VTimelineItem>
-      </VTimeline>
-    </VCardText>
-  </VCard>
+                        <td class="">
+                            {{ item.startDate }}
+                        </td>
+
+                        <td class="">
+                            {{ item.endDate }}
+                        </td>
+                        <td>
+                            <VBtn size="x-small" color="default" variant="plain" icon>
+                                <VIcon size="24" icon="mdi-dots-vertical" />
+
+                                <VMenu activator="parent">
+                                    <VList>
+                                        <VListItem href="javascript:void(0)">
+                                            <template #prepend>
+                                                <VIcon
+                                                    icon="mdi-pencil-outline"
+                                                    :size="20"
+                                                    class="me-3"
+                                                />
+                                            </template>
+                                            <VListItemTitle>Edit</VListItemTitle>
+                                        </VListItem>
+
+                                        <VListItem href="javascript:void(0)">
+                                            <template #prepend>
+                                                <VIcon
+                                                    icon="mdi-delete-outline"
+                                                    :size="20"
+                                                    class="me-3"
+                                                />
+                                            </template>
+
+                                            <VListItemTitle>Delete</VListItemTitle>
+                                        </VListItem>
+                                    </VList>
+                                </VMenu>
+                            </VBtn>
+                        </td>
+                    </tr>
+                </tbody>
+
+                <!-- 👉 table footer  -->
+                <tfoot v-show="!landlordAdsData">
+                    <tr>
+                        <td colspan="7" class="text-center">No data available</td>
+                    </tr>
+                </tfoot>
+            </VTable>
+
+            <VDivider />
+        </VCard>
+    </section>
 </template>
