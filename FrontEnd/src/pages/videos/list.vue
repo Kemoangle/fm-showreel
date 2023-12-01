@@ -10,7 +10,7 @@ const videoStore = useVideoStore();
 const categoryStore = useCategoryStore();
 
 const idUpdate = ref(0);
-
+const searching = ref(false);
 const isAddNewVideo = ref(false);
 const keySearch = ref('');
 
@@ -20,8 +20,8 @@ const totalPages = ref(1);
 const totalItems = ref();
 const { showSnackbar } = useSnackbar();
 
-const getAll = () => {
-    videoStore.getPageVideo(keySearch.value, currentPage.value, pageSize.value);
+const getAll = async () => {
+    await videoStore.getPageVideo(keySearch.value, currentPage.value, pageSize.value);
 };
 watchEffect(() => {
     totalPages.value = videoStore.data.totalPages;
@@ -85,6 +85,17 @@ const randomColor = () => {
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
     return randomColor;
 };
+
+const handleSearch = async() => {
+    searching.value = true;
+    videoStore.data.videos = [];
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    searching.value = false;
+    getAll();
+    
+}
+
+
 </script>
 
 <template>
@@ -110,6 +121,11 @@ const randomColor = () => {
                             @input="getAll"
                             v-model="keySearch"
                         />
+                        <!-- <VProgressLinear
+                            v-if="searching"
+                            indeterminate
+                            color="primary"
+                        /> -->
                     </VCol>
                 </VRow>
             </VCardText>
@@ -206,11 +222,12 @@ const randomColor = () => {
                 <!-- 👉 table footer  -->
                 <tfoot v-show="!videoStore.data.videos">
                     <tr>
-                        <td colspan="7" class="item-center">
-                            <VProgressCircular
-                                indeterminate
-                                color="info"
-                                />
+                        <td colspan="7" class="text-center">
+                            <v-row align="center" justify="center" class="fill-height">
+                                <v-col cols="12" class="text-center">
+                                <VProgressCircular indeterminate color="info" />
+                                </v-col>
+                            </v-row>
                         </td>
                     </tr>
                 </tfoot>

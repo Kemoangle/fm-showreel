@@ -10,6 +10,7 @@ import { onMounted, ref } from 'vue';
 const videoListStore = useVideoListStore();
 const videoListId = ref(0);
 const isViewListVideo = ref(false);
+const searching = ref(false);
 const keySearch = ref('');
 const pageSize = ref(10);
 const currentPage = ref(1);
@@ -67,6 +68,7 @@ const deleteList = async (id: number) => {
         getAll();
     });
 };
+
 </script>
 
 <template>

@@ -9,7 +9,5 @@ namespace Showreel.Service
         void AddBuilding(Building building);
         void UpdateBuilding(Building building);
         void DeleteBuilding(int id);
-        void AddBuildingRestriction(Buildingrestriction buildingrestriction);
-        IEnumerable<Buildingrestriction> GetAllBuildingRestriction(int id);
     }
 }

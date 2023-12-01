@@ -19,8 +19,6 @@ public partial class ShowreelContext : DbContext
 
     public virtual DbSet<Buildingplaylist> Buildingplaylists { get; set; }
 
-    public virtual DbSet<Buildingrestriction> Buildingrestrictions { get; set; }
-
     public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<Landlordad> Landlordads { get; set; }
@@ -43,21 +41,26 @@ public partial class ShowreelContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=sql12.freesqldatabase.com;uid=sql12666589;pwd=PcesrXAsfc;database=sql12666589", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.33-mysql"));
+        => optionsBuilder.UseMySql("server=sql12.freesqldatabase.com;uid=sql12666589;pwd=PcesrXAsfc;database=sql12666589", Microsoft.EntityFrameworkCore.ServerVersion.Parse("5.5.62-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
-            .UseCollation("utf8mb4_0900_ai_ci")
+            .UseCollation("utf8mb4_unicode_ci")
             .HasCharSet("utf8mb4");
 
         modelBuilder.Entity<Building>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("building");
+            entity
+                .ToTable("building")
+                .HasCharSet("utf8")
+                .UseCollation("utf8_general_ci");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
             entity.Property(e => e.Address)
                 .HasMaxLength(255)
                 .HasColumnName("address");
@@ -69,7 +72,9 @@ public partial class ShowreelContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("district");
             entity.Property(e => e.LastUpdateTime).HasColumnName("last_update_time");
-            entity.Property(e => e.PostalCode).HasColumnName("postal_code");
+            entity.Property(e => e.PostalCode)
+                .HasColumnType("int(11)")
+                .HasColumnName("postal_code");
             entity.Property(e => e.Remark)
                 .HasMaxLength(255)
                 .HasColumnName("remark");
@@ -83,14 +88,20 @@ public partial class ShowreelContext : DbContext
         {
             entity
                 .HasNoKey()
-                .ToTable("buildingplaylist");
+                .ToTable("buildingplaylist")
+                .HasCharSet("utf8")
+                .UseCollation("utf8_general_ci");
 
             entity.HasIndex(e => e.BuildingId, "building_id");
 
             entity.HasIndex(e => e.PlaylistId, "playlist_id");
 
-            entity.Property(e => e.BuildingId).HasColumnName("building_id");
-            entity.Property(e => e.PlaylistId).HasColumnName("playlist_id");
+            entity.Property(e => e.BuildingId)
+                .HasColumnType("int(11)")
+                .HasColumnName("building_id");
+            entity.Property(e => e.PlaylistId)
+                .HasColumnType("int(11)")
+                .HasColumnName("playlist_id");
 
             entity.HasOne(d => d.Building).WithMany()
                 .HasForeignKey(d => d.BuildingId)
@@ -101,41 +112,18 @@ public partial class ShowreelContext : DbContext
                 .HasConstraintName("buildingplaylist_ibfk_2");
         });
 
-        modelBuilder.Entity<Buildingrestriction>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable("buildingrestriction");
-
-            entity.HasIndex(e => e.BuildingId, "building_id");
-
-            entity.HasIndex(e => e.RestrictionId, "restriction_id");
-
-            entity.Property(e => e.BuildingId).HasColumnName("building_id");
-            entity.Property(e => e.Except)
-                .HasColumnType("text")
-                .HasColumnName("except");
-            entity.Property(e => e.IsActive)
-                .HasDefaultValueSql("'1'")
-                .HasColumnName("is_active");
-            entity.Property(e => e.RestrictionId).HasColumnName("restriction_id");
-
-            entity.HasOne(d => d.Building).WithMany()
-                .HasForeignKey(d => d.BuildingId)
-                .HasConstraintName("buildingrestriction_ibfk_1");
-
-            entity.HasOne(d => d.Restriction).WithMany()
-                .HasForeignKey(d => d.RestrictionId)
-                .HasConstraintName("buildingrestriction_ibfk_2");
-        });
-
         modelBuilder.Entity<Category>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("category");
+            entity
+                .ToTable("category")
+                .HasCharSet("utf8")
+                .UseCollation("utf8_general_ci");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
             entity.Property(e => e.Name)
                 .HasMaxLength(255)
                 .HasColumnName("name");
@@ -145,16 +133,29 @@ public partial class ShowreelContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("landlordads");
+            entity
+                .ToTable("landlordads")
+                .HasCharSet("utf8")
+                .UseCollation("utf8_general_ci");
 
             entity.HasIndex(e => e.BuildingId, "building_id");
 
             entity.HasIndex(e => e.VideoId, "video_id");
 
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.BuildingId).HasColumnName("building_id");
-            entity.Property(e => e.Loop).HasColumnName("loop");
-            entity.Property(e => e.VideoId).HasColumnName("video_id");
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.BuildingId)
+                .HasColumnType("int(11)")
+                .HasColumnName("building_id");
+            entity.Property(e => e.EndDate).HasColumnName("end_date");
+            entity.Property(e => e.Loop)
+                .HasColumnType("int(11)")
+                .HasColumnName("loop");
+            entity.Property(e => e.StartDate).HasColumnName("start_date");
+            entity.Property(e => e.VideoId)
+                .HasColumnType("int(11)")
+                .HasColumnName("video_id");
 
             entity.HasOne(d => d.Building).WithMany(p => p.Landlordads)
                 .HasForeignKey(d => d.BuildingId)
@@ -169,9 +170,14 @@ public partial class ShowreelContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("playlist");
+            entity
+                .ToTable("playlist")
+                .HasCharSet("utf8")
+                .UseCollation("utf8_general_ci");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
             entity.Property(e => e.Creator)
                 .HasMaxLength(255)
                 .HasColumnName("creator");
@@ -193,14 +199,20 @@ public partial class ShowreelContext : DbContext
         {
             entity
                 .HasNoKey()
-                .ToTable("playlistvideo");
+                .ToTable("playlistvideo")
+                .HasCharSet("utf8")
+                .UseCollation("utf8_general_ci");
 
             entity.HasIndex(e => e.PlaylistId, "playlist_id");
 
             entity.HasIndex(e => e.VideoId, "video_id");
 
-            entity.Property(e => e.PlaylistId).HasColumnName("playlist_id");
-            entity.Property(e => e.VideoId).HasColumnName("video_id");
+            entity.Property(e => e.PlaylistId)
+                .HasColumnType("int(11)")
+                .HasColumnName("playlist_id");
+            entity.Property(e => e.VideoId)
+                .HasColumnType("int(11)")
+                .HasColumnName("video_id");
 
             entity.HasOne(d => d.Playlist).WithMany()
                 .HasForeignKey(d => d.PlaylistId)
@@ -217,22 +229,46 @@ public partial class ShowreelContext : DbContext
 
             entity.ToTable("restriction");
 
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.RestrictionName)
-                .HasMaxLength(255)
-                .HasColumnName("restriction_name");
+            entity.HasIndex(e => e.BuildingId, "building_id");
+
+            entity.HasIndex(e => e.VideoId, "video_id");
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.BuildingId)
+                .HasColumnType("int(11)")
+                .HasColumnName("building_id");
+            entity.Property(e => e.VideoId)
+                .HasColumnType("int(11)")
+                .HasColumnName("video_id");
+
+            entity.HasOne(d => d.Building).WithMany(p => p.Restrictions)
+                .HasForeignKey(d => d.BuildingId)
+                .HasConstraintName("restriction_ibfk_1");
+
+            entity.HasOne(d => d.Video).WithMany(p => p.Restrictions)
+                .HasForeignKey(d => d.VideoId)
+                .HasConstraintName("restriction_ibfk_2");
         });
 
         modelBuilder.Entity<Subcategory>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("subcategory");
+            entity
+                .ToTable("subcategory")
+                .HasCharSet("utf8")
+                .UseCollation("utf8_general_ci");
 
             entity.HasIndex(e => e.CategoryId, "category_id");
 
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CategoryId).HasColumnName("category_id");
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.CategoryId)
+                .HasColumnType("int(11)")
+                .HasColumnName("category_id");
             entity.Property(e => e.Name)
                 .HasMaxLength(255)
                 .HasColumnName("name");
@@ -246,11 +282,18 @@ public partial class ShowreelContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("video");
+            entity
+                .ToTable("video")
+                .HasCharSet("utf8")
+                .UseCollation("utf8_general_ci");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
             entity.Property(e => e.CreateTime).HasColumnName("create_time");
-            entity.Property(e => e.Duration).HasColumnName("duration");
+            entity.Property(e => e.Duration)
+                .HasColumnType("int(11)")
+                .HasColumnName("duration");
             entity.Property(e => e.FilePath)
                 .HasMaxLength(255)
                 .HasColumnName("file_path");
@@ -271,16 +314,27 @@ public partial class ShowreelContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("video_videolist");
+            entity
+                .ToTable("video_videolist")
+                .HasCharSet("utf8")
+                .UseCollation("utf8_general_ci");
 
             entity.HasIndex(e => e.VideoListId, "videoList_id");
 
             entity.HasIndex(e => e.VideoId, "video_id");
 
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.LoopNum).HasColumnName("loop_num");
-            entity.Property(e => e.VideoId).HasColumnName("video_id");
-            entity.Property(e => e.VideoListId).HasColumnName("videoList_id");
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.LoopNum)
+                .HasColumnType("int(11)")
+                .HasColumnName("loop_num");
+            entity.Property(e => e.VideoId)
+                .HasColumnType("int(11)")
+                .HasColumnName("video_id");
+            entity.Property(e => e.VideoListId)
+                .HasColumnType("int(11)")
+                .HasColumnName("videoList_id");
 
             entity.HasOne(d => d.Video).WithMany(p => p.VideoVideolists)
                 .HasForeignKey(d => d.VideoId)
@@ -295,15 +349,24 @@ public partial class ShowreelContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("videocategory");
+            entity
+                .ToTable("videocategory")
+                .HasCharSet("utf8")
+                .UseCollation("utf8_general_ci");
 
             entity.HasIndex(e => e.CategoryId, "fk_category");
 
             entity.HasIndex(e => e.VideoId, "fk_video");
 
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CategoryId).HasColumnName("category_id");
-            entity.Property(e => e.VideoId).HasColumnName("video_id");
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.CategoryId)
+                .HasColumnType("int(11)")
+                .HasColumnName("category_id");
+            entity.Property(e => e.VideoId)
+                .HasColumnType("int(11)")
+                .HasColumnName("video_id");
 
             entity.HasOne(d => d.Category).WithMany(p => p.Videocategories)
                 .HasForeignKey(d => d.CategoryId)
@@ -318,9 +381,14 @@ public partial class ShowreelContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("videolist");
+            entity
+                .ToTable("videolist")
+                .HasCharSet("utf8")
+                .UseCollation("utf8_general_ci");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
             entity.Property(e => e.CreatedTime).HasColumnName("createdTime");
             entity.Property(e => e.LastUpdatedTime).HasColumnName("lastUpdatedTime");
             entity.Property(e => e.Remark)

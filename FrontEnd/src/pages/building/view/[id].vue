@@ -38,11 +38,11 @@
         </VCardText>
     </VCard>
     <VRow>
-        <VCol cols="5" class="mt-1">
-            <Lanlord/>
+        <VCol cols="12" class="mt-1">
+            <Lanlord :landlord-ads-data="landlordAdsData"/>
         </VCol>
-        <VCol cols="7" class="mt-1">
-            <Res :restrictions-data="restrictionData" />
+        <VCol cols="6" class="mt-1">
+            <!-- <Res :restrictions-data="restrictionData" /> -->
         </VCol>
 
         <VCol cols="12" md="6"> </VCol>
@@ -53,28 +53,30 @@
 
 <script setup lang="ts">
 import { Building } from '@/model/building';
+import { LandlordAds } from '@/model/landlordAds';
 import axiosIns from '@/plugins/axios';
 import { useBuildingStore } from '../../../store/useBuildingStore';
 import Lanlord from './Lanlord.vue';
-import Res from './Res.vue';
 
 const building = ref<Building>();
 const router = useRoute();
 const restrictionData = ref<any>();
+const landlordAdsData = ref<LandlordAds[] | any>([]);
 
 const buildingStore = useBuildingStore();
 building.value = buildingStore.getBuildingById(Number(router.params.id));
 
-const fetchRestrictionData = () => {
+const fetchData = () => {
     axiosIns
-        .get('Restrictions/building/' + Number(router.params.id))
+        .get<LandlordAds[]>('LanlordAds/' + Number(router.params.id))
         .then((response) => {
-            restrictionData.value = response;
+            landlordAdsData.value = response;
         });
+    
 };
 
 onMounted(() => {
-    fetchRestrictionData();
+    fetchData();
 });
 </script>
 

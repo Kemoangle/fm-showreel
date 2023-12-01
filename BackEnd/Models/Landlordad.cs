@@ -13,6 +13,10 @@ public partial class Landlordad
 
     public int? BuildingId { get; set; }
 
+    public DateOnly? StartDate { get; set; }
+
+    public DateOnly? EndDate { get; set; }
+
     public virtual Building? Building { get; set; }
 
     public virtual Video? Video { get; set; }

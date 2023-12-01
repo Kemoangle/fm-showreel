@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useVideoListStore } from '@/store/useVideoListStore';
 
-
 interface IProps {
     isDrawerOpen: boolean;
     videoListId: number;
@@ -14,24 +13,19 @@ interface Emit {
 const props = defineProps<IProps>();
 const emit = defineEmits<Emit>();
 
-const handleSave = () => {
-};
-
 const handleClose = () => {
     emit('update:isDrawerOpen', false);
 };
 
-
 const videoListStore = useVideoListStore();
-
 
 const videoList = ref<any>([]);
 
 watch(props, async (oldId, newId) => {
-    if (newId.videoListId && newId.videoListId > 0 ) {
-        videoListStore.getVideoByListId(newId.videoListId).then(response =>{
+    if (newId.videoListId && newId.videoListId > 0) {
+        await videoListStore.getVideoByListId(newId.videoListId).then((response) => {
             videoList.value = response;
-        })
+        });
     }
 });
 </script>
@@ -76,16 +70,13 @@ watch(props, async (oldId, newId) => {
                             </td>
                         </tr>
                     </tbody>
-
-                    <!-- 👉 table footer  -->
-                    <!-- <tfoot v-show="!buildingStore.data.buildings">
-                    <tr>
-                        <td colspan="7" class="text-center">No data available</td>
-                    </tr>
-                </tfoot> -->
                 </VTable>
             </VCardText>
-
+            <v-row align="center" justify="center" class="fill-height" v-show="!videoList.length">
+                <v-col cols="12" class="text-center">
+                    <VProgressCircular indeterminate color="info" />
+                </v-col>
+            </v-row>
             <VCardActions>
                 <VSpacer />
                 <VBtn color="error" @click="handleClose"> Close </VBtn>

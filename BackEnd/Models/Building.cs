@@ -24,4 +24,6 @@ public partial class Building
     public int? PostalCode { get; set; }
 
     public virtual ICollection<Landlordad> Landlordads { get; set; } = new List<Landlordad>();
+
+    public virtual ICollection<Restriction> Restrictions { get; set; } = new List<Restriction>();
 }

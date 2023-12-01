@@ -154,6 +154,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                     item-title="name"
                                     label="Category"
                                     :rules="[requiredValidator]"
+                                    :menu-props="{ maxHeight: 250 }"
                                     multiple
                                     return-object
                                 >
@@ -195,8 +196,8 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
 <style scoped>
 .v-autocomplete {
   /* stylelint-disable-next-line liberty/use-logical-spec */
-  max-height: 50px; /* Set your desired maximum height */
+  max-height: 50px;
   /* stylelint-disable-next-line order/properties-order */
-  overflow: hidden; /* Hide content that exceeds the maximum height */
+  overflow: hidden;
 }
 </style>
