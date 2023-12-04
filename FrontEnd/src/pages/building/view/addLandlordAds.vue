@@ -5,6 +5,7 @@ import type { VForm } from 'vuetify/components';
 
 import { Building } from '@/model/building';
 import { LandlordAds } from '@/model/landlordAds';
+import axiosIns from '@/plugins/axios';
 import { useVideoStore } from '@/store/useVideoStore';
 import { requiredValidator } from '@validators';
 
@@ -32,7 +33,21 @@ const landlordData = ref<LandlordAds | any>({
     buildingId: 0,
     startDate: '',
     endDate: '',
-    video: null
+});
+
+watch(props, async (oldId, newId) => {
+    refForm.value?.reset();
+    refForm.value?.resetValidation();
+    if (newId.landlordAdsId && newId.landlordAdsId > 0 ) {
+        axiosIns.get('LandlordAds/GetLandlordAdsById/' + newId.landlordAdsId).then((response: any) => {
+            landlordData.value = response;
+        });
+    }
+    else{
+        landlordData.value.id = 0;
+        refForm.value?.reset();
+        refForm.value?.resetValidation();
+    }
 });
 
 const createVideos = () => {

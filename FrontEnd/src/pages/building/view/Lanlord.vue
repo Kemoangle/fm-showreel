@@ -2,7 +2,9 @@
 import { useSnackbar } from '@/components/Snackbar.vue';
 import { LandlordAds } from '@/model/landlordAds';
 import { useLanlordAdsStore } from '@/store/useLandlordStore';
+import Swal from 'sweetalert2';
 import AddLandlordAds from './addLandlordAds.vue';
+
 interface Props {
     buildingId: any;
 }
@@ -19,23 +21,49 @@ const handleUpdate = (id: number) => {
 
 const handleSubmit = async (landlordData: LandlordAds) => {
     landlordData.buildingId = props.buildingId;
-    
-    await lanlordAdsStore.addLandlordAds(landlordData)
+    delete(landlordData.video);
+    if (landlordData.id && landlordData.id > 0) {
+        await lanlordAdsStore.updateLandlordAds(landlordData)
         .then(response =>{
             lanlordAdsStore.getAllLandlordAds(props.buildingId);
         }).catch((error) => {
             showSnackbar(error.data.Landlordad[0], 'error');
         });
+    } else{
+        await lanlordAdsStore.addLandlordAds(landlordData)
+        .then(response =>{
+            lanlordAdsStore.getAllLandlordAds(props.buildingId);
+        }).catch((error) => {
+            showSnackbar(error.data.Landlordad[0], 'error');
+        });
+    }
 };
 
 onMounted(() =>{
     lanlordAdsStore.getAllLandlordAds(props.buildingId);
 })
 
-const deleteLandlordAds = (id: number) => {
-    lanlordAdsStore.deleteLandlordAds(id).then((response) => {
-        lanlordAdsStore.getAllLandlordAds(props.buildingId);
-    });
+const deleteLandlordAds = async (id: number) => {
+    await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+        if (result.isConfirmed) {
+            lanlordAdsStore.deleteLandlordAds(id).then((response) => {
+                lanlordAdsStore.getAllLandlordAds(props.buildingId);
+                Swal.fire({
+                    title: "Deleted!",
+                    icon: "success"
+                });
+            }); 
+            
+        }
+        });
 };
 </script>
 
@@ -109,24 +137,25 @@ const deleteLandlordAds = (id: number) => {
 
                                 <VMenu activator="parent">
                                     <VList>
-                                        <VListItem href="javascript:void(0)">
+                                        <VListItem @click="handleUpdate(item.id)">
                                             <template #prepend>
                                                 <VIcon
                                                     icon="mdi-pencil-outline"
                                                     :size="20"
                                                     class="me-3"
+                                                    color="warning"
                                                 />
                                             </template>
                                             <VListItemTitle>Edit</VListItemTitle>
                                         </VListItem>
 
-                                        <VListItem href="javascript:void(0)">
+                                        <VListItem @click="deleteLandlordAds(item.id)">
                                             <template #prepend>
                                                 <VIcon
                                                     icon="mdi-delete-outline"
                                                     :size="20"
                                                     class="me-3"
-                                                    @click="deleteLandlordAds(item.id)"
+                                                    color="error"
                                                 />
                                             </template>
 
@@ -152,7 +181,7 @@ const deleteLandlordAds = (id: number) => {
         <AddLandlordAds
             v-model:isDrawerOpen="isDrawerOpen"
             @landlord-data="handleSubmit"
-            v-model:buildingId="idUpdate"
+            v-model:landlordAdsId="idUpdate"
         />
     </section>
 </template>

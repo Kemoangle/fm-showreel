@@ -5,6 +5,7 @@ import ViewListVideo from '@/components/ViewListVideo.vue';
 import { VideoList } from '@/model/videoList';
 import { useVideoListStore } from '@/store/useVideoListStore';
 import moment from 'moment';
+import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
 
 const videoListStore = useVideoListStore();
@@ -64,9 +65,25 @@ const viewListVideo = (id: number) => {
 };
 
 const deleteList = async (id: number) => {
-    await videoListStore.deleteList(id).then((response) => {
-        getAll();
-    });
+    await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+        if (result.isConfirmed) {
+            videoListStore.deleteList(id).then((response) => {
+                getAll();
+                Swal.fire({
+                    title: "Deleted!",
+                    icon: "success"
+                }); 
+            }); 
+        } 
+    });                                                                 
 };
 
 </script>

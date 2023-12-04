@@ -2,6 +2,7 @@
 import { useSnackbar } from '@/components/Snackbar.vue';
 import { Building } from '@/model/building';
 import { useBuildingStore } from '@/store/useBuildingStore';
+import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
 import Add from './add.vue';
 
@@ -10,6 +11,7 @@ const idUpdate = ref(0);
 
 const isAddNewBuilding = ref(false);
 const keySearch = ref('');
+const router = useRoute();
 
 const pageSize = ref(10);
 const currentPage = ref(1);
@@ -63,10 +65,29 @@ const handleUpdate = (id: number) => {
 };
 
 const deleteBuilding = (id: number) => {
-    buildingStore.deleteBuilding(id).then((response) => {
-        getAll();
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+        if (result.isConfirmed) {
+            buildingStore.deleteBuilding(id).then((response) => {
+                Swal.fire({
+                    title: "Deleted!",
+                    icon: "success"
+                    });
+                getAll();
+            });
+            
+        }
     });
 };
+
+
 </script>
 
 <template>

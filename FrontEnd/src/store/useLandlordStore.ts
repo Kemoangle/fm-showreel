@@ -21,5 +21,9 @@ export const useLanlordAdsStore = defineStore('landlord', {
         async deleteLandlordAds(id: number) {
             return await axiosIns.delete('LandlordAds/' + id);
         },
+
+        async updateLandlordAds(landlordAds: LandlordAds): Promise<LandlordAds> {
+            return await axiosIns.patch('LandlordAds/' + landlordAds.id, landlordAds);
+        },
     },
 });

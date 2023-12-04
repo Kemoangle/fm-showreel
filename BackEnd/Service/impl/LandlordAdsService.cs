@@ -34,6 +34,11 @@ namespace BackEnd.Service.impl
             return query.ToList();
         }
 
+        public Landlordad GetLandlordad(int id)
+        {
+            return _context.Landlordads.FirstOrDefault(v => v.Id == id);
+        }
+
         public void UpdateLandlordAds(Landlordad landlordad)
         {
             _context.Update(landlordad);

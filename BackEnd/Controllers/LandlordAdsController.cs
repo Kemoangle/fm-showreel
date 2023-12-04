@@ -28,7 +28,8 @@ namespace Showreel.Controllers
         public IActionResult GetAllLandlordAds(int id)
         {
             var query = from l in lanlordAdsService.GetAllLandlordAds(id)
-                        select new {
+                        select new
+                        {
                             id = l.Id,
                             loop = l.Loop,
                             startDate = l.StartDate,
@@ -50,12 +51,48 @@ namespace Showreel.Controllers
             lanlordAdsService.AddLandlordAds(landlordad);
             return Ok("success");
         }
-        
+
 
         [HttpDelete("{id}")]
         public IActionResult DeleteLandlordAds(int id)
         {
             lanlordAdsService.DeleteLandlordAds(id);
+            return Ok();
+        }
+
+        [HttpGet("GetLandlordAdsById/{id}")]
+        public IActionResult GetLandlordAdsById(int id)
+        {
+            var landlordads = lanlordAdsService.GetLandlordad(id);
+            if (landlordads == null)
+            {
+                ModelState.AddModelError("Id", "The Id not found");
+
+                return NotFound(ModelState);
+            }
+            var response = new {
+                id = landlordads.Id,
+                loop = landlordads.Loop,
+                videoId = landlordads.VideoId,
+                buildingId = landlordads.BuildingId,
+                startDate = landlordads.StartDate,
+                endDate = landlordads.EndDate,
+            };
+            return Ok(response);
+        }
+
+        [HttpPatch("{id}")]
+        public IActionResult UpdateLandlordads(int id, [FromBody] Landlordad landlordads)
+        {
+            var videoExists = lanlordAdsService.GetAllLandlordAds((int)landlordads.BuildingId)
+                                                .Where(l => l.Id != id)
+                                                .Select(l => l.VideoId).ToList();
+            if (videoExists.Contains(landlordads.VideoId))
+            {
+                ModelState.AddModelError("Landlordad", "The video already exists");
+                return BadRequest(ModelState);
+            }
+            lanlordAdsService.UpdateLandlordAds(landlordads);
             return Ok();
         }
     }

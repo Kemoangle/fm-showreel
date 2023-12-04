@@ -12,5 +12,6 @@ namespace BackEnd.Service
         void AddLandlordAds(Landlordad landlordad);
         void UpdateLandlordAds(Landlordad landlordad);
         void DeleteLandlordAds(int id);
+        Landlordad GetLandlordad(int id);
     }
 }
