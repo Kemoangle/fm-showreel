@@ -185,11 +185,14 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
         </VNavigationDrawer>
     </section>
 </template>
-<style scoped>
+<style lang="scss">
 .v-autocomplete {
-    /* stylelint-disable-next-line liberty/use-logical-spec */
-    max-height: 50px;
-    /* stylelint-disable-next-line order/properties-order */
-    overflow: hidden;
+  .v-chip {
+    white-space: wrap;
+  }
+
+  .v-chip.v-chip--density-default {
+    block-size: unset !important;
+  }
 }
 </style>

@@ -5,7 +5,7 @@ export interface LandlordAds{
     loop?: number
     videoId?: number
     buildingId?: number
-    startDate?: Date
-    endDate?: Date
+    startDate?: string
+    endDate?: string
     video?: Video
 }
