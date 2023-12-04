@@ -11,11 +11,11 @@ public partial class Landlordad
 
     public int? VideoId { get; set; }
 
-    public int? BuildingId { get; set; }
-
     public DateOnly? StartDate { get; set; }
 
     public DateOnly? EndDate { get; set; }
+
+    public int? BuildingId { get; set; }
 
     public virtual Building? Building { get; set; }
 

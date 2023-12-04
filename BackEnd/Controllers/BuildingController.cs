@@ -76,6 +76,7 @@ namespace Showreel.Controllers
             building.CreateTime = DateOnly.FromDateTime(DateTime.Now);
             building.LastUpdateTime = null;
             building.Landlordads = new List<Landlordad>();
+            building.Restrictions = new List<Restriction>();
             _buildingService.AddBuilding(building);
             return Ok("success");
         }
@@ -97,6 +98,7 @@ namespace Showreel.Controllers
             }
             building.LastUpdateTime = DateOnly.FromDateTime(DateTime.Now);
             building.Landlordads = new List<Landlordad>();
+            building.Restrictions = new List<Restriction>();
             _buildingService.UpdateBuilding(building);
 
             return Ok();

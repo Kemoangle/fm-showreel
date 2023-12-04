@@ -13,12 +13,12 @@ namespace Showreel.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LanlordAdsController : Controller
+    public class LandlordAdsController : Controller
     {
         private readonly ILanlordAdsService lanlordAdsService;
         private readonly IVideoService videoService;
 
-        public LanlordAdsController(ILanlordAdsService _lanlordAdsService, IVideoService _videoService)
+        public LandlordAdsController(ILanlordAdsService _lanlordAdsService, IVideoService _videoService)
         {
             lanlordAdsService = _lanlordAdsService;
             videoService = _videoService;
@@ -38,5 +38,25 @@ namespace Showreel.Controllers
             return Ok(query.ToList());
         }
 
+        [HttpPost]
+        public IActionResult CreateLandlordAds([FromBody] Landlordad landlordad)
+        {
+            var landlordadExist = lanlordAdsService.GetAllLandlordAds((int)landlordad.BuildingId);
+            if (landlordadExist.Any(l => l.VideoId == landlordad.VideoId))
+            {
+                ModelState.AddModelError("Landlordad", "The video already exists");
+                return BadRequest(ModelState);
+            }
+            lanlordAdsService.AddLandlordAds(landlordad);
+            return Ok("success");
+        }
+        
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteLandlordAds(int id)
+        {
+            lanlordAdsService.DeleteLandlordAds(id);
+            return Ok();
+        }
     }
 }
