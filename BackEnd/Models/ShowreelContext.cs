@@ -138,7 +138,7 @@ public partial class ShowreelContext : DbContext
                 .HasCharSet("utf8")
                 .UseCollation("utf8_general_ci");
 
-            entity.HasIndex(e => e.BuildingId, "building_id");
+            entity.HasIndex(e => e.BuildingId, "fk_landlordads_building");
 
             entity.HasIndex(e => e.VideoId, "video_id");
 
@@ -159,7 +159,7 @@ public partial class ShowreelContext : DbContext
 
             entity.HasOne(d => d.Building).WithMany(p => p.Landlordads)
                 .HasForeignKey(d => d.BuildingId)
-                .HasConstraintName("landlordads_ibfk_2");
+                .HasConstraintName("fk_landlordads_building");
 
             entity.HasOne(d => d.Video).WithMany(p => p.Landlordads)
                 .HasForeignKey(d => d.VideoId)
@@ -229,7 +229,7 @@ public partial class ShowreelContext : DbContext
 
             entity.ToTable("restriction");
 
-            entity.HasIndex(e => e.BuildingId, "building_id");
+            entity.HasIndex(e => e.BuildingId, "fk_restriction_building");
 
             entity.HasIndex(e => e.VideoId, "video_id");
 
@@ -245,7 +245,7 @@ public partial class ShowreelContext : DbContext
 
             entity.HasOne(d => d.Building).WithMany(p => p.Restrictions)
                 .HasForeignKey(d => d.BuildingId)
-                .HasConstraintName("restriction_ibfk_1");
+                .HasConstraintName("fk_restriction_building");
 
             entity.HasOne(d => d.Video).WithMany(p => p.Restrictions)
                 .HasForeignKey(d => d.VideoId)

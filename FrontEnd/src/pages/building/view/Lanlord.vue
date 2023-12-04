@@ -1,11 +1,70 @@
 <script lang="ts" setup>
+import { useSnackbar } from '@/components/Snackbar.vue';
 import { LandlordAds } from '@/model/landlordAds';
+import { useLanlordAdsStore } from '@/store/useLandlordStore';
+import Swal from 'sweetalert2';
+import AddLandlordAds from './addLandlordAds.vue';
 
 interface Props {
-    landlordAdsData: LandlordAds[];
+    buildingId: any;
 }
-
+const idUpdate = ref(0);
+const isDrawerOpen = ref(false);
 const props = defineProps<Props>();
+const lanlordAdsStore = useLanlordAdsStore();
+const { showSnackbar } = useSnackbar();
+
+const handleUpdate = (id: number) => {
+    idUpdate.value = id;
+    isDrawerOpen.value = true;
+};
+
+const handleSubmit = async (landlordData: LandlordAds) => {
+    landlordData.buildingId = props.buildingId;
+    delete(landlordData.video);
+    if (landlordData.id && landlordData.id > 0) {
+        await lanlordAdsStore.updateLandlordAds(landlordData)
+        .then(response =>{
+            lanlordAdsStore.getAllLandlordAds(props.buildingId);
+        }).catch((error) => {
+            showSnackbar(error.data.Landlordad[0], 'error');
+        });
+    } else{
+        await lanlordAdsStore.addLandlordAds(landlordData)
+        .then(response =>{
+            lanlordAdsStore.getAllLandlordAds(props.buildingId);
+        }).catch((error) => {
+            showSnackbar(error.data.Landlordad[0], 'error');
+        });
+    }
+};
+
+onMounted(() =>{
+    lanlordAdsStore.getAllLandlordAds(props.buildingId);
+})
+
+const deleteLandlordAds = async (id: number) => {
+    await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+        if (result.isConfirmed) {
+            lanlordAdsStore.deleteLandlordAds(id).then((response) => {
+                lanlordAdsStore.getAllLandlordAds(props.buildingId);
+                Swal.fire({
+                    title: "Deleted!",
+                    icon: "success"
+                });
+            }); 
+            
+        }
+        });
+};
 </script>
 
 <template>
@@ -15,7 +74,10 @@ const props = defineProps<Props>();
                 <template #prepend>
                     <VIcon icon="mdi-chart-timeline-variant" color="success" />
                 </template>
-                <VBtn variant="tonal" color="secondary" prepend-icon="mdi-tray-arrow-down" style="float: inline-end;">
+                <VBtn variant="tonal" color="secondary" 
+                    prepend-icon="mdi-tray-arrow-down"
+                    style="float: inline-end;" 
+                    @click="handleUpdate(0)">
                     Add Video
                 </VBtn>
                 <VCardTitle>LandlordAds</VCardTitle>
@@ -40,7 +102,7 @@ const props = defineProps<Props>();
 
                 <!-- 👉 table body -->
                 <tbody>
-                    <tr v-for="(item, index) in landlordAdsData" :key="item.id">
+                    <tr v-for="(item, index) in lanlordAdsStore.data" :key="item.id">
                         <!-- 👉 User -->
                         <td>{{ index + 1 }}</td>
                         <td>
@@ -75,23 +137,25 @@ const props = defineProps<Props>();
 
                                 <VMenu activator="parent">
                                     <VList>
-                                        <VListItem href="javascript:void(0)">
+                                        <VListItem @click="handleUpdate(item.id)">
                                             <template #prepend>
                                                 <VIcon
                                                     icon="mdi-pencil-outline"
                                                     :size="20"
                                                     class="me-3"
+                                                    color="warning"
                                                 />
                                             </template>
                                             <VListItemTitle>Edit</VListItemTitle>
                                         </VListItem>
 
-                                        <VListItem href="javascript:void(0)">
+                                        <VListItem @click="deleteLandlordAds(item.id)">
                                             <template #prepend>
                                                 <VIcon
                                                     icon="mdi-delete-outline"
                                                     :size="20"
                                                     class="me-3"
+                                                    color="error"
                                                 />
                                             </template>
 
@@ -105,7 +169,7 @@ const props = defineProps<Props>();
                 </tbody>
 
                 <!-- 👉 table footer  -->
-                <tfoot v-show="!landlordAdsData">
+                <tfoot v-show="!lanlordAdsStore.data">
                     <tr>
                         <td colspan="7" class="text-center">No data available</td>
                     </tr>
@@ -114,5 +178,10 @@ const props = defineProps<Props>();
 
             <VDivider />
         </VCard>
+        <AddLandlordAds
+            v-model:isDrawerOpen="isDrawerOpen"
+            @landlord-data="handleSubmit"
+            v-model:landlordAdsId="idUpdate"
+        />
     </section>
 </template>

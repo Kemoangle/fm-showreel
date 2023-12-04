@@ -24,12 +24,19 @@ namespace BackEnd.Service.impl
             var landlordadDelete = _context.Landlordads.Find(id);
             if(landlordadDelete != null){
                 _context.Landlordads.Remove(landlordadDelete);
+                _context.SaveChanges();
             }
         }
 
         public IEnumerable<Landlordad> GetAllLandlordAds(int id)
         {
-            return _context.Landlordads.Where(l => l.BuildingId == id).ToList();
+            var query = _context.Landlordads.Where(l => l.BuildingId == id);
+            return query.ToList();
+        }
+
+        public Landlordad GetLandlordad(int id)
+        {
+            return _context.Landlordads.FirstOrDefault(v => v.Id == id);
         }
 
         public void UpdateLandlordAds(Landlordad landlordad)
@@ -37,5 +44,7 @@ namespace BackEnd.Service.impl
             _context.Update(landlordad);
             _context.SaveChanges();
         }
+    
+
     }
 }

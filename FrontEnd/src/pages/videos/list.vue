@@ -3,6 +3,7 @@ import { useSnackbar } from '@/components/Snackbar.vue';
 import { Video } from '@/model/video';
 import { useCategoryStore } from '@/store/useCategoryStore';
 import { useVideoStore } from '@/store/useVideoStore';
+import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
 import Add from './add.vue';
 
@@ -51,9 +52,25 @@ const handleUpdate = (id: number) => {
 };
 
 const deleteVideo = (id: number) => {
-    videoStore.deleteVideo(id).then((response) => {
-        getAll();
-    });
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+        if (result.isConfirmed) {
+            videoStore.deleteVideo(id).then((response) => {
+                getAll();
+                Swal.fire({
+                    title: "Deleted!",
+                    icon: "success"
+                }); 
+            }); 
+        } 
+    });   
 };
 
 const addNewVideo = async (videoData: Video) => {
