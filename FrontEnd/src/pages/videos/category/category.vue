@@ -140,7 +140,13 @@ watch(pageSize, () => {
                 <!-- 👉 table footer  -->
                 <tfoot v-show="!categoryStore.data.categories">
                     <tr>
-                        <td colspan="7" class="text-center">No data available</td>
+                        <td colspan="7" class="text-center">
+                            <v-row align="center" justify="center" class="fill-height">
+                                <v-col cols="12" class="text-center">
+                                <VProgressCircular indeterminate color="info" />
+                                </v-col>
+                            </v-row>
+                        </td>
                     </tr>
                 </tfoot>
             </VTable>
