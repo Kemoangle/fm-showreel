@@ -19,7 +19,6 @@ interface Props {
     videoId?: number;
 }
 
-
 const props = defineProps<Props>();
 const emit = defineEmits<Emit>();
 
@@ -43,19 +42,20 @@ watch(props, async (oldId, newId) => {
     });
     if (newId.videoId) {
         axiosIns.get('http://localhost:5124/api/Video/' + newId.videoId).then((response: any) => {
-            videoData.value = response;   
+            videoData.value = response;
             const matchingCategories = response.category.map((category: any) => {
                 return categories.value.find((c: Category) => c.name === category.name);
             });
-            videoData.value.category = matchingCategories.filter((category: any) => category !== null);
+            videoData.value.category = matchingCategories.filter(
+                (category: any) => category !== null
+            );
         });
     } else {
         videoData.value.id = 0;
-    }   
+    }
 });
 
-onMounted(() => {
-});
+onMounted(() => {});
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -83,121 +83,113 @@ const onSubmit = () => {
 const handleDrawerModelValueUpdate = (val: boolean) => {
     emit('update:isDrawerOpen', val);
 };
-
 </script>
 
 <template>
-    <VNavigationDrawer
-        temporary
-        :width="400"
-        location="end"
-        class="scrollable-content"
-        :model-value="props.isDrawerOpen"
-        @update:model-value="handleDrawerModelValueUpdate"
-    >
-        <!-- 👉 Title -->
-        <div class="d-flex align-center bg-var-theme-background px-5 py-2">
-            <h6 class="text-h6">Video</h6>
-            <VSpacer />
-            <VBtn
-                size="small"
-                color="secondary"
-                variant="text"
-                icon="mdi-close"
-                @click="closeNavigationDrawer"
-            />
-        </div>
+    <section>
+        <VNavigationDrawer
+            temporary
+            :width="400"
+            location="end"
+            class="scrollable-content"
+            :model-value="props.isDrawerOpen"
+            @update:model-value="handleDrawerModelValueUpdate"
+        >
+            <!-- 👉 Title -->
+            <div class="d-flex align-center bg-var-theme-background px-5 py-2">
+                <h6 class="text-h6">Video</h6>
+                <VSpacer />
+                <VBtn
+                    size="small"
+                    color="secondary"
+                    variant="text"
+                    icon="mdi-close"
+                    @click="closeNavigationDrawer"
+                />
+            </div>
 
-        <PerfectScrollbar :options="{ wheelPropagation: false }">
-            <VCard flat>
-                <VCardText>
-                    <!-- 👉 Form -->
-                    <VForm ref="refForm" v-model="isFormValid" @submit.prevent="onSubmit">
-                        <VRow>
-                            <!-- 👉 Title -->
-                            <VCol cols="12">
-                                <VTextField
-                                    v-model="videoData.title"
-                                    :rules="[requiredValidator]"
-                                    label="Title"
-                                />
-                            </VCol>
+            <PerfectScrollbar :options="{ wheelPropagation: false }">
+                <VCard flat>
+                    <VCardText>
+                        <!-- 👉 Form -->
+                        <VForm ref="refForm" v-model="isFormValid" @submit.prevent="onSubmit">
+                            <VRow>
+                                <!-- 👉 Title -->
+                                <VCol cols="12">
+                                    <VTextField
+                                        v-model="videoData.title"
+                                        :rules="[requiredValidator]"
+                                        label="Title"
+                                    />
+                                </VCol>
 
-                            <VCol cols="12">
-                                <VTextField
-                                    v-model="videoData.duration"
-                                    :rules="[requiredValidator]"
-                                    type="number"
-                                    label="Duration"
-                                />
-                            </VCol>
-                            <VCol cols="12">
-                                <VTextField
-                                    v-model="videoData.keyNo"
-                                    :rules="[requiredValidator]"
-                                    label="Key no"
-                                />
-                            </VCol>
+                                <VCol cols="12">
+                                    <VTextField
+                                        v-model="videoData.duration"
+                                        :rules="[requiredValidator]"
+                                        type="number"
+                                        label="Duration"
+                                    />
+                                </VCol>
+                                <VCol cols="12">
+                                    <VTextField
+                                        v-model="videoData.keyNo"
+                                        :rules="[requiredValidator]"
+                                        label="Key no"
+                                    />
+                                </VCol>
 
-                            <VCol cols="12">
-                                <VTextField 
-                                    v-model="videoData.rule" 
-                                    label="Rule" 
-                                />
-                            </VCol>
-                            <VCol cols="12">
-                                <VAutocomplete
-                                    v-model="videoData.category"
-                                    chips
-                                    closable-chips
-                                    :items="categories"
-                                    item-title="name"
-                                    label="Category"
-                                    :rules="[requiredValidator]"
-                                    :menu-props="{ maxHeight: 250 }"
-                                    multiple
-                                    return-object
-                                >
-                                    <template #chip="{ props, item }">
-                                        <VChip
-                                            v-bind="props"
-                                            :text="item.raw.name"
-                                        />
-                                    </template>
+                                <VCol cols="12">
+                                    <VTextField v-model="videoData.rule" label="Rule" />
+                                </VCol>
+                                <VCol cols="12">
+                                    <VAutocomplete
+                                        v-model="videoData.category"
+                                        chips
+                                        closable-chips
+                                        :items="categories"
+                                        item-title="name"
+                                        label="Category"
+                                        :rules="[requiredValidator]"
+                                        :menu-props="{ maxHeight: 250 }"
+                                        multiple
+                                        return-object
+                                    >
+                                        <template #chip="{ props, item }">
+                                            <VChip v-bind="props" :text="item.raw.name" />
+                                        </template>
 
-                                    <template #item="{ props, item }">
-                                        <VListItem
-                                            v-bind="props"
-                                            :title="item?.raw?.name"
-                                        />
-                                    </template>
-                                </VAutocomplete> 
-                            </VCol>
+                                        <template #item="{ props, item }">
+                                            <VListItem v-bind="props" :title="item?.raw?.name" />
+                                        </template>
+                                    </VAutocomplete>
+                                </VCol>
 
-                            <!-- 👉 Submit and Cancel -->
-                            <VCol cols="12">
-                                <VBtn type="submit" class="me-3"> Submit </VBtn>
-                                <VBtn
-                                    type="reset"
-                                    variant="tonal"
-                                    color="secondary"
-                                    @click="closeNavigationDrawer"
-                                >
-                                    Cancel
-                                </VBtn>
-                            </VCol>
-                        </VRow>
-                    </VForm>
-                </VCardText>
-            </VCard>
-        </PerfectScrollbar>
-    </VNavigationDrawer>
+                                <!-- 👉 Submit and Cancel -->
+                                <VCol cols="12">
+                                    <VBtn type="submit" class="me-3"> Submit </VBtn>
+                                    <VBtn
+                                        type="reset"
+                                        variant="tonal"
+                                        color="secondary"
+                                        @click="closeNavigationDrawer"
+                                    >
+                                        Cancel
+                                    </VBtn>
+                                </VCol>
+                            </VRow>
+                        </VForm>
+                    </VCardText>
+                </VCard>
+            </PerfectScrollbar>
+        </VNavigationDrawer>
+    </section>
 </template>
 <style scoped>
 .v-autocomplete {
-  /* stylelint-disable-next-line liberty/use-logical-spec */
-  max-height: 50px;
-  /* stylelint-disable-next-line order/properties-order */
-  overflow: hidden;
+    /* stylelint-disable-next-line liberty/use-logical-spec */
+    max-height: 50px;
+    /* stylelint-disable-next-line order/properties-order */
+    overflow: hidden;
 }
 </style>

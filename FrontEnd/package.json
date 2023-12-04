@@ -4,6 +4,7 @@
     "private": true,
     "scripts": {
         "dev": "npm run build:icons && vite --host",
+        "start": "npm run build:icons && vite --host",
         "build": "npm run build:icons && vite build",
         "preview": "vite preview --port 5050",
         "typecheck": "vue-tsc --noEmit",

@@ -1,3 +1,4 @@
+import { Category } from '@/model/category';
 import { IPlaylist, IVideos } from '@/model/generatorPlaylist';
 import _ from 'lodash';
 export class generatorPlaylist {
@@ -12,12 +13,14 @@ export class generatorPlaylist {
     checkCategoriesCloselyTogether = (listVideo: IVideos[] | IPlaylist[]) => {
         const indexVideo = listVideo.findIndex((x, i) => {
             if (i == listVideo.length - 1) {
-                return x.category == listVideo[0].category && x.category && listVideo[0].category;
+                return (
+                    x?.category == listVideo[0]?.category && x?.category && listVideo[0]?.category
+                );
             } else {
                 return (
-                    x.category == listVideo[i + 1].category &&
-                    x.category &&
-                    listVideo[i + 1].category
+                    !this.checkDissimilarCategories(x?.category, listVideo[i + 1]?.category) &&
+                    x?.category &&
+                    listVideo[i + 1]?.category
                 );
             }
         });
@@ -30,33 +33,33 @@ export class generatorPlaylist {
     checkNoBackToBack = (listVideo: IVideos[]) => {
         for (let i = 0; i < listVideo.length; i++) {
             const element = listVideo[i];
-            if (element?.restriction) {
-                if (element?.restriction.includes('No Back to Back With ')) {
-                    const btbName = element?.restriction.split(' With ')[1];
+            if (element?.rule) {
+                if (element?.rule.toLocaleLowerCase().includes('no back to back with ')) {
+                    const btbName = element?.rule.toLocaleLowerCase().split(' with ')[1];
                     switch (btbName) {
-                        case 'FMSG Contents':
+                        case 'fmsg contents':
                             if (
-                                listVideo[i - 1]?.name.includes('FMSG') ||
-                                listVideo[i + 1]?.name.includes('FMSG')
+                                listVideo[i - 1]?.title?.includes('FMSG') ||
+                                listVideo[i + 1]?.title?.includes('FMSG')
                             ) {
                                 return {
                                     status: true,
                                     index: i,
-                                    indexReject: listVideo[i - 1]?.name.includes('FMSG')
+                                    indexReject: listVideo[i - 1]?.title?.includes('FMSG')
                                         ? i - 1
                                         : i + 1,
                                 };
                             }
                             break;
-                        case 'Crystal Tomato':
+                        case 'crystal tomato':
                             if (
-                                listVideo[i - 1]?.name.includes('Crystal Tomato') ||
-                                listVideo[i + 1]?.name.includes('Crystal Tomato')
+                                listVideo[i - 1]?.title?.includes('Crystal Tomato') ||
+                                listVideo[i + 1]?.title?.includes('Crystal Tomato')
                             ) {
                                 return {
                                     status: true,
                                     index: i,
-                                    indexReject: listVideo[i - 1]?.name.includes('Crystal Tomato')
+                                    indexReject: listVideo[i - 1]?.title?.includes('Crystal Tomato')
                                         ? i - 1
                                         : i + 1,
                                 };
@@ -75,12 +78,14 @@ export class generatorPlaylist {
     handleCategoriesCloselyTogether = (listVideo: IVideos[]) => {
         const indexVideo = listVideo.findIndex((x, i) => {
             if (i == listVideo.length - 1) {
-                return x.category == listVideo[0].category && x.category && listVideo[0].category;
+                return (
+                    x?.category == listVideo[0]?.category && x?.category && listVideo[0]?.category
+                );
             } else {
                 return (
-                    x.category == listVideo[i + 1].category &&
-                    x.category &&
-                    listVideo[i + 1].category
+                    !this.checkDissimilarCategories(x?.category, listVideo[i + 1]?.category) &&
+                    x?.category &&
+                    listVideo[i + 1]?.category
                 );
             }
         });
@@ -89,15 +94,33 @@ export class generatorPlaylist {
             const indexSwap = listVideo.findIndex((x, i) => {
                 if (i == 0) {
                     return (
-                        x.category !== listVideo[indexVideo].category &&
-                        listVideo[indexVideo].category !== listVideo[i + 1].category &&
-                        listVideo[indexVideo].category !== listVideo[listVideo.length - 1].category
+                        this.checkDissimilarCategories(
+                            x?.category,
+                            listVideo[indexVideo]?.category
+                        ) &&
+                        this.checkDissimilarCategories(
+                            listVideo[indexVideo]?.category,
+                            listVideo[i + 1]?.category
+                        ) &&
+                        this.checkDissimilarCategories(
+                            listVideo[indexVideo]?.category,
+                            listVideo[listVideo.length - 1]?.category
+                        )
                     );
                 } else {
                     return (
-                        x.category !== listVideo[indexVideo].category &&
-                        listVideo[indexVideo].category !== listVideo[i + 1].category &&
-                        listVideo[indexVideo].category !== listVideo[i - 1].category
+                        this.checkDissimilarCategories(
+                            x?.category,
+                            listVideo[indexVideo]?.category
+                        ) &&
+                        this.checkDissimilarCategories(
+                            listVideo[indexVideo]?.category,
+                            listVideo[i + 1]?.category
+                        ) &&
+                        this.checkDissimilarCategories(
+                            listVideo[indexVideo]?.category,
+                            listVideo[i - 1]?.category
+                        )
                     );
                 }
             });
@@ -113,6 +136,24 @@ export class generatorPlaylist {
         return listVideo;
     };
 
+    checkDissimilarCategories = (
+        category1: Category[] | undefined,
+        category2: Category[] | undefined
+    ) => {
+        // console.log(
+        //     'category2:' +
+        //         category2 +
+        //         ', category1:' +
+        //         category1 +
+        //         ', result:' +
+        //         !category1?.some((c) => category2?.some((s) => s.name == c.name))
+        // );
+        // if (category1 && category2) {
+        return category1?.some((c) => category2?.some((s) => s.name == c.name));
+        // }
+        return false;
+    };
+
     handleBackToBack = (
         listVideo: IVideos[],
         indexVideo: number,
@@ -123,12 +164,20 @@ export class generatorPlaylist {
             const indexSwap = listVideo.findIndex((x, i) => {
                 if (i == 0) {
                     return (
-                        x?.category !== listVideo[indexReject]?.category &&
-                        listVideo[indexReject]?.category !== listVideo[i + 1]?.category &&
-                        listVideo[indexReject]?.category !==
-                            listVideo[listVideo?.length - 1]?.category &&
-                        listVideo[indexReject]?.name !== listVideo[i + 1]?.name &&
-                        listVideo[indexReject]?.name !== listVideo[listVideo?.length - 1].name &&
+                        this.checkDissimilarCategories(
+                            x?.category,
+                            listVideo[indexReject]?.category
+                        ) &&
+                        this.checkDissimilarCategories(
+                            listVideo[indexReject]?.category,
+                            listVideo[i + 1]?.category
+                        ) &&
+                        this.checkDissimilarCategories(
+                            listVideo[indexReject]?.category,
+                            listVideo[listVideo?.length - 1]?.category
+                        ) &&
+                        listVideo[indexReject]?.title !== listVideo[i + 1]?.title &&
+                        listVideo[indexReject]?.title !== listVideo[listVideo?.length - 1].title &&
                         i !== indexVideo &&
                         i !== indexVideo + 1 &&
                         i !== indexVideo - 1
@@ -137,17 +186,26 @@ export class generatorPlaylist {
                     if (i < listVideo.length - 1) {
                         if (listVideo[indexReject]?.category) {
                             return (
-                                x?.category !== listVideo[indexReject]?.category &&
-                                listVideo[indexReject]?.category !== listVideo[i + 1]?.category &&
-                                listVideo[indexReject]?.category !== listVideo[i - 1]?.category &&
-                                listVideo[indexReject]?.name !== listVideo[i - 1]?.name &&
+                                this.checkDissimilarCategories(
+                                    x?.category,
+                                    listVideo[indexReject]?.category
+                                ) &&
+                                this.checkDissimilarCategories(
+                                    listVideo[indexReject]?.category,
+                                    listVideo[i + 1]?.category
+                                ) &&
+                                this.checkDissimilarCategories(
+                                    listVideo[indexReject]?.category,
+                                    listVideo[i - 1]?.category
+                                ) &&
+                                listVideo[indexReject]?.title !== listVideo[i - 1]?.title &&
                                 i !== indexVideo &&
                                 i !== indexVideo + 1 &&
                                 i !== indexVideo - 1
                             );
                         } else {
                             return (
-                                listVideo[indexReject]?.name !== listVideo[i - 1]?.name &&
+                                listVideo[indexReject]?.title !== listVideo[i - 1]?.title &&
                                 i !== indexVideo &&
                                 i !== indexVideo + 1 &&
                                 i !== indexVideo - 1

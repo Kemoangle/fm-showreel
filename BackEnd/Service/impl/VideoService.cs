@@ -73,9 +73,9 @@ namespace Showreel.Service.impl
         public IEnumerable<Video> GetVideoByList(int id)
         {
             var query = (from v in _context.Videos
-                        join l in _context.VideoVideolists on v.Id equals l.VideoId
-                        where l.VideoListId == id
-                        select v).ToList();
+                         join l in _context.VideoVideolists on v.Id equals l.VideoId
+                         where l.VideoListId == id
+                         select v).ToList();
             return query;
         }
     }
