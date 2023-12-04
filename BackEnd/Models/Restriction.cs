@@ -7,11 +7,11 @@ public partial class Restriction
 {
     public int Id { get; set; }
 
-    public int? VideoId { get; set; }
+    public int? CategoryId { get; set; }
 
-    public int? BuildingId { get; set; }
+    public string Name { get; set; } = null!;
 
-    public virtual Building? Building { get; set; }
+    public virtual ICollection<BuildingRestriction> BuildingRestrictions { get; set; } = new List<BuildingRestriction>();
 
-    public virtual Video? Video { get; set; }
+    public virtual Category? Category { get; set; }
 }

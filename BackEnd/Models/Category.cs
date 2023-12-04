@@ -9,7 +9,7 @@ public partial class Category
 
     public string? Name { get; set; }
 
-    public virtual ICollection<Subcategory> Subcategories { get; set; } = new List<Subcategory>();
+    public virtual ICollection<Restriction> Restrictions { get; set; } = new List<Restriction>();
 
     public virtual ICollection<Videocategory> Videocategories { get; set; } = new List<Videocategory>();
 }
