@@ -54,10 +54,16 @@ export const useBuildingStore = defineStore('building', {
             if (!_.isEmpty(this.allBuilding)) {
                 return this.allBuilding;
             } else {
-                return (await axiosIns.get<Building[]>('Building/getAll').then((response) => {
-                    this.data.buildings = response;
-                    return response;
-                })) as Building[];
+                return (await axiosIns
+                    .get<Building[]>('Building/getAll', {
+                        params: {
+                            isGetLandlord: true,
+                        },
+                    })
+                    .then((response) => {
+                        this.data.buildings = response;
+                        return response;
+                    })) as Building[];
             }
         },
     },

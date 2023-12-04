@@ -14,7 +14,9 @@ export class generatorPlaylist {
         const indexVideo = listVideo.findIndex((x, i) => {
             if (i == listVideo.length - 1) {
                 return (
-                    x?.category == listVideo[0]?.category && x?.category && listVideo[0]?.category
+                    !this.checkDissimilarCategories(x?.category, listVideo[0]?.category) &&
+                    x?.category &&
+                    listVideo[0]?.category
                 );
             } else {
                 return (
@@ -24,6 +26,7 @@ export class generatorPlaylist {
                 );
             }
         });
+        console.log('generatorPlaylist  indexVideo:', indexVideo);
         if (indexVideo >= 0) {
             return true;
         }
@@ -79,7 +82,9 @@ export class generatorPlaylist {
         const indexVideo = listVideo.findIndex((x, i) => {
             if (i == listVideo.length - 1) {
                 return (
-                    x?.category == listVideo[0]?.category && x?.category && listVideo[0]?.category
+                    !this.checkDissimilarCategories(x?.category, listVideo[0]?.category) &&
+                    x?.category &&
+                    listVideo[0]?.category
                 );
             } else {
                 return (
@@ -126,10 +131,11 @@ export class generatorPlaylist {
             });
 
             const newListVideo = [...listVideo];
-
-            let swapVideo: IVideos = _.clone(newListVideo[indexVideo]);
-            newListVideo[indexVideo] = _.clone(newListVideo[indexSwap]);
-            newListVideo[indexSwap] = _.clone(swapVideo);
+            if (indexSwap >= 0) {
+                let swapVideo: IVideos = _.clone(newListVideo[indexVideo]);
+                newListVideo[indexVideo] = _.clone(newListVideo[indexSwap]);
+                newListVideo[indexSwap] = _.clone(swapVideo);
+            }
 
             return newListVideo;
         }
@@ -140,18 +146,7 @@ export class generatorPlaylist {
         category1: Category[] | undefined,
         category2: Category[] | undefined
     ) => {
-        // console.log(
-        //     'category2:' +
-        //         category2 +
-        //         ', category1:' +
-        //         category1 +
-        //         ', result:' +
-        //         !category1?.some((c) => category2?.some((s) => s.name == c.name))
-        // );
-        // if (category1 && category2) {
-        return category1?.some((c) => category2?.some((s) => s.name == c.name));
-        // }
-        return false;
+        return !category1?.some((c) => category2?.some((s) => s.name == c.name));
     };
 
     handleBackToBack = (
@@ -229,6 +224,7 @@ export class generatorPlaylist {
 
     handleCheckAndSortCategoriesCloselyTogether = (listVideo: IVideos[]) => {
         let isCategoriesCloselyTogether = this.checkCategoriesCloselyTogether(listVideo);
+        console.log('generatorPlaylist  isCategoriesCloselyTogether:', isCategoriesCloselyTogether);
 
         let newListVideo: IVideos[] = [];
         let i = 0;
@@ -237,6 +233,7 @@ export class generatorPlaylist {
             newListVideo = this.handleCategoriesCloselyTogether(
                 newListVideo.length ? newListVideo : listVideo
             );
+            console.log('generatorPlaylist  newListVideo:' + i, newListVideo);
             isCategoriesCloselyTogether = this.checkCategoriesCloselyTogether(newListVideo);
         } while (isCategoriesCloselyTogether && i < 20);
 
@@ -320,8 +317,14 @@ export class generatorPlaylist {
             oldListVideo = this.handleRemoveVideos(oldListVideo);
         } while (oldListVideo.length && i < 20);
 
+        console.group();
+        console.log('newListVideo:', newListVideo);
+
         newListVideo = this.handleCheckAndSortCategoriesCloselyTogether(newListVideo);
+        console.log('newListVideo2:', newListVideo);
         newListVideo = this.handleCheckAndSortNoBackToBack(newListVideo);
+        console.log('newListVideo3:', newListVideo);
+        console.groupEnd();
 
         return newListVideo;
     };
