@@ -24,33 +24,30 @@ const isFormValid = ref(false);
 const refForm = ref<VForm>();
 
 const buildingData = ref<Building | any>({
-            id: 0,
-            buildingName: '',
-            address: '',
-            district: '',
-            remark: '',
-            postalCode: 0,
-            zone: 'City',
-        });
+    id: 0,
+    buildingName: '',
+    address: '',
+    district: '',
+    remark: '',
+    postalCode: 0,
+    zone: 'City',
+});
 
 watch(props, async (oldId, newId) => {
     refForm.value?.reset();
     refForm.value?.resetValidation();
-    if (newId.buildingId && newId.buildingId > 0 ) {
+    if (newId.buildingId && newId.buildingId > 0) {
         axiosIns.get<Building>('Building/' + newId.buildingId).then((reponse) => {
             buildingData.value = reponse;
         });
-    }
-    else{
+    } else {
         buildingData.value.id = 0;
         refForm.value?.reset();
         refForm.value?.resetValidation();
     }
 });
 
-onMounted(() => {
-    
-});
+onMounted(() => {});
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -61,7 +58,6 @@ const closeNavigationDrawer = () => {
         refForm.value?.resetValidation();
     });
 };
-
 
 const onSubmit = () => {
     refForm.value?.validate().then(({ valid }) => {
@@ -82,104 +78,113 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
 </script>
 
 <template>
-    <VNavigationDrawer
-        temporary
-        :width="400"
-        location="end"
-        class="scrollable-content"
-        :model-value="props.isDrawerOpen"
-        @update:model-value="handleDrawerModelValueUpdate"
-    >
-        <!-- 👉 Title -->
-        <div class="d-flex align-center bg-var-theme-background px-5 py-2">
-            <h6 class="text-h6">Building </h6>
+    <section>
+        <VNavigationDrawer
+            temporary
+            :width="400"
+            location="end"
+            class="scrollable-content"
+            :model-value="props.isDrawerOpen"
+            @update:model-value="handleDrawerModelValueUpdate"
+        >
+            <!-- 👉 Title -->
+            <div class="d-flex align-center bg-var-theme-background px-5 py-2">
+                <h6 class="text-h6">Building</h6>
 
-            <VSpacer />
+                <VSpacer />
 
-            <VBtn
-                size="small"
-                color="secondary"
-                variant="text"
-                icon="mdi-close"
-                @click="closeNavigationDrawer"
-            />
-        </div>
+                <VBtn
+                    size="small"
+                    color="secondary"
+                    variant="text"
+                    icon="mdi-close"
+                    @click="closeNavigationDrawer"
+                />
+            </div>
 
-        <PerfectScrollbar :options="{ wheelPropagation: false }">
-            <VCard flat>
-                <VCardText>
-                    <!-- 👉 Form -->
-                    <VForm ref="refForm" v-model="isFormValid" @submit.prevent="onSubmit">
-                        <VRow>
-                            <!-- 👉 buildingName -->
-                            <VCol cols="12">
-                                <VTextField
-                                    v-model="buildingData.buildingName"
-                                    :rules="[requiredValidator]"
-                                    label="Building Name"
-                                />
-                            </VCol>
+            <PerfectScrollbar :options="{ wheelPropagation: false }">
+                <VCard flat>
+                    <VCardText>
+                        <!-- 👉 Form -->
+                        <VForm ref="refForm" v-model="isFormValid" @submit.prevent="onSubmit">
+                            <VRow>
+                                <!-- 👉 buildingName -->
+                                <VCol cols="12">
+                                    <VTextField
+                                        v-model="buildingData.buildingName"
+                                        :rules="[requiredValidator]"
+                                        label="Building Name"
+                                    />
+                                </VCol>
 
-                            <!-- 👉 address -->
-                            <VCol cols="12">
-                                <VTextField
-                                    v-model="buildingData.address"
-                                    :rules="[requiredValidator]"
-                                    label="Address"
-                                />
-                            </VCol>
+                                <!-- 👉 address -->
+                                <VCol cols="12">
+                                    <VTextField
+                                        v-model="buildingData.address"
+                                        :rules="[requiredValidator]"
+                                        label="Address"
+                                    />
+                                </VCol>
 
-                            <!-- 👉 district -->
-                            <VCol cols="12">
-                                <VTextField
-                                    v-model="buildingData.district"
-                                    :rules="[requiredValidator]"
-                                    label="District"
-                                />
-                            </VCol>
+                                <!-- 👉 district -->
+                                <VCol cols="12">
+                                    <VTextField
+                                        v-model="buildingData.district"
+                                        :rules="[requiredValidator]"
+                                        label="District"
+                                    />
+                                </VCol>
 
-                            <!-- 👉 remark -->
-                            <VCol cols="12">
-                                <VTextField
-                                    v-model="buildingData.remark"
-                                    :rules="[requiredValidator]"
-                                    label="Remark"
-                                />
-                            </VCol>
-                            <VCol cols="12">
-                                <VTextField
-                                    v-model="buildingData.postalCode"
-                                    :rules="[requiredValidator]"
-                                    label="Postal Code"
-                                />
-                            </VCol>
-                            <!-- 👉 Zone -->
-                            <VCol cols="12">
-                                <VSelect
-                                    v-model="buildingData.zone"
-                                    label="Select Zone"
-                                    :rules="[requiredValidator]"
-                                    :items="['City', 'West', 'South', 'Central', 'East', 'North']"
-                                    :menu-props="{ maxHeight: 200 }"
-                                />
-                            </VCol>
+                                <!-- 👉 remark -->
+                                <VCol cols="12">
+                                    <VTextField
+                                        v-model="buildingData.remark"
+                                        :rules="[requiredValidator]"
+                                        label="Remark"
+                                    />
+                                </VCol>
+                                <VCol cols="12">
+                                    <VTextField
+                                        v-model="buildingData.postalCode"
+                                        :rules="[requiredValidator]"
+                                        label="Postal Code"
+                                    />
+                                </VCol>
+                                <!-- 👉 Zone -->
+                                <VCol cols="12">
+                                    <VSelect
+                                        v-model="buildingData.zone"
+                                        label="Select Zone"
+                                        :rules="[requiredValidator]"
+                                        :items="[
+                                            'City',
+                                            'West',
+                                            'South',
+                                            'Central',
+                                            'East',
+                                            'North',
+                                        ]"
+                                        :menu-props="{ maxHeight: 200 }"
+                                    />
+                                </VCol>
 
-                            <!-- 👉 Submit and Cancel -->
-                            <VCol cols="12">
-                                <VBtn type="submit" class="me-3"> Submit </VBtn>
-                                <VBtn
-                                    type="reset"
-                                    variant="tonal"
-                                    color="secondary"
-                                    @click="closeNavigationDrawer"
-                                >
-                                    Cancel
-                                </VBtn>
-                            </VCol>
-                        </VRow>
-                    </VForm>
-                </VCardText>
-            </VCard>
-        </PerfectScrollbar>
-    </VNavigationDrawer>
+                                <!-- 👉 Submit and Cancel -->
+                                <VCol cols="12">
+                                    <VBtn type="submit" class="me-3"> Submit </VBtn>
+                                    <VBtn
+                                        type="reset"
+                                        variant="tonal"
+                                        color="secondary"
+                                        @click="closeNavigationDrawer"
+                                    >
+                                        Cancel
+                                    </VBtn>
+                                </VCol>
+                            </VRow>
+                        </VForm>
+                    </VCardText>
+                </VCard>
+            </PerfectScrollbar>
+        </VNavigationDrawer>
+    </section>
 </template>

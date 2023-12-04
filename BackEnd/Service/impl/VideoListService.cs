@@ -42,7 +42,7 @@ namespace Showreel.Service.impl
 
         public IEnumerable<Videolist> GetAllVideoList()
         {
-            return _context.Videolists.ToList();
+            return _context.Videolists.OrderByDescending(x => x.Id).ToList();
         }
 
         public IEnumerable<Videolist> GetPageVideoList(string keySearch = "")

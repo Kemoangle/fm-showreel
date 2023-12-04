@@ -1,9 +1,11 @@
 <script lang="ts" setup>
+import { VideoList } from '@/model/videoList';
 import { useVideoListStore } from '@/store/useVideoListStore';
 
 interface IProps {
     isDrawerOpen: boolean;
     videoListId: number;
+    dataListVideo?: VideoList[];
 }
 
 interface Emit {
@@ -22,10 +24,14 @@ const videoListStore = useVideoListStore();
 const videoList = ref<any>([]);
 
 watch(props, async (oldId, newId) => {
-    if (newId.videoListId && newId.videoListId > 0) {
-        await videoListStore.getVideoByListId(newId.videoListId).then((response) => {
-            videoList.value = response;
-        });
+    if (props.dataListVideo) {
+        videoList.value = props.dataListVideo;
+    } else {
+        if (newId.videoListId && newId.videoListId > 0) {
+            await videoListStore.getVideoByListId(newId.videoListId).then((response) => {
+                videoList.value = response;
+            });
+        }
     }
 });
 </script>
@@ -87,15 +93,15 @@ watch(props, async (oldId, newId) => {
 
 <style lang="scss" scoped>
 .max-height-500 {
-  position: relative;
-  max-block-size: 500px;
-  overflow-y: auto;
+    position: relative;
+    max-block-size: 500px;
+    overflow-y: auto;
 }
 
 .sticky {
-  position: sticky;
-  z-index: 1;
-  background-color: white;
-  inset-block-start: 0;
+    position: sticky;
+    z-index: 1;
+    background-color: white;
+    inset-block-start: 0;
 }
 </style>

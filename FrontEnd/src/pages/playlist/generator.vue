@@ -2,24 +2,42 @@
 import PopupCreateListVideo from '@/components/PopupCreateListVideo.vue';
 import PopupViewListVideo from '@/components/PopupViewListVideo.vue';
 import { useSnackbar } from '@/components/Snackbar.vue';
+import ViewListVideo from '@/components/ViewListVideo.vue';
+import { Building } from '@/model/building';
 import { IListPlaylist, IPlaylist, IVideos } from '@/model/generatorPlaylist';
+import { Video } from '@/model/video';
+import { VideoList } from '@/model/videoList';
+import { useBuildingStore } from '@/store/useBuildingStore';
 import { useVideoListStore } from '@/store/useVideoListStore';
 import { listVideo1, listVideo2, listVideo3, listVideo4 } from '@/utils/constant';
 import { generatorPlaylist } from '@/utils/generatorPlaylist';
 import _ from 'lodash';
+import { list } from 'postcss';
 import { VueDraggableNext } from 'vue-draggable-next';
+
+interface IListVideoSelect extends VideoList {
+    value: number;
+}
+
+interface IListBuildingSelect extends Building {
+    value: number;
+    title: string;
+}
 
 const { showSnackbar } = useSnackbar();
 
 const useStoreVideo = useVideoListStore();
+const useBuilding = useBuildingStore();
 
-const selectedBuilding = ref<string[]>([]);
-const selectedListVideo = ref();
+const selectedBuilding = ref<number[]>([]);
+const selectedListVideo = ref<number>();
 
 const isDialogListVideoVisible = ref(false);
 const isDialogListVideoCurrent = ref(false);
 const isViewPlaylistGeneric = ref(false);
 const playlistGeneric = ref<IPlaylist[]>([]);
+
+const listVideoActive = ref();
 
 const dragOptions = () => {
     return {
@@ -32,88 +50,106 @@ const dragOptions = () => {
 
 const isDragging = ref(false);
 
-const buildings = [
-    {
-        title: 'CIMB',
-        value: 'cimb',
-        landlordAds: [
-            {
-                key: 'sSPZ004',
-                name: 'JOHN',
-                durations: 150,
-                loop: 1,
-                category: 'F&B',
-                restriction: 'No Back to Back With F&B',
-            },
-        ],
-        restriction: [
-            {
-                category: 'Movie',
-                except: ['Mac'],
-                exclude: ['Mo'],
-            },
-        ],
-    },
-    { title: 'OGW', value: 'ogw', landlordAds: [] },
-    {
-        title: 'SunPlaza',
-        value: 'sunplaza',
-        landlordAds: [
-            {
-                key: 'sSPZ004',
-                name: 'The Charcoal Grill Legend',
-                durations: 150,
-                loop: 4,
-                category: 'F&B',
-                restriction: 'No Back to Back With F&B',
-            },
-        ],
-        restriction: [
-            {
-                category: 'Movie',
-                except: [],
-                exclude: [],
-            },
-        ],
-    },
-    {
-        title: 'UOL United Sq Off Twr_(RN)',
-        value: 'UOLUnitedSqOffTwr',
-        landlordAds: [
-            {
-                key: 'sUOL029',
-                name: 'UOL - UPOPP',
-                durations: 15,
-                loop: 4,
-                category: 'UOL',
-                restriction: '',
-            },
-            {
-                key: 'sUOL032',
-                name: 'sUOL032 UOL - Pinetree Hill 15s',
-                durations: 15,
-                loop: 2,
-                category: 'UOL',
-                restriction: '',
-            },
-        ],
-    },
-];
+// const buildings = [
+//     {
+//         title: 'CIMB',
+//         value: 'cimb',
+//         landlordAds: [
+//             {
+//                 key: 'sSPZ004',
+//                 name: 'JOHN',
+//                 durations: 150,
+//                 loop: 1,
+//                 category: 'F&B',
+//                 restriction: 'No Back to Back With F&B',
+//             },
+//         ],
+//         restriction: [
+//             {
+//                 category: 'Movie',
+//                 except: ['Mac'],
+//                 exclude: ['Mo'],
+//             },
+//         ],
+//     },
+//     { title: 'OGW', value: 'ogw', landlordAds: [] },
+//     {
+//         title: 'SunPlaza',
+//         value: 'sunplaza',
+//         landlordAds: [
+//             {
+//                 key: 'sSPZ004',
+//                 name: 'The Charcoal Grill Legend',
+//                 durations: 150,
+//                 loop: 4,
+//                 category: 'F&B',
+//                 restriction: 'No Back to Back With F&B',
+//             },
+//         ],
+//         restriction: [
+//             {
+//                 category: 'Movie',
+//                 except: [],
+//                 exclude: [],
+//             },
+//         ],
+//     },
+//     {
+//         title: 'UOL United Sq Off Twr_(RN)',
+//         value: 'UOLUnitedSqOffTwr',
+//         landlordAds: [
+//             {
+//                 key: 'sUOL029',
+//                 name: 'UOL - UPOPP',
+//                 durations: 15,
+//                 loop: 4,
+//                 category: 'UOL',
+//                 restriction: '',
+//             },
+//             {
+//                 key: 'sUOL032',
+//                 name: 'sUOL032 UOL - Pinetree Hill 15s',
+//                 durations: 15,
+//                 loop: 2,
+//                 category: 'UOL',
+//                 restriction: '',
+//             },
+//         ],
+//     },
+// ];
 
-const listVideos = [
-    { title: 'listvideo 1', value: 'admin', videos: listVideo1 },
-    { title: 'listvideo 2', value: 'author', videos: listVideo2 },
-    { title: 'listvideo 3', value: 'editor', videos: listVideo3 },
-    { title: 'listvideo 4', value: 'video4', videos: listVideo4 },
-];
+const buildings = ref<IListBuildingSelect[]>([]);
 
-onMounted(() => {
+const listVideos = ref<IListVideoSelect[]>([]);
+
+// --------------- watch --------------
+
+watch(selectedListVideo, async (value, oldvalue) => {
+    if (value != oldvalue) {
+        listVideoActive.value = '';
+        playlistGeneric.value = [];
+        isViewPlaylistGeneric.value = false;
+        if (selectedListVideo.value) {
+            listVideoActive.value = await useStoreVideo.getVideoByListId(selectedListVideo.value);
+        }
+    }
+});
+
+const convertValueListVideoSelect = (data: VideoList[]) => {
+    return data.map((x) => ({ ...x, value: x.id })) as IListVideoSelect[];
+};
+
+const convertValueListBuildingSelect = (data: Building[]) => {
+    return data.map((x) => ({ ...x, title: x.buildingName, value: x.id })) as IListBuildingSelect[];
+};
+
+onMounted(async () => {
     // check all buildings
-    buildings.forEach((building) => {
+    listVideos.value = convertValueListVideoSelect(await useStoreVideo.getListVideoStore());
+    buildings.value = convertValueListBuildingSelect(await useBuilding.getAllBuildingStore());
+    buildings.value.forEach((building) => {
         selectedBuilding.value.push(building.value);
     });
-    console.log(useStoreVideo.data);
-    
 });
 
 // 👉 listPlaylist list
@@ -134,7 +170,9 @@ const handleCloseDialogShowListVideo = () => {
 const checkPlaylistInvalid = (playlist: IPlaylist[]) => {
     const exportPlaylist = new generatorPlaylist();
 
-    const listVideoCurrent = listVideos.find((x) => x.value == selectedListVideo.value)?.videos;
+    const listVideoCurrent = listVideos.value.find(
+        (x) => x.value == selectedListVideo.value
+    )?.videos;
 
     const isCheckCategoriesCloselyTogether =
         exportPlaylist.checkCategoriesCloselyTogether(playlist);
@@ -163,9 +201,17 @@ const handleSaveOnePlaylist = (playlist: IPlaylist[]) => {
     checkPlaylistInvalid(playlist);
 };
 
+const convertListVideoRenderPlaylist = (listVideo: any[]) => {
+    return listVideo.map((x) => ({
+        ...x.video,
+        loop: x.loopNum,
+        category: x.category,
+    }));
+};
+
 const handleCreatePlaylistGeneric = () => {
-    if (_.isEmpty(selectedListVideo.value)) {
-        showSnackbar("You haven't selected a list video yet !", 'error');
+    if (!selectedListVideo.value) {
+        showSnackbar("You haven't selected a list video yet!", 'error');
         return;
     }
 
@@ -174,17 +220,17 @@ const handleCreatePlaylistGeneric = () => {
 
     const exportPlaylist = new generatorPlaylist();
     const playlist = exportPlaylist.createListVideo(
-        listVideos.find((x) => x.value == selectedListVideo.value)?.videos as IVideos[]
+        convertListVideoRenderPlaylist(listVideoActive.value)
     );
 
     playlist.forEach((l, index) => {
         if (l) {
             playlistGeneric.value.push({
-                category: l.category,
-                durations: l.durations,
-                key: l.key,
+                category: l.category || [],
+                durations: l.duration,
+                key: l.keyNo || '',
                 remarks: '1',
-                name: l.name,
+                name: l.title || '',
                 order: index,
             });
         }
@@ -207,21 +253,21 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
 
         isViewPlaylistGeneric.value = false;
 
-        const genPlaylist = (listVideo: IVideos[], landLordAds: IVideos[]) => {
+        const genPlaylist = (listVideo: Video[], landLordAds: IVideos[]) => {
             const playlist: IPlaylist[] = [];
             let newList = [...listVideo];
             if (!_.isEmpty(landLordAds)) {
-                newList = exportPlaylist.addLandLordAds(newList, landLordAds);
+                newList = exportPlaylist.addLandLordAds(newList as IVideos[], landLordAds);
             }
 
-            newList.forEach((l, index) => {
+            newList.forEach((l: IPlaylist, index: number) => {
                 if (l) {
                     playlist.push({
-                        category: l.category,
+                        category: l.category || [],
                         durations: l.durations,
-                        key: l.key,
+                        key: l.key || '',
                         remarks: '1',
-                        name: l.name,
+                        name: l.name || '',
                         order: index,
                     });
                 }
@@ -230,14 +276,15 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
             return playlist;
         };
 
-        buildings.forEach((building, index) => {
+        buildings.value.forEach((building, index) => {
             if (selectedBuilding.value.includes(building.value)) {
                 newPlaylistBuilding.push({
                     id: index + 1,
                     buildingName: 'building ' + building.title,
                     playlist: genPlaylist(
                         convertPlaylistToListVideo(playlistGeneric.value),
-                        building.landlordAds
+                        // building.landlordAds
+                        []
                     ),
                 });
             }
@@ -262,10 +309,12 @@ const handleViewPlaylistGeneric = () => {
                             v-model="selectedListVideo"
                             label="Select List Video"
                             :items="listVideos"
+                            :loading="_.isEmpty(listVideos)"
                             clearable
                             clear-icon="mdi-close"
                         />
                     </VCol>
+
                     <VCol cols="12" sm="4">
                         <VSelect
                             v-model="selectedBuilding"
@@ -274,9 +323,10 @@ const handleViewPlaylistGeneric = () => {
                             clearable
                             clear-icon="mdi-close"
                             multiple
+                            :loading="_.isEmpty(buildings)"
                         >
                             <template v-slot:selection="{ item, index }">
-                                <span>{{ item.title }}</span>
+                                <span>{{ index === 0 ? item.title : '' }}</span>
                                 <span
                                     v-if="index === 1"
                                     class="text-grey text-caption align-self-center"
@@ -293,6 +343,7 @@ const handleViewPlaylistGeneric = () => {
                             variant="tonal"
                             color="secondary"
                             @click="handleCreatePlaylistGeneric"
+                            :disabled="!listVideoActive"
                         >
                             Generator Playlist Generic
                         </VBtn>
@@ -306,11 +357,7 @@ const handleViewPlaylistGeneric = () => {
                             }}
                         </VBtn>
                     </VCol>
-                    <VCol
-                        cols="12"
-                        sm="3"
-                        v-if="listVideos.find((x) => x.value == selectedListVideo)?.videos"
-                    >
+                    <VCol cols="12" sm="3" v-if="!_.isEmpty(listVideoActive)">
                         <VBtn
                             variant="tonal"
                             color="secondary"
@@ -379,7 +426,7 @@ const handleViewPlaylistGeneric = () => {
                             </td>
 
                             <td class="text-capitalize">
-                                {{ paylist.category }}
+                                {{ paylist.category?.map((x) => x.name).join(', ') }}
                             </td>
 
                             <td>
@@ -461,7 +508,7 @@ const handleViewPlaylistGeneric = () => {
                                 {{ paylist.key }}
                             </td>
                             <td class="text-capitalize">
-                                {{ paylist.category }}
+                                {{ paylist.category?.map((x) => x.name).join(', ') }}
                             </td>
                             <td>
                                 {{ paylist.remarks }}
@@ -494,84 +541,85 @@ const handleViewPlaylistGeneric = () => {
         />
         <!-- :is-dialog-visible="isDialogListVideoVisible" -->
 
-        <PopupViewListVideo
-            :data-video="listVideos.find((x) => x.value == selectedListVideo)?.videos || []"
-            :is-dialog-visible="isDialogListVideoCurrent"
-            @close="handleCloseDialogShowListVideo"
+        <ViewListVideo
+            v-if="selectedListVideo"
+            v-model:is-drawer-open="isDialogListVideoCurrent"
+            :video-list-id="selectedListVideo"
+            :data-list-video="listVideoActive"
         />
     </section>
 </template>
 
 <style lang="scss">
 .app-user-search-filter {
-  inline-size: 24.0625rem;
+    inline-size: 24.0625rem;
 }
 
 .text-capitalize {
-  text-transform: capitalize;
+    text-transform: capitalize;
 }
 
 .user-list-name:not(:hover) {
-  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
 }
 </style>
 
 <style lang="scss" scope>
 .m-0 {
-  margin: 0 !important;
+    margin: 0 !important;
 }
 
 .user-pagination-select {
-  .v-field__input,
-  .v-field__append-inner {
-    padding-block-start: 0.3rem;
-  }
+    .v-field__input,
+    .v-field__append-inner {
+        padding-block-start: 0.3rem;
+    }
 }
 
 .position-absolute {
-  inset-block-start: 20px;
-  inset-inline-end: 20px;
+    inset-block-start: 20px;
+    inset-inline-end: 20px;
 }
 
 .flip-list-move {
-  transition: transform 0.5s;
+    transition: transform 0.5s;
 }
 
 .no-move {
-  transition: transform 0s;
+    transition: transform 0s;
 }
 
 .ghost {
-  background: #c8ebfb;
-  opacity: 0.5;
+    background: #c8ebfb;
+    opacity: 0.5;
 }
 
 .list-group {
-  min-block-size: 20px;
+    min-block-size: 20px;
 }
 
 .list-group-item {
-  cursor: move;
+    cursor: move;
 }
 
 .list-group-item i {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 // table
 
 .th--table {
-  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
-  font-size: 12px;
-  font-weight: bold;
+    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+    font-size: 12px;
+    font-weight: bold;
 }
 
 .tr--table {
-  border-block-start: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
+    border-block-start: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
 
 .td--table {
-  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
-  font-size: 14px;
+    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+    font-size: 14px;
 }
 </style>

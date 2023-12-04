@@ -2,14 +2,31 @@ import { VideoList } from '@/model/videoList';
 import { VideoVideolist } from '@/model/videoVideolist';
 import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
+import _ from 'lodash';
 
 export const useVideoListStore = defineStore('videoList', {
-    state: (): { data: any } => ({
+    state: (): { data: any; allData: any; isLoading: boolean } => ({
         data: [],
+        allData: [],
+        isLoading: false,
     }),
     actions: {
         async getAllVideoList() {
-            await axiosIns.get<VideoList[]>('VideoList/getAll').then((response) => {});
+            this.isLoading = false;
+            return await axiosIns
+                .get<VideoList[]>('VideoList/getAll')
+                .then((response) => {
+                    if (response) {
+                        this.allData = response;
+                    }
+                    this.isLoading = false;
+                    return response;
+                })
+                .catch((err) => {
+                    this.isLoading = true;
+
+                    return err;
+                });
         },
 
         async getPageVideoList(keySearch: string, page: number, pageSize: number) {
@@ -43,6 +60,14 @@ export const useVideoListStore = defineStore('videoList', {
 
         async deleteList(id: number) {
             await axiosIns.delete('VideoList/' + id);
+        },
+
+        async getListVideoStore() {
+            if (_.isEmpty(this.allData)) {
+                return (await this.getAllVideoList()) as VideoList[];
+            } else {
+                return this.allData as VideoList[];
+            }
         },
     },
 });

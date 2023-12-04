@@ -14,12 +14,14 @@ namespace Showreel.Controllers
     {
         private readonly IVideoListService videoListService;
         private readonly IVideoService videoService;
-        public VideoListController(IVideoListService _videoListService, IVideoService _videoService)
+        private readonly IVideoCategoryService categoryService;
+        public VideoListController(IVideoListService _videoListService, IVideoService _videoService, IVideoCategoryService _categoryService)
         {
             videoListService = _videoListService;
             videoService = _videoService;
+            categoryService = _categoryService;
         }
-        
+
         [HttpGet("getAll")]
         public ActionResult<Videolist> GetAllVideoList()
         {
@@ -82,7 +84,7 @@ namespace Showreel.Controllers
                 };
                 videoListService.AddVideoVideoList(newVideo);
             }
-            
+
             return Ok();
         }
 
@@ -91,11 +93,13 @@ namespace Showreel.Controllers
         public IActionResult GetAllVideoInList(int id)
         {
             var videoList = videoListService.GetVideoVideolist(id);
-            var query = (from v in videoList 
-                        select new{
-                            video = videoService.GetVideoById((int)v.VideoId),
-                            loopNum = v.LoopNum
-                        }).ToList(); 
+            var query = (from v in videoList
+                         select new
+                         {
+                             video = videoService.GetVideoById((int)v.VideoId),
+                             category = categoryService.GetCategoryByVideoId((int)v.VideoId),
+                             loopNum = v.LoopNum
+                         }).ToList();
             return Ok(query);
         }
 
