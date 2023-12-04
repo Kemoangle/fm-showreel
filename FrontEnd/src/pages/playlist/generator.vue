@@ -3,12 +3,15 @@ import PopupCreateListVideo from '@/components/PopupCreateListVideo.vue';
 import PopupViewListVideo from '@/components/PopupViewListVideo.vue';
 import { useSnackbar } from '@/components/Snackbar.vue';
 import { IListPlaylist, IPlaylist, IVideos } from '@/model/generatorPlaylist';
+import { useVideoListStore } from '@/store/useVideoListStore';
 import { listVideo1, listVideo2, listVideo3, listVideo4 } from '@/utils/constant';
 import { generatorPlaylist } from '@/utils/generatorPlaylist';
 import _ from 'lodash';
 import { VueDraggableNext } from 'vue-draggable-next';
 
 const { showSnackbar } = useSnackbar();
+
+const useStoreVideo = useVideoListStore();
 
 const selectedBuilding = ref<string[]>([]);
 const selectedListVideo = ref();
@@ -109,6 +112,8 @@ onMounted(() => {
     buildings.forEach((building) => {
         selectedBuilding.value.push(building.value);
     });
+    console.log(useStoreVideo.data);
+    
 });
 
 // 👉 listPlaylist list
