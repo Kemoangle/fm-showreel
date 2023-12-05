@@ -99,9 +99,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
         <!-- 👉 Title -->
         <div class="d-flex align-center bg-var-theme-background px-5 py-2">
             <h6 class="text-h6">Building </h6>
-
             <VSpacer />
-
             <VBtn
                 size="small"
                 color="secondary"
@@ -126,6 +124,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                     item-value="id"
                                     label="Video"
                                     :menu-props="{ maxHeight: 250 }"
+                                    :rules="[requiredValidator]"
                                 />
                             </VCol>
                             <VCol cols="12">
@@ -147,7 +146,6 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                     label="End Date"
                                 />
                             </VCol>
-
                             <!-- 👉 Submit and Cancel -->
                             <VCol cols="12">
                                 <VBtn type="submit" class="me-3"> Submit </VBtn>

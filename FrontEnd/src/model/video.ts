@@ -1,4 +1,5 @@
 import { Category } from "./category"
+import { VideoType } from "./videoType"
 
 export interface Video{
     id?: number
@@ -12,4 +13,6 @@ export interface Video{
     lastUpdateTime?: Date
     category?: Category[]
     loop?: number
+    videoTypeId?: number
+    videoType?: VideoType
 }

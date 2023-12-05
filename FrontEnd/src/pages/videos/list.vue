@@ -75,6 +75,7 @@ const deleteVideo = (id: number) => {
 
 const addNewVideo = async (videoData: Video) => {
     const { category, ...rest } = videoData;
+    showSnackbar('Processing...', 'warning');
     if (videoData.id && videoData.id > 0) {
         await videoStore
             .updateVideo(rest)
@@ -94,6 +95,7 @@ const addNewVideo = async (videoData: Video) => {
                 showSnackbar(error.data.Video[0], 'error');
             });
     }
+    showSnackbar('Operation completed!', 'success');
     getAll();
 };
 
@@ -156,6 +158,7 @@ const handleSearch = async () => {
                         <th scope="col" class="text-center">KEY NO</th>
                         <th scope="col">RULE</th>
                         <th scope="col">CATEGORIES</th>
+                        <th scope="col" class="text-left">Video Type</th>
                         <th scope="col" class="text-center">ACTION</th>
                     </tr>
                 </thead>
@@ -188,13 +191,17 @@ const handleSearch = async () => {
                         <td>
                             <VChip
                                 size="small"
-                                class="text-capitalize ml-2"
+                                class="text-capitalize ml-2 chip-wrap"
                                 v-for="item in video.category"
                                 :key="item.id"
                                 :color="randomColor()"
                             >
                                 {{ item.name }}
                             </VChip>
+                        </td>
+
+                        <td class="text-left">
+                            {{ video.videoType.name }}
                         </td>
 
                         <td class="text-center">

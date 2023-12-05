@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BackEnd.Service;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Showreel.Models;
 using Showreel.Service;
@@ -12,10 +13,16 @@ namespace Showreel.Controllers
     {
         private readonly IVideoService _videoService;
         private readonly IVideoCategoryService _categoryService;
-        public VideoController(IVideoService videoService, IVideoCategoryService categoryService)
+        private readonly IVideoTypeService _videoTypeService;
+        public VideoController(
+            IVideoService videoService, 
+            IVideoCategoryService categoryService,
+            IVideoTypeService videoTypeService
+        )
         {
             _videoService = videoService;
             _categoryService = categoryService;
+            _videoTypeService = videoTypeService;
         }
 
         [HttpGet("GetAll")]
@@ -37,6 +44,7 @@ namespace Showreel.Controllers
                             v.Duration,
                             v.KeyNo,
                             v.Rule,
+                            videoType = _videoTypeService.GetVideoTypeById((int)v.VideoTypeId),
                             category = _categoryService.GetCategoryByVideoId(v.Id)
                         };
 
@@ -80,7 +88,8 @@ namespace Showreel.Controllers
                 video.LastUpdateTime,
                 video.Title,
                 video.Rule,
-                category = categories.ToList()
+                video.VideoTypeId,
+                category = categories.ToList(),
             };
 
             return Ok(response);

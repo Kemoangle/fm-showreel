@@ -35,11 +35,22 @@ export const useVideoStore = defineStore('video', {
         },
         async deleteVideo(id: number) {
             return axiosIns.delete('Video/' + id).then((response) => {
+                const index = this.data.videos.findIndex((v: any) => v.id === id);
+                if (index !== -1) {
+                    this.data.videos.splice(index, 1);
+                }
             });
         },
 
-        async updateVideo(video: Video) {
-            await axiosIns.patch('Video/' + video.id, video);
+        async updateVideo(video: any) {
+            await axiosIns.patch('Video/' + video.id, video).then((response) => {
+                const index = this.data.videos.findIndex((v: any) => v.id === video.id);
+                
+                if (index !== -1) {
+                    this.data.videos[index] = { ...this.data.videos[index], ...video };
+                }
+            });;
+
         },
         
     },

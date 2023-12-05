@@ -36,7 +36,13 @@ export const useCategoryStore = defineStore('category', {
             });
         },
 
-        // Sub
+        async addCategory(category: Category) {
+            return await axiosIns.post('Category', category);
+        },
+        
+        async updateCategory(category: Category) {
+            return await axiosIns.patch('Category/UpdateCategory/' + category.id, category);
+        },
     },
 });
 
