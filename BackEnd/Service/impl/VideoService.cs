@@ -29,29 +29,22 @@ namespace Showreel.Service.impl
             return _context.Videos.FirstOrDefault(v => v.Id == id);
         }
 
-        public void AddVideo(Video video)
+        public Video AddVideo(Video video)
         {
             _context.Videos.Add(video);
             _context.SaveChanges();
+            return video;
         }
 
-        public void UpdateVideo(Video video)
+        public Video UpdateVideo(Video video)
         {
             _context.Update(video);
             _context.SaveChanges();
+            return video;
         }
 
         public void DeleteVideo(int id)
         {
-            var videoCategoriesToDelete = _context.Videocategories
-                                            .Where(vc => vc.VideoId == id)
-                                            .ToList();
-
-            _context.Videocategories.RemoveRange(videoCategoriesToDelete);
-            var videoListToDelete = _context.VideoVideolists
-                                            .Where(v => v.VideoId == id)
-                                            .ToList();
-            _context.VideoVideolists.RemoveRange(videoListToDelete);
             var videoDelete = _context.Videos.Find(id);
             if (videoDelete != null)
             {

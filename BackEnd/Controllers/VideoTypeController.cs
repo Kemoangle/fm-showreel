@@ -101,5 +101,12 @@ namespace BackEnd.Controllers
             videoTypeService.UpdateVideoType(videoType);
             return Ok();
         }
+
+        [HttpGet("GetVideoTypeByCategory/{id}")]
+        public IActionResult GetVideoTypeByCategory(int id)
+        {
+            var videoType = videoTypeService.GetVideoTypeByCategory(id);
+            return Ok(videoType);
+        }
     }
 }

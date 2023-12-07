@@ -4,50 +4,54 @@ import { PerfectScrollbar } from 'vue3-perfect-scrollbar';
 import type { VForm } from 'vuetify/components';
 
 import { Building } from '@/model/building';
-import { LandlordAds } from '@/model/landlordAds';
+import { VideoType } from '@/model/videoType';
 import axiosIns from '@/plugins/axios';
-import { useVideoStore } from '@/store/useVideoStore';
+import { useCategoryStore } from '@/store/useCategoryStore';
 import { requiredValidator } from '@validators';
 
 interface Emit {
     (e: 'update:isDrawerOpen', value: boolean): void;
-    (e: 'landlordData', value: Building): void;
+    (e: 'restrictionData', value: Building): void;
 }
 
 interface Props {
     isDrawerOpen: boolean;
-    landlordAdsId?: number;
+    restrictionId?: number;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emit>();
-const videoStore = useVideoStore();
+const categoryStore = useCategoryStore();
 
 const isFormValid = ref(false);
 const refForm = ref<VForm>();
-
-const landlordData = ref<LandlordAds | any>({
+const videoTypes = ref<VideoType[]>([]);
+const restrictionData = ref<any>({
     id: 0,
-    loop: 0,
-    videoId: 0,
+    categoryId: 0,
+    category: null,
     buildingId: 0,
-    startDate: '',
-    endDate: '',
+    name:'',
+    type: 'Except',
+    except: [],
 });
 
 watch(props, async (oldId, newId) => {
-    if (newId.landlordAdsId && newId.landlordAdsId > 0 ) {
-        axiosIns.get('LandlordAds/GetLandlordAdsById/' + newId.landlordAdsId).then((response: any) => {
-            landlordData.value = response;
-        });
-    }
-    else{
-        landlordData.value.id = 0;
-    }
+    
 });
 
+const getVideoTypes = () => {
+    console.log(restrictionData.value.category);
+        if(restrictionData.value.category){
+            axiosIns.get<VideoType[]>('VideoType/GetVideoTypeByCategory/' + restrictionData.value.category.id).then((reponse: any) => {
+                videoTypes.value = reponse;
+        });
+    }
+    
+}
+
 const createVideos = () => {
-    videoStore.getAllVideos();
+    categoryStore.getAllCategory();
 };
 
 onMounted(() => {
@@ -71,7 +75,7 @@ const closeNavigationDrawer = () => {
 const onSubmit = () => {
     refForm.value?.validate().then(({ valid }) => {
         if (valid) {
-            emit('landlordData', landlordData.value);
+            emit('restrictionData', restrictionData.value);
             emit('update:isDrawerOpen', false);
             nextTick(() => {
                 refForm.value?.reset();
@@ -88,7 +92,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
 </script>
 
 <template>
-    <section>
+     <section>
         <VNavigationDrawer
         temporary
         :width="400"
@@ -116,36 +120,50 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                     <!-- 👉 Form -->
                     <VForm ref="refForm" v-model="isFormValid" @submit.prevent="onSubmit">
                         <VRow>
-                            <!-- 👉 buildingName -->
                             <VCol cols="12">
                                 <VAutocomplete
-                                    v-model="landlordData.videoId"
-                                    :items="videoStore.video"
-                                    item-title="title"
-                                    item-value="id"
-                                    label="Video"
+                                    v-model="restrictionData.category"
+                                    :items="categoryStore.data"
+                                    item-title="name"
+                                    label="Restriction"
                                     :menu-props="{ maxHeight: 250 }"
                                     :rules="[requiredValidator]"
+                                    @update:model-value="getVideoTypes"
+                                    return-object
                                 />
                             </VCol>
                             <VCol cols="12">
-                                <VTextField
-                                    v-model="landlordData.loop"
-                                    :rules="[requiredValidator]"
-                                    label="Loop"
-                                />
+                                <VSelect
+                                        v-model="restrictionData.type"
+                                        label="Select Type"
+                                        :items="[
+                                            'Except',
+                                            'Exclude',
+                                        ]"
+                                        :menu-props="{ maxHeight: 200 }"
+                                    />
+                                    
                             </VCol>
                             <VCol cols="12">
-                                <AppDateTimePicker
-                                    v-model="landlordData.startDate"
-                                    label="Start Date"
-                                />
-                            </VCol>
-                            <VCol cols="12">
-                                <AppDateTimePicker
-                                    v-model="landlordData.endDate"
-                                    label="End Date"
-                                />
+                                <VAutocomplete
+                                        v-model="restrictionData.except"
+                                        chips
+                                        closable-chips
+                                        :items="videoTypes"
+                                        item-title="name"
+                                        label="Except/Exclude"
+                                        :menu-props="{ maxHeight: 250 }"
+                                        multiple
+                                        return-object
+                                    >
+                                        <template #chip="{ props, item }">
+                                            <VChip v-bind="props" :text="item.raw.name" />
+                                        </template>
+
+                                        <template #item="{ props, item }">
+                                            <VListItem v-bind="props" :title="item?.raw?.name" />
+                                        </template>
+                                    </VAutocomplete>
                             </VCol>
                             <!-- 👉 Submit and Cancel -->
                             <VCol cols="12">
@@ -165,6 +183,6 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
             </VCard>
         </PerfectScrollbar>
     </VNavigationDrawer>
-    </section>
+     </section>
     
 </template>

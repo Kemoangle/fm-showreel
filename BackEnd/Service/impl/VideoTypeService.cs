@@ -37,6 +37,15 @@ namespace BackEnd.Service.impl
             return query.ToList();
         }
 
+        public IEnumerable<VideoType> GetVideoTypeByCategory(int categoryId)
+        {
+            var query = (from vc in _context.Videocategories.Where(v => v.CategoryId == categoryId)
+                        join v in _context.Videos on vc.VideoId equals v.Id
+                        join vt in _context.VideoTypes on v.VideoTypeId equals vt.Id
+                        select vt).Distinct();
+            return query.ToList();
+        }
+
         public VideoType GetVideoTypeById(int id)
         {
             return _context.VideoTypes.FirstOrDefault(v => v.Id == id);

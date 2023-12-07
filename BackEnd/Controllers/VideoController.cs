@@ -109,9 +109,9 @@ namespace Showreel.Controllers
             video.Landlordads = new List<Landlordad>();
             video.Videocategories = new List<Videocategory>();
 
-            _videoService.AddVideo(video);
+            var response = _videoService.AddVideo(video);
 
-            return Ok(_videoService.GetVideoByKeyNo(video.KeyNo));
+            return Ok(response);
         }
 
         [HttpPatch("{id}")]
@@ -132,9 +132,9 @@ namespace Showreel.Controllers
             video.LastUpdateTime = DateOnly.FromDateTime(DateTime.Now);
             video.Landlordads = new List<Landlordad>();
             video.Videocategories = new List<Videocategory>();
-            _videoService.UpdateVideo(video);
+            var response = _videoService.UpdateVideo(video);
 
-            return Ok(_videoService.GetVideoByKeyNo(video.KeyNo));
+            return Ok(response);
         }
 
         [HttpDelete("{id}")]

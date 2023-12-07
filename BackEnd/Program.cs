@@ -21,6 +21,8 @@ builder.Services.AddScoped<IVideoCategoryService, VideoCategoryService>();
 builder.Services.AddScoped<IVideoListService, VideoListService>();
 builder.Services.AddScoped<ILanlordAdsService, LandlordAdsService>();
 builder.Services.AddScoped<IVideoTypeService, VideoTypeService>();
+builder.Services.AddScoped<IRestrictionService, RestrcitionService>();
+
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 //  builder.Services.AddCors(options =>

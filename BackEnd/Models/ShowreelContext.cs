@@ -29,8 +29,6 @@ public partial class ShowreelContext : DbContext
 
     public virtual DbSet<Playlistvideo> Playlistvideos { get; set; }
 
-    public virtual DbSet<Restriction> Restrictions { get; set; }
-
     public virtual DbSet<RestrictionExcept> RestrictionExcepts { get; set; }
 
     public virtual DbSet<Video> Videos { get; set; }
@@ -94,9 +92,9 @@ public partial class ShowreelContext : DbContext
 
             entity.ToTable("building_restriction");
 
-            entity.HasIndex(e => e.BuildingId, "building_id");
+            entity.HasIndex(e => e.CategoryId, "FK_BuildingRestriction_Category");
 
-            entity.HasIndex(e => e.RestrictionId, "restriction_id");
+            entity.HasIndex(e => e.BuildingId, "building_id");
 
             entity.Property(e => e.Id)
                 .HasColumnType("int(11)")
@@ -104,17 +102,23 @@ public partial class ShowreelContext : DbContext
             entity.Property(e => e.BuildingId)
                 .HasColumnType("int(11)")
                 .HasColumnName("building_id");
-            entity.Property(e => e.RestrictionId)
+            entity.Property(e => e.CategoryId)
                 .HasColumnType("int(11)")
-                .HasColumnName("restriction_id");
+                .HasColumnName("categoryId");
+            entity.Property(e => e.Name)
+                .HasMaxLength(255)
+                .HasColumnName("name");
+            entity.Property(e => e.Type)
+                .HasColumnType("enum('exclude','except')")
+                .HasColumnName("type");
 
             entity.HasOne(d => d.Building).WithMany(p => p.BuildingRestrictions)
                 .HasForeignKey(d => d.BuildingId)
                 .HasConstraintName("building_restriction_ibfk_1");
 
-            entity.HasOne(d => d.Restriction).WithMany(p => p.BuildingRestrictions)
-                .HasForeignKey(d => d.RestrictionId)
-                .HasConstraintName("building_restriction_ibfk_2");
+            entity.HasOne(d => d.Category).WithMany(p => p.BuildingRestrictions)
+                .HasForeignKey(d => d.CategoryId)
+                .HasConstraintName("FK_BuildingRestriction_Category");
         });
 
         modelBuilder.Entity<Buildingplaylist>(entity =>
@@ -256,29 +260,6 @@ public partial class ShowreelContext : DbContext
                 .HasConstraintName("playlistvideo_ibfk_1");
         });
 
-        modelBuilder.Entity<Restriction>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("restriction");
-
-            entity.HasIndex(e => e.CategoryId, "fk_restriction_category");
-
-            entity.Property(e => e.Id)
-                .HasColumnType("int(11)")
-                .HasColumnName("id");
-            entity.Property(e => e.CategoryId)
-                .HasColumnType("int(11)")
-                .HasColumnName("category_id");
-            entity.Property(e => e.Name)
-                .HasMaxLength(255)
-                .HasColumnName("name");
-
-            entity.HasOne(d => d.Category).WithMany(p => p.Restrictions)
-                .HasForeignKey(d => d.CategoryId)
-                .HasConstraintName("fk_restriction_category");
-        });
-
         modelBuilder.Entity<RestrictionExcept>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
@@ -295,10 +276,6 @@ public partial class ShowreelContext : DbContext
             entity.Property(e => e.BuildingRestrictionId)
                 .HasColumnType("int(11)")
                 .HasColumnName("building_restriction_id");
-            entity.Property(e => e.Type)
-                .HasDefaultValueSql("'except'")
-                .HasColumnType("enum('exclude','except')")
-                .HasColumnName("type");
             entity.Property(e => e.VideoTypeId)
                 .HasColumnType("int(11)")
                 .HasColumnName("video_type_id");

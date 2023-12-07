@@ -29,18 +29,20 @@ const idUpdateCategory = ref(0);
 const isDrawerOpenCategory = ref(false);
 const { showSnackbar } = useSnackbar();
 
-const getAll = () => {
+const getCategory = () => {
     categoryStore.getPageCategory(
         keySearchCategory.value,
         currentPageCategory.value,
         pageSizeCategory.value
     );
+}
+const getVideoType = () => {
     videoTypeStore.getPageVideoType(
         keySearchVideoType.value,
         currentPageVideoType.value,
         pageSizeVideoType.value
     );
-};
+}
 watchEffect(() => {
     totalPageCategory.value = categoryStore.data.totalPages;
     totalItemCategory.value = categoryStore.data.totalItems;
@@ -54,31 +56,32 @@ watchEffect(() => {
 });
 
 onMounted(() => {
-    getAll();
+    getCategory();
+    getVideoType();
 });
 const changePage = (newPage: number) => {
     currentPageCategory.value = newPage;
-    getAll();
+    getCategory();
 };
 
 const changePageVideoType = (newPage: number) => {
     currentPageVideoType.value = newPage;
-    getAll();
+    getVideoType();
 };
 
 watch(currentPageCategory, () => {
-    getAll();
+    getCategory();
 });
 
 watch(pageSizeCategory, () => {
-    getAll();
+    getCategory();
 });
 watch(currentPageVideoType, () => {
-    getAll();
+    getVideoType();
 });
 
 watch(pageSizeVideoType, () => {
-    getAll();
+    getVideoType();
 });
 
 const openFromVideo = (id: number) => {
@@ -100,7 +103,7 @@ const submitVideoType = async (videoTypeData: VideoType) => {
             showSnackbar(error.data.VideoType[0], 'error');
         });
     }
-    getAll();
+    getVideoType();
 };
 
 const submitCategory = async (categoryData: Category) => {
@@ -115,7 +118,7 @@ const submitCategory = async (categoryData: Category) => {
         });
     }
 
-    getAll();
+    getCategory();
 };
 </script>
 
@@ -141,7 +144,7 @@ const submitCategory = async (categoryData: Category) => {
                                     placeholder="Search"
                                     density="compact"
                                     class="me-3"
-                                    @input="getAll"
+                                    @input="getCategory"
                                     v-model="keySearchCategory"
                                 />
                             </VCol>
@@ -247,7 +250,7 @@ const submitCategory = async (categoryData: Category) => {
                                     placeholder="Search"
                                     density="compact"
                                     class="me-3"
-                                    @input="getAll"
+                                    @input="getVideoType"
                                     v-model="keySearchVideoType"
                                 />
                             </VCol>

@@ -9,11 +9,15 @@ public partial class BuildingRestriction
 
     public int? BuildingId { get; set; }
 
-    public int? RestrictionId { get; set; }
+    public string? Type { get; set; }
+
+    public string? Name { get; set; }
+
+    public int? CategoryId { get; set; }
 
     public virtual Building? Building { get; set; }
 
-    public virtual Restriction? Restriction { get; set; }
+    public virtual Category? Category { get; set; }
 
     public virtual ICollection<RestrictionExcept> RestrictionExcepts { get; set; } = new List<RestrictionExcept>();
 }

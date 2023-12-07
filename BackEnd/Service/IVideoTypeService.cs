@@ -13,5 +13,6 @@ namespace BackEnd.Service
         IEnumerable<VideoType> GetPageVideoType(string keySearch = "");
         void AddVideoType(VideoType videoType);
         void UpdateVideoType(VideoType videoType);
+        IEnumerable<VideoType> GetVideoTypeByCategory(int categoryId);
     }
 }

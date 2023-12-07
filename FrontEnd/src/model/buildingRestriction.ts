@@ -1,8 +1,11 @@
 import { Building } from "./building";
-import { Restriction } from "./restriction";
+import { VideoType } from "./videoType";
 
 export interface BuildingRestriction{
-    buildingId: Building
-    restrictionId: Restriction
-    isAcctive: boolean
+    id?: number
+    buildingId?: Building
+    name?: string
+    type?: string
+    categoryId?: number
+    except?: VideoType[]
 }
