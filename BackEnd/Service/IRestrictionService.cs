@@ -12,8 +12,9 @@ namespace BackEnd.Service
         IEnumerable<RestrictionExcept> GetRestrictionExcepts(int buildingRestrictionId);
         IEnumerable<VideoType> GetVideoExcept(int buildingRestrictionId);
         BuildingRestriction AddBuildingRestriction(BuildingRestriction buildingRestriction);
-        void UpdateBuildingRestriction(BuildingRestriction buildingRestriction);
+        BuildingRestriction UpdateBuildingRestriction(BuildingRestriction buildingRestriction);
         void DeleteRestriction(int id);
-        void UpdateRestrictionExcept(VideoType[] videoTypes, int buildingRestrictionId);        
+        void UpdateRestrictionExcept(VideoType[] videoTypes, int buildingRestrictionId);    
+        BuildingRestriction GetBuildingRestrictionById(int id);    
     }
 }

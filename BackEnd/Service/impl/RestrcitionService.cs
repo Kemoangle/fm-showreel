@@ -36,6 +36,11 @@ namespace BackEnd.Service.impl
             return context.BuildingRestrictions.Where(b => b.BuildingId == buildingId).ToList();
         }
 
+        public BuildingRestriction GetBuildingRestrictionById(int id)
+        {
+            return context.BuildingRestrictions.FirstOrDefault(br => br.Id == id);
+        }
+
         public IEnumerable<RestrictionExcept> GetRestrictionExcepts(int buildingRestrictionId)
         {
             return context.RestrictionExcepts.Where(r => r.BuildingRestrictionId == buildingRestrictionId).ToList();
@@ -53,10 +58,11 @@ namespace BackEnd.Service.impl
             return query.ToList();
         }
 
-        public void UpdateBuildingRestriction(BuildingRestriction buildingRestriction)
+        public BuildingRestriction UpdateBuildingRestriction(BuildingRestriction buildingRestriction)
         {
             context.Update(buildingRestriction);
             context.SaveChanges();
+            return buildingRestriction;
         }
 
         public void UpdateRestrictionExcept(VideoType[] videoTypes, int buildingRestrictionId)

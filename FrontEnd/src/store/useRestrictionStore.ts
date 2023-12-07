@@ -20,5 +20,18 @@ export const useRestrictionStore = defineStore('restriction', {
         async UpdateRestrictionExcept(videoTypes: VideoType[], buildingRestrictionId: number | undefined): Promise<BuildingRestriction> {
             return await axiosIns.patch('Restriction/' + buildingRestrictionId, videoTypes);
         },
+
+        async deleteRestriction(id: number) {
+            return axiosIns.delete('Restriction/' + id).then((response) => {
+                const index = this.data.findIndex((v: any) => v.id === id);
+                if (index !== -1) {
+                    this.data.splice(index, 1);
+                }
+            });
+        },
+
+        async updateBuildingRestriction(buildingRestriction: BuildingRestriction): Promise<BuildingRestriction> {
+            return await axiosIns.patch('Restriction/UpdateBuildingRestriction', buildingRestriction);
+        },
     },
 });

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using BackEnd.Service;
 using Microsoft.AspNetCore.Mvc;
 using Showreel.Models;
+using Showreel.Service;
 
 namespace Showreel.Controllers
 {
@@ -13,9 +14,11 @@ namespace Showreel.Controllers
     public class RestrictionController : ControllerBase
     {
         private readonly IRestrictionService restrictionService;
-        public RestrictionController(IRestrictionService _restrictionService)
+        private readonly IVideoCategoryService _categoryService;
+        public RestrictionController(IRestrictionService _restrictionService, IVideoCategoryService categoryService)
         {
             restrictionService = _restrictionService;
+            _categoryService = categoryService;
         }
 
         [HttpGet("{id}")]
@@ -40,6 +43,19 @@ namespace Showreel.Controllers
             return Ok("success");
         }
 
+        [HttpPatch("UpdateBuildingRestriction")]
+        public IActionResult UpdateBuildingRestriction([FromBody] BuildingRestriction buildingRestriction)
+        {   
+            var restrictionExist = restrictionService.GetBuildingRestriction((int)buildingRestriction.BuildingId).ToList();
+            if (restrictionExist.Any(b => b.CategoryId == buildingRestriction.CategoryId && b.Id != buildingRestriction.Id))
+            {
+                ModelState.AddModelError("Restriction", "The restriction already exists");
+                return BadRequest(ModelState);
+            }
+            var response = restrictionService.UpdateBuildingRestriction(buildingRestriction);
+            return Ok(response);
+        }
+
         [HttpPost]
         public IActionResult AddBuildingRestriction([FromBody] BuildingRestriction buildingRestriction)
         {
@@ -50,6 +66,29 @@ namespace Showreel.Controllers
                 return BadRequest(ModelState);
             }
             var response = restrictionService.AddBuildingRestriction(buildingRestriction);
+            return Ok(response);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteRestriction(int id)
+        {
+            restrictionService.DeleteRestriction(id);
+            return Ok();
+        }
+
+        [HttpGet("GetBuildingRestrictionById/{id}")]
+        public IActionResult GetBuildingRestrictionById(int id)
+        {
+            var query = restrictionService.GetBuildingRestrictionById(id);
+            var response = new {
+                id = query.Id,
+                buildingId = query.BuildingId,
+                type = query.Type,
+                categoryId = query.CategoryId,
+                category = _categoryService.GetCategoryById((int)query.CategoryId),
+                except = restrictionService.GetVideoExcept(query.Id)
+            };
+
             return Ok(response);
         }
     }
