@@ -22,6 +22,7 @@ interface IListVideoSelect extends VideoList {
 interface IListBuildingSelect extends Building {
     value: number;
     title: string;
+    landlordAds: Video;
 }
 
 const { showSnackbar } = useSnackbar();
@@ -275,6 +276,7 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
 
             return playlist;
         };
+        console.log('buildings:', buildings);
 
         buildings.value.forEach((building, index) => {
             if (selectedBuilding.value.includes(building.value)) {
