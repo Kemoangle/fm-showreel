@@ -4,6 +4,7 @@ import { PerfectScrollbar } from 'vue3-perfect-scrollbar';
 import type { VForm } from 'vuetify/components';
 
 import { Building } from '@/model/building';
+import { BuildingRestriction } from '@/model/buildingRestriction';
 import { VideoType } from '@/model/videoType';
 import axiosIns from '@/plugins/axios';
 import { useCategoryStore } from '@/store/useCategoryStore';
@@ -25,8 +26,8 @@ const categoryStore = useCategoryStore();
 
 const isFormValid = ref(false);
 const refForm = ref<VForm>();
-const videoTypes = ref<VideoType[]>([]);
-const restrictionData = ref<any>({
+const videoTypes = ref<VideoType[] | any>([]);
+const restrictionData = ref<BuildingRestriction>({
     id: 0,
     categoryId: 0,
     category: null,
@@ -37,14 +38,28 @@ const restrictionData = ref<any>({
 });
 
 watch(props, async (oldId, newId) => {
-    
+    refForm.value?.reset();
+    refForm.value?.resetValidation();
+    if (newId.restrictionId) {
+        axiosIns.get('http://localhost:5124/api/Restriction/GetBuildingRestrictionById/' + newId.restrictionId).then((response: any) => {
+            restrictionData.value = response;
+            axiosIns.get<VideoType[]>('VideoType/GetVideoTypeByCategory/' + response.categoryId).then(reponse => {
+                videoTypes.value = reponse;
+                restrictionData.value.except = videoTypes.value.filter((videoType: VideoType) => {
+                    return response.except.some((exceptItem: VideoType) => exceptItem.id === videoType.id);
+                });
+            });
+        });
+    } else {
+        restrictionData.value.id = 0;
+    }
 });
 
 const getVideoTypes = () => {
-    console.log(restrictionData.value.category);
-        if(restrictionData.value.category){
-            axiosIns.get<VideoType[]>('VideoType/GetVideoTypeByCategory/' + restrictionData.value.category.id).then((reponse: any) => {
-                videoTypes.value = reponse;
+    if(restrictionData.value.category){
+        restrictionData.value.except = [];
+        axiosIns.get<VideoType[]>('VideoType/GetVideoTypeByCategory/' + restrictionData.value.category.id).then((reponse: any) => {
+            videoTypes.value = reponse;
         });
     }
     

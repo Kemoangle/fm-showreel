@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useSnackbar } from '@/components/Snackbar.vue';
 import { useRestrictionStore } from '@/store/useRestrictionStore';
+import Swal from 'sweetalert2';
 import AddRestriction from './addRestriction.vue';
 
 interface Props {
@@ -21,9 +22,27 @@ onMounted(() =>{
     restrictionStore.getRestrictionByBuildingId(props.buildingId);
 })
 
-const deleteLandlordAds = async (id: number) => {
-    
+const deleteRestriction = async (id: number) => {
+    await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+        if (result.isConfirmed) {
+            restrictionStore.deleteRestriction(id).then((response) => {
+                Swal.fire({
+                    title: "Deleted!",
+                    icon: "success"
+                }); 
+            }); 
+        } 
+    });    
 };
+
 const capitalizeFirstLetter = (str: string) =>{
     if (str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
@@ -39,15 +58,29 @@ const handleSubmit = async (restrictionData: any) => {
     delete(restrictionData.category);
     console.log(restrictionData.except)
     const { except, ...rest } = restrictionData;
-    await restrictionStore.addBuildingRestriction(rest)
-            .then((response) => {
-                restrictionStore.UpdateRestrictionExcept(except, response.id).then(data =>{
-                    restrictionStore.getRestrictionByBuildingId(props.buildingId);
-                });
-            })
-            .catch((error) => {
-                showSnackbar(error.data.Video[0], 'error');
+    
+
+    if (restrictionData.id && restrictionData.id > 0) {
+        await restrictionStore.updateBuildingRestriction(rest)
+        .then((response) => {
+            restrictionStore.UpdateRestrictionExcept(except, response.id).then(data =>{
+                restrictionStore.getRestrictionByBuildingId(props.buildingId);
             });
+        })
+        .catch((error) => {
+            showSnackbar(error.data.Restriction[0], 'error');
+        });
+    } else {
+        await restrictionStore.addBuildingRestriction(rest)
+        .then((response) => {
+            restrictionStore.UpdateRestrictionExcept(except, response.id).then(data =>{
+                restrictionStore.getRestrictionByBuildingId(props.buildingId);
+            });
+        })
+        .catch((error) => {
+            showSnackbar(error.data.Restriction[0], 'error');
+        });
+    }
 };
 </script>
 
@@ -106,7 +139,7 @@ const handleSubmit = async (restrictionData: any) => {
 
                                 <VMenu activator="parent">
                                     <VList>
-                                        <VListItem >
+                                        <VListItem @click="handleUpdate(item.id)">
                                             <template #prepend>
                                                 <VIcon
                                                     icon="mdi-pencil-outline"
@@ -118,7 +151,7 @@ const handleSubmit = async (restrictionData: any) => {
                                             <VListItemTitle>Edit</VListItemTitle>
                                         </VListItem>
 
-                                        <VListItem >
+                                        <VListItem @click="deleteRestriction(item.id)">
                                             <template #prepend>
                                                 <VIcon
                                                     icon="mdi-delete-outline"
