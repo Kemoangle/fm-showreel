@@ -27,11 +27,6 @@ namespace Showreel.Service.impl
 
         public void DeleteVideoList(int id)
         {
-            var videoListToDelete = _context.VideoVideolists
-                                            .Where(v => v.VideoListId == id)
-                                            .ToList();
-            _context.VideoVideolists.RemoveRange(videoListToDelete);
-
             var videoListDelete = _context.Videolists.Find(id);
             if (videoListDelete != null)
             {

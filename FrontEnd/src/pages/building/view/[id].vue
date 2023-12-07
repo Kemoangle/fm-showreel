@@ -59,7 +59,9 @@
             <VCol cols="12" class="mt-1">
                 <Lanlord v-model:buildingId="$route.params.id" />
             </VCol>
-            <VCol cols="6" class="mt-1"> </VCol>
+            <VCol cols="12" class="mt-1">
+                <Restriction v-model:buildingId="$route.params.id" />
+             </VCol>
 
             <VCol cols="12" md="6"> </VCol>
 
@@ -73,6 +75,7 @@ import { Building } from '@/model/building';
 import { LandlordAds } from '@/model/landlordAds';
 import { useBuildingStore } from '../../../store/useBuildingStore';
 import Lanlord from './Lanlord.vue';
+import Restriction from './Restriction.vue';
 
 const building = ref<Building>();
 const router = useRoute();
@@ -84,12 +87,12 @@ building.value = buildingStore.getBuildingById(Number(router.params.id));
 
 <style lang="scss">
 .user-profile-avatar {
-    border: 5px solid rgb(var(--v-theme-surface));
-    background-color: rgb(var(--v-theme-surface)) !important;
-    inset-block-start: -3rem;
+  border: 5px solid rgb(var(--v-theme-surface));
+  background-color: rgb(var(--v-theme-surface)) !important;
+  inset-block-start: -3rem;
 
-    .v-img__img {
-        border-radius: 0.125rem;
-    }
+  .v-img__img {
+    border-radius: 0.125rem;
+  }
 }
 </style>

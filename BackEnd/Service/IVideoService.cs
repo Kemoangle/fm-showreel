@@ -9,8 +9,8 @@ namespace Showreel.Service
         IEnumerable<Video> GetVideoByList(int id);
 
         Video GetVideoById(int id);
-        void AddVideo(Video video);
-        void UpdateVideo(Video video);
+        Video AddVideo(Video video);
+        Video UpdateVideo(Video video);
         void DeleteVideo(int id);
         Video GetVideoByKeyNo(string keyNo);
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BackEnd.Service;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Showreel.Models;
 using Showreel.Service;
@@ -12,10 +13,16 @@ namespace Showreel.Controllers
     {
         private readonly IVideoService _videoService;
         private readonly IVideoCategoryService _categoryService;
-        public VideoController(IVideoService videoService, IVideoCategoryService categoryService)
+        private readonly IVideoTypeService _videoTypeService;
+        public VideoController(
+            IVideoService videoService, 
+            IVideoCategoryService categoryService,
+            IVideoTypeService videoTypeService
+        )
         {
             _videoService = videoService;
             _categoryService = categoryService;
+            _videoTypeService = videoTypeService;
         }
 
         [HttpGet("GetAll")]
@@ -37,6 +44,7 @@ namespace Showreel.Controllers
                             v.Duration,
                             v.KeyNo,
                             v.Rule,
+                            videoType = _videoTypeService.GetVideoTypeById((int)v.VideoTypeId),
                             category = _categoryService.GetCategoryByVideoId(v.Id)
                         };
 
@@ -80,7 +88,8 @@ namespace Showreel.Controllers
                 video.LastUpdateTime,
                 video.Title,
                 video.Rule,
-                category = categories.ToList()
+                video.VideoTypeId,
+                category = categories.ToList(),
             };
 
             return Ok(response);
@@ -100,9 +109,9 @@ namespace Showreel.Controllers
             video.Landlordads = new List<Landlordad>();
             video.Videocategories = new List<Videocategory>();
 
-            _videoService.AddVideo(video);
+            var response = _videoService.AddVideo(video);
 
-            return Ok(_videoService.GetVideoByKeyNo(video.KeyNo));
+            return Ok(response);
         }
 
         [HttpPatch("{id}")]
@@ -123,9 +132,9 @@ namespace Showreel.Controllers
             video.LastUpdateTime = DateOnly.FromDateTime(DateTime.Now);
             video.Landlordads = new List<Landlordad>();
             video.Videocategories = new List<Videocategory>();
-            _videoService.UpdateVideo(video);
+            var response = _videoService.UpdateVideo(video);
 
-            return Ok(_videoService.GetVideoByKeyNo(video.KeyNo));
+            return Ok(response);
         }
 
         [HttpDelete("{id}")]

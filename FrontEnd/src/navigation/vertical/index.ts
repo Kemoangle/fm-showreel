@@ -21,7 +21,7 @@ export default [
         icon: { icon: 'mdi-videocam-outline' },
         children: [
           { title: 'Video', to: 'videos-list' },
-          { title: 'Category', to: { name: 'videos-category-category'} },
+          { title: 'Category & Video Type', to: { name: 'videos-category&videoType'} },
           { title: 'Video List', to: { name: 'videos-videoList-videoList'} },
         ],
     },

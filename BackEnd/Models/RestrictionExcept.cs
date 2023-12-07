@@ -11,8 +11,6 @@ public partial class RestrictionExcept
 
     public int? VideoTypeId { get; set; }
 
-    public string? Type { get; set; }
-
     public virtual BuildingRestriction? BuildingRestriction { get; set; }
 
     public virtual VideoType? VideoType { get; set; }

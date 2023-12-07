@@ -6,6 +6,7 @@ import type { VForm } from 'vuetify/components';
 import { Category } from '@/model/category';
 import { Video } from '@/model/video';
 import axiosIns from '@/plugins/axios';
+import { useVideoTypeStore } from '@/store/useVideoTypeStore';
 import { requiredValidator } from '@validators';
 
 const categories = ref();
@@ -25,12 +26,17 @@ const emit = defineEmits<Emit>();
 const isFormValid = ref(false);
 const refForm = ref<VForm>();
 
+const videoTypes = ref();
+
+const videoTypeStore = useVideoTypeStore();
+
 const videoData = ref<Video | any>({
     id: 0,
     title: '',
     duration: '',
     keyNo: '',
     rule: '',
+    videoTypeId: 0,
     category: [],
 });
 
@@ -40,6 +46,8 @@ watch(props, async (oldId, newId) => {
     await axiosIns.get<Category[]>('Category').then((response) => {
         categories.value = response;
     });
+    videoTypeStore.getAllVideoType();
+
     if (newId.videoId) {
         axiosIns.get('http://localhost:5124/api/Video/' + newId.videoId).then((response: any) => {
             videoData.value = response;
@@ -138,10 +146,23 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                         label="Key no"
                                     />
                                 </VCol>
-
+                                
                                 <VCol cols="12">
                                     <VTextField v-model="videoData.rule" label="Rule" />
                                 </VCol>
+
+                                <VCol cols="12">
+                                    <VAutocomplete
+                                        v-model="videoData.videoTypeId"
+                                        :items="videoTypeStore.data"
+                                        item-title="name"
+                                        item-value="id"
+                                        label="Video Type"
+                                        :menu-props="{ maxHeight: 250 }"
+                                        :rules="[requiredValidator]"
+                                    />
+                                </VCol>
+
                                 <VCol cols="12">
                                     <VAutocomplete
                                         v-model="videoData.category"
