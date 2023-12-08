@@ -317,15 +317,6 @@ export class generatorPlaylist {
             oldListVideo = this.handleRemoveVideos(oldListVideo);
         } while (oldListVideo.length && i < 20);
 
-        console.group();
-        console.log('newListVideo:', newListVideo);
-
-        newListVideo = this.handleCheckAndSortCategoriesCloselyTogether(newListVideo);
-        console.log('newListVideo2:', newListVideo);
-        newListVideo = this.handleCheckAndSortNoBackToBack(newListVideo);
-        console.log('newListVideo3:', newListVideo);
-        console.groupEnd();
-
         return newListVideo;
     };
 

@@ -22,7 +22,8 @@ namespace BackEnd.Service.impl
         public void DeleteLandlordAds(int id)
         {
             var landlordadDelete = _context.Landlordads.Find(id);
-            if(landlordadDelete != null){
+            if (landlordadDelete != null)
+            {
                 _context.Landlordads.Remove(landlordadDelete);
                 _context.SaveChanges();
             }
@@ -31,6 +32,12 @@ namespace BackEnd.Service.impl
         public IEnumerable<Landlordad> GetAllLandlordAds(int id)
         {
             var query = _context.Landlordads.Where(l => l.BuildingId == id);
+            return query.ToList();
+        }
+
+        public IEnumerable<Video> GetLandlordAdsBuilding(int id)
+        {
+            var query = _context.Videos.Where(l => l.Landlordads.Any(x => x.BuildingId == id));
             return query.ToList();
         }
 
@@ -44,7 +51,7 @@ namespace BackEnd.Service.impl
             _context.Update(landlordad);
             _context.SaveChanges();
         }
-    
+
 
     }
 }

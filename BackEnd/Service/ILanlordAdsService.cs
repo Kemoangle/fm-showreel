@@ -9,6 +9,7 @@ namespace BackEnd.Service
     public interface ILanlordAdsService
     {
         IEnumerable<Landlordad> GetAllLandlordAds(int id);
+        IEnumerable<Video> GetLandlordAdsBuilding(int id);
         void AddLandlordAds(Landlordad landlordad);
         void UpdateLandlordAds(Landlordad landlordad);
         void DeleteLandlordAds(int id);
