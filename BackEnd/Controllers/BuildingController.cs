@@ -45,9 +45,9 @@ namespace Showreel.Controllers
         }
 
         [HttpGet("getAll")]
-        public ActionResult<Building> GetAllBuildings(bool isGetLandlord = false)
+        public ActionResult<Building> GetAllBuildings()
         {
-            var query = _buildingService.GetAllBuildings(null, isGetLandlord);
+            var query = _buildingService.GetAllBuildings(null);
             return Ok(query);
         }
 

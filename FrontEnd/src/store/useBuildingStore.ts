@@ -3,14 +3,23 @@ import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 import _ from 'lodash';
 
+interface IState {
+    data: any;
+    building: Building | null;
+    allBuilding: Building[];
+    listIdBuildingActive: number[];
+    isLoadingLandlordAds: boolean;
+}
+
 export const useBuildingStore = defineStore('building', {
-    state: (): { data: any; building: Building | null; allBuilding: Building[] } => ({
+    state: (): IState => ({
         data: [],
         building: null,
         allBuilding: [],
+        listIdBuildingActive: [],
+        isLoadingLandlordAds: false,
     }),
-    // could also be defined as
-    // state: () => ({ count: 0 })
+
     actions: {
         async getPageBuilding(keySearch: string, page: number, pageSize: number) {
             await axiosIns
@@ -55,16 +64,25 @@ export const useBuildingStore = defineStore('building', {
                 return this.allBuilding;
             } else {
                 return (await axiosIns
-                    .get<Building[]>('Building/getAll', {
-                        params: {
-                            isGetLandlord: true,
-                        },
-                    })
-                    .then((response) => {
-                        this.data.buildings = response;
+                    .get<Building[]>('Building/getAll')
+                    .then((response: Building[] | any) => {
+                        this.allBuilding = response;
                         return response;
                     })) as Building[];
             }
+        },
+
+        async getLandlordBuilding(id: number) {
+            return await axiosIns.get('LandlordAds/building/' + id).then((data) => {});
+        },
+
+        async setListBuildingActive(ids: number[], callBack: Function) {
+            this.listIdBuildingActive = ids;
+
+            ids.forEach(async (id) => {
+                await this.getLandlordBuilding(id);
+            });
+            callBack();
         },
     },
 });

@@ -252,48 +252,54 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
     if (checkPlaylistInvalid(playlist)) {
         const exportPlaylist = new generatorPlaylist();
         const newPlaylistBuilding: IListPlaylist[] = [];
+        const buildingActive = buildings.value.filter((b) =>
+            selectedBuilding.value.includes(b.value)
+        );
 
-        isViewPlaylistGeneric.value = false;
+        useBuilding.setListBuildingActive(
+            buildingActive.map((x) => x.id),
+            function () {
+                isViewPlaylistGeneric.value = false;
 
-        const genPlaylist = (listVideo: Video[], landLordAds: IVideos[]) => {
-            const playlist: IPlaylist[] = [];
-            let newList = [...listVideo];
-            if (!_.isEmpty(landLordAds)) {
-                newList = exportPlaylist.addLandLordAds(newList as IVideos[], landLordAds);
-            }
+                const genPlaylist = (listVideo: Video[], landLordAds: IVideos[]) => {
+                    const playlist: IPlaylist[] = [];
+                    let newList = [...listVideo];
+                    if (!_.isEmpty(landLordAds)) {
+                        newList = exportPlaylist.addLandLordAds(newList as IVideos[], landLordAds);
+                    }
 
-            newList.forEach((l: IPlaylist, index: number) => {
-                if (l) {
-                    playlist.push({
-                        category: l.category || [],
-                        durations: l.durations,
-                        key: l.key || '',
-                        remarks: '1',
-                        name: l.name || '',
-                        order: index,
+                    newList.forEach((l: IPlaylist, index: number) => {
+                        if (l) {
+                            playlist.push({
+                                category: l.category || [],
+                                durations: l.durations,
+                                key: l.key || '',
+                                remarks: '1',
+                                name: l.name || '',
+                                order: index,
+                            });
+                        }
                     });
-                }
-            });
 
-            return playlist;
-        };
-        console.log('buildings:', buildings);
+                    return playlist;
+                };
+                console.log('buildings:', buildings);
 
-        buildings.value.forEach((building, index) => {
-            if (selectedBuilding.value.includes(building.value)) {
-                newPlaylistBuilding.push({
-                    id: index + 1,
-                    buildingName: 'building ' + building.title,
-                    playlist: genPlaylist(
-                        convertPlaylistToListVideo(playlistGeneric.value),
-                        // building.landlordAds
-                        []
-                    ),
+                buildingActive.forEach((building, index) => {
+                    newPlaylistBuilding.push({
+                        id: index + 1,
+                        buildingName: 'building ' + building.title,
+                        playlist: genPlaylist(
+                            convertPlaylistToListVideo(playlistGeneric.value),
+                            // building.landlordAds
+                            []
+                        ),
+                    });
                 });
-            }
-        });
 
-        listPlaylist.value = newPlaylistBuilding;
+                listPlaylist.value = newPlaylistBuilding;
+            }
+        );
     }
 };
 

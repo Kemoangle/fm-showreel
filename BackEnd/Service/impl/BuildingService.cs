@@ -11,25 +11,9 @@ namespace Showreel.Service.impl
             _context = context;
         }
 
-        public IEnumerable<Building> GetAllBuildings(string keySearch = "", bool isGetLandlord = false)
+        public IEnumerable<Building> GetAllBuildings(string keySearch = "")
         {
             var query = _context.Buildings.AsQueryable();
-            if (isGetLandlord)
-            {
-                var newQuery = query
-                .Select(x => new Building
-                {
-                    Id = x.Id,
-                    BuildingName = x.BuildingName,
-                    Address = x.Address,
-                    Zone = x.Zone,
-                    Landlordads = x.Landlordads,
-                    PostalCode = x.PostalCode,
-                    District = x.District
-                });
-
-                return newQuery;
-            }
 
             if (!string.IsNullOrEmpty(keySearch))
             {
