@@ -20,14 +20,23 @@ export default [
         title: 'Video page',
         icon: { icon: 'mdi-videocam-outline' },
         children: [
-          { title: 'Video', to: 'videos-list' },
-          { title: 'Category & Video Type', to: { name: 'videos-category&videoType'} },
-          { title: 'Video List', to: { name: 'videos-videoList-videoList'} },
+            { title: 'Video', to: 'videos-list' },
+            { title: 'Category & Video Type', to: { name: 'videos-category&videoType' } },
+            { title: 'Video List', to: { name: 'videos-videoList-videoList' } },
         ],
     },
-    {  
-        title: 'Playlist Generator',
-        to: { name: 'playlist-generator' },
+    {
+        title: 'Playlist page',
         icon: { icon: 'mdi-file-document-outline' },
+        children: [
+            {
+                title: 'Playlist',
+                to: { name: 'playlist-list' },
+            },
+            {
+                title: 'Generator',
+                to: { name: 'playlist-generator' },
+            },
+        ],
     },
 ] as VerticalNavItems;

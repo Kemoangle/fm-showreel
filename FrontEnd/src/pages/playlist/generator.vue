@@ -195,8 +195,12 @@ const checkPlaylistInvalid = (playlist: IPlaylist[]) => {
     return true;
 };
 
-const handleSaveOnePlaylist = (playlist: IPlaylist[]) => {
-    checkPlaylistInvalid(playlist);
+const handleSaveOnePlaylist = (playlist: IPlaylist[], name: string) => {
+    if (checkPlaylistInvalid(playlist)) {
+        console.log('playlist', playlist);
+
+        showSnackbar(`Save playlist ${name} Successfuly`, 'success');
+    }
 };
 
 const convertListVideoRenderPlaylist = (listVideo: any[]) => {
@@ -405,30 +409,26 @@ const handleViewPlaylistGeneric = () => {
                     <transition-group type="transition" name="flip-list">
                         <tr
                             class="handle"
-                            v-for="(paylist, index) in playlistGeneric"
-                            :key="paylist.order"
+                            v-for="(playlist, index) in playlistGeneric"
+                            :key="playlist.order"
                         >
                             <td>
                                 {{ index + 1 }}
                             </td>
                             <td>
-                                {{ paylist.name }}
+                                {{ playlist.name }}
                             </td>
-
                             <td class="text-medium-emphasis">
-                                {{ paylist.durations }}
+                                {{ playlist.durations }}
                             </td>
-
                             <td>
-                                {{ paylist.key }}
+                                {{ playlist.key }}
                             </td>
-
                             <td class="text-capitalize">
-                                {{ paylist.category?.map((x) => x.name).join(', ') }}
+                                {{ playlist.category?.map((x) => x.name).join(', ') }}
                             </td>
-
                             <td>
-                                {{ paylist.remarks }}
+                                <VTextField class="input-remark" :v-model="playlist.remarks" />
                             </td>
                         </tr>
                         <tr key="j">
@@ -462,7 +462,7 @@ const handleViewPlaylistGeneric = () => {
             <VBtn
                 color="primary"
                 class="position-absolute"
-                @click="handleSaveOnePlaylist(building.playlist)"
+                @click="handleSaveOnePlaylist(building.playlist, building.buildingName)"
             >
                 Save
             </VBtn>
@@ -490,26 +490,26 @@ const handleViewPlaylistGeneric = () => {
                     <transition-group type="transition" name="flip-list">
                         <tr
                             class="handle"
-                            v-for="(paylist, index) in building.playlist"
-                            :key="paylist.order"
+                            v-for="(playlist, index) in building.playlist"
+                            :key="playlist.order"
                         >
                             <td>
                                 {{ index + 1 }}
                             </td>
                             <td>
-                                {{ paylist.name }}
+                                {{ playlist.name }}
                             </td>
                             <td class="text-medium-emphasis">
-                                {{ paylist.durations }}
+                                {{ playlist.durations }}
                             </td>
                             <td>
-                                {{ paylist.key }}
+                                {{ playlist.key }}
                             </td>
                             <td class="text-capitalize">
-                                {{ paylist.category?.map((x) => x.name).join(', ') }}
+                                {{ playlist.category?.map((x) => x.name).join(', ') }}
                             </td>
                             <td>
-                                {{ paylist.remarks }}
+                                <VTextField class="input-remark" :v-model="playlist.remarks" />
                             </td>
                         </tr>
                         <tr key="j">
@@ -604,6 +604,14 @@ const handleViewPlaylistGeneric = () => {
 
 .list-group-item i {
     cursor: pointer;
+}
+
+.input-remark {
+    input {
+        padding: 0px 20px;
+        height: 35px !important;
+        min-height: unset;
+    }
 }
 
 // table
