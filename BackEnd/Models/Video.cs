@@ -15,7 +15,7 @@ public partial class Video
 
     public string? KeyNo { get; set; }
 
-    public string? Rule { get; set; }
+    public string? Remark { get; set; }
 
     public DateOnly? CreateTime { get; set; }
 
@@ -26,6 +26,8 @@ public partial class Video
     public int? VideoTypeId { get; set; }
 
     public virtual ICollection<Landlordad> Landlordads { get; set; } = new List<Landlordad>();
+
+    public virtual ICollection<Rule> Rules { get; set; } = new List<Rule>();
 
     public virtual VideoType? VideoType { get; set; }
 

@@ -43,7 +43,7 @@ namespace Showreel.Controllers
                             v.Title,
                             v.Duration,
                             v.KeyNo,
-                            v.Rule,
+                            v.Remark,
                             videoType = _videoTypeService.GetVideoTypeById((int)v.VideoTypeId),
                             category = _categoryService.GetCategoryByVideoId(v.Id)
                         };
@@ -87,7 +87,7 @@ namespace Showreel.Controllers
                 video.CreateTime,
                 video.LastUpdateTime,
                 video.Title,
-                video.Rule,
+                video.Remark,
                 video.VideoTypeId,
                 category = categories.ToList(),
             };

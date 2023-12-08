@@ -255,7 +255,7 @@ const handleSearch = async () => {
                 </tbody>
 
                 <!-- 👉 table footer  -->
-                <tfoot v-show="!videoStore.data.videos">
+                <tfoot v-show="videoStore.isLoading">
                     <tr>
                         <td colspan="7" class="text-center">
                             <v-row align="center" justify="center" class="fill-height">
