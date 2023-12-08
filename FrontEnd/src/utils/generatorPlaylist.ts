@@ -26,7 +26,6 @@ export class generatorPlaylist {
                 );
             }
         });
-        console.log('generatorPlaylist  indexVideo:', indexVideo);
         if (indexVideo >= 0) {
             return true;
         }
@@ -224,7 +223,6 @@ export class generatorPlaylist {
 
     handleCheckAndSortCategoriesCloselyTogether = (listVideo: IVideos[]) => {
         let isCategoriesCloselyTogether = this.checkCategoriesCloselyTogether(listVideo);
-        console.log('generatorPlaylist  isCategoriesCloselyTogether:', isCategoriesCloselyTogether);
 
         let newListVideo: IVideos[] = [];
         let i = 0;
@@ -233,7 +231,6 @@ export class generatorPlaylist {
             newListVideo = this.handleCategoriesCloselyTogether(
                 newListVideo.length ? newListVideo : listVideo
             );
-            console.log('generatorPlaylist  newListVideo:' + i, newListVideo);
             isCategoriesCloselyTogether = this.checkCategoriesCloselyTogether(newListVideo);
         } while (isCategoriesCloselyTogether && i < 20);
 

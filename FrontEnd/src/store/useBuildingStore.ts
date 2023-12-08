@@ -2,6 +2,9 @@ import { Building } from '@/model/building';
 import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 import _ from 'lodash';
+import { Video } from '@/model/video';
+import { LandlordAds } from '@/model/landlordAds';
+import { IVideos } from '@/model/generatorPlaylist';
 
 interface IState {
     data: any;
@@ -9,6 +12,19 @@ interface IState {
     allBuilding: Building[];
     listIdBuildingActive: number[];
     isLoadingLandlordAds: boolean;
+}
+
+export interface IBuildingLandlord {
+    buildingId: Number;
+    videos: Video[] | any;
+}
+
+function convertVideoLandlordToVideo(landlordAds: LandlordAds[]) {
+    const newVideos: IVideos[] = [];
+    landlordAds.forEach((el) => {
+        newVideos.push({ ...el.video, loop: el.loop ?? 0 } as IVideos);
+    });
+    return newVideos;
 }
 
 export const useBuildingStore = defineStore('building', {
@@ -73,16 +89,33 @@ export const useBuildingStore = defineStore('building', {
         },
 
         async getLandlordBuilding(id: number) {
-            return await axiosIns.get('LandlordAds/building/' + id).then((data) => {});
+            return await axiosIns.get<LandlordAds[]>('LandlordAds/building/' + id);
         },
 
-        async setListBuildingActive(ids: number[], callBack: Function) {
+        async setListBuildingActive(
+            ids: number[],
+            callBack: (LandlordAds: IBuildingLandlord[]) => void
+        ) {
             this.listIdBuildingActive = ids;
 
-            ids.forEach(async (id) => {
-                await this.getLandlordBuilding(id);
+            let arrLandLordAds: IBuildingLandlord[] = [];
+
+            const promise = new Promise((resolve, reject) => {
+                ids.forEach(async (id) => {
+                    const landlordAds = await this.getLandlordBuilding(id);
+                    arrLandLordAds.push({
+                        buildingId: id,
+                        videos: convertVideoLandlordToVideo(landlordAds),
+                    });
+                    if (arrLandLordAds.length == ids.length) {
+                        resolve('');
+                    }
+                });
             });
-            callBack();
+
+            promise.then((data) => {
+                callBack(arrLandLordAds);
+            });
         },
     },
 });

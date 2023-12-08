@@ -35,9 +35,9 @@ namespace BackEnd.Service.impl
             return query.ToList();
         }
 
-        public IEnumerable<Video> GetLandlordAdsBuilding(int id)
+        public IEnumerable<Landlordad> GetLandlordAdsBuilding(int id)
         {
-            var query = _context.Videos.Where(l => l.Landlordads.Any(x => x.BuildingId == id));
+            var query = _context.Landlordads.Where(l => l.BuildingId == id);
             return query.ToList();
         }
 

@@ -6,7 +6,7 @@ import { Building } from '@/model/building';
 import { IListPlaylist, IPlaylist, IVideos } from '@/model/generatorPlaylist';
 import { Video } from '@/model/video';
 import { VideoList } from '@/model/videoList';
-import { useBuildingStore } from '@/store/useBuildingStore';
+import { IBuildingLandlord, useBuildingStore } from '@/store/useBuildingStore';
 import { useVideoListStore } from '@/store/useVideoListStore';
 import { generatorPlaylist } from '@/utils/generatorPlaylist';
 import _ from 'lodash';
@@ -258,7 +258,7 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
 
         useBuilding.setListBuildingActive(
             buildingActive.map((x) => x.id),
-            function () {
+            function (LandlordAds: IBuildingLandlord[]) {
                 isViewPlaylistGeneric.value = false;
 
                 const genPlaylist = (listVideo: Video[], landLordAds: IVideos[]) => {
@@ -283,7 +283,6 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
 
                     return playlist;
                 };
-                console.log('buildings:', buildings);
 
                 buildingActive.forEach((building, index) => {
                     newPlaylistBuilding.push({
@@ -291,8 +290,7 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
                         buildingName: 'building ' + building.title,
                         playlist: genPlaylist(
                             convertPlaylistToListVideo(playlistGeneric.value),
-                            // building.landlordAds
-                            []
+                            LandlordAds.find((x) => x.buildingId == building.id)?.videos
                         ),
                     });
                 });
