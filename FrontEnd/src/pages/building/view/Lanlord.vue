@@ -72,7 +72,7 @@ const deleteLandlordAds = async (id: number) => {
         <VCard>
             <VCardItem>
                 <template #prepend>
-                    <VIcon icon="mdi-chart-timeline-variant" color="success" />
+                    <VIcon icon="mdi-arrow-down" color="info" />
                 </template>
                 <VBtn variant="tonal" color="secondary" 
                     prepend-icon="mdi-tray-arrow-down"

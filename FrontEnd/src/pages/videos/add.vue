@@ -5,6 +5,7 @@ import type { VForm } from 'vuetify/components';
 
 import { Category } from '@/model/category';
 import { Video } from '@/model/video';
+import { VideoType } from '@/model/videoType';
 import axiosIns from '@/plugins/axios';
 import { useVideoTypeStore } from '@/store/useVideoTypeStore';
 import { requiredValidator } from '@validators';
@@ -26,7 +27,7 @@ const emit = defineEmits<Emit>();
 const isFormValid = ref(false);
 const refForm = ref<VForm>();
 
-const videoTypes = ref();
+const videoTypes = ref<VideoType[] | any>([]);
 
 const videoTypeStore = useVideoTypeStore();
 
@@ -153,25 +154,12 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
 
                                 <VCol cols="12">
                                     <VAutocomplete
-                                        v-model="videoData.videoTypeId"
-                                        :items="videoTypeStore.data"
-                                        item-title="name"
-                                        item-value="id"
-                                        label="Video Type"
-                                        :menu-props="{ maxHeight: 250 }"
-                                        :rules="[requiredValidator]"
-                                    />
-                                </VCol>
-
-                                <VCol cols="12">
-                                    <VAutocomplete
                                         v-model="videoData.category"
                                         chips
                                         closable-chips
                                         :items="categories"
                                         item-title="name"
                                         label="Category"
-                                        :rules="[requiredValidator]"
                                         :menu-props="{ maxHeight: 250 }"
                                         multiple
                                         return-object
@@ -184,6 +172,17 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                             <VListItem v-bind="props" :title="item?.raw?.name" />
                                         </template>
                                     </VAutocomplete>
+                                </VCol>
+
+                                <VCol cols="12">
+                                    <VAutocomplete
+                                        v-model="videoData.videoTypeId"
+                                        :items="videoTypeStore.videoTypes"
+                                        item-title="name"
+                                        item-value="id"
+                                        label="Video Type"
+                                        :menu-props="{ maxHeight: 250 }"
+                                    />
                                 </VCol>
 
                                 <!-- 👉 Submit and Cancel -->

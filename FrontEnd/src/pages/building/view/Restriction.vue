@@ -59,7 +59,6 @@ const handleSubmit = async (restrictionData: any) => {
     console.log(restrictionData.except)
     const { except, ...rest } = restrictionData;
     
-
     if (restrictionData.id && restrictionData.id > 0) {
         await restrictionStore.updateBuildingRestriction(rest)
         .then((response) => {
@@ -89,7 +88,7 @@ const handleSubmit = async (restrictionData: any) => {
         <VCard>
             <VCardItem>
                 <template #prepend>
-                    <VIcon icon="mdi-chart-timeline-variant" color="success" />
+                    <VIcon icon="mdi-alert-outline" color="error" />
                 </template>
                 <VBtn variant="tonal" color="secondary" 
                     prepend-icon="mdi-tray-arrow-down"
@@ -120,7 +119,7 @@ const handleSubmit = async (restrictionData: any) => {
                         <td>{{ index + 1 }}</td>
                         <td>
                             <div class="d-flex align-center">
-                                {{ item.name }}
+                                <span style="color: rgb(236, 114, 114);">{{ item.name }}</span>
                             </div>
                         </td>
 
