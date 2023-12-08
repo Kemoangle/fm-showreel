@@ -26,4 +26,6 @@ public partial class Building
     public virtual ICollection<BuildingRestriction> BuildingRestrictions { get; set; } = new List<BuildingRestriction>();
 
     public virtual ICollection<Landlordad> Landlordads { get; set; } = new List<Landlordad>();
+
+    public virtual ICollection<Rule> Rules { get; set; } = new List<Rule>();
 }

@@ -11,5 +11,7 @@ public partial class Category
 
     public virtual ICollection<BuildingRestriction> BuildingRestrictions { get; set; } = new List<BuildingRestriction>();
 
+    public virtual ICollection<Rule> Rules { get; set; } = new List<Rule>();
+
     public virtual ICollection<Videocategory> Videocategories { get; set; } = new List<Videocategory>();
 }

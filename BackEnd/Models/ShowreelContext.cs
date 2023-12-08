@@ -31,6 +31,8 @@ public partial class ShowreelContext : DbContext
 
     public virtual DbSet<RestrictionExcept> RestrictionExcepts { get; set; }
 
+    public virtual DbSet<Rule> Rules { get; set; }
+
     public virtual DbSet<Video> Videos { get; set; }
 
     public virtual DbSet<VideoType> VideoTypes { get; set; }
@@ -94,7 +96,7 @@ public partial class ShowreelContext : DbContext
 
             entity.HasIndex(e => e.CategoryId, "FK_BuildingRestriction_Category");
 
-            entity.HasIndex(e => e.BuildingId, "building_id");
+            entity.HasIndex(e => e.BuildingId, "building_restriction_ibfk_1");
 
             entity.Property(e => e.Id)
                 .HasColumnType("int(11)")
@@ -109,15 +111,17 @@ public partial class ShowreelContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("name");
             entity.Property(e => e.Type)
-                .HasColumnType("enum('exclude','except')")
+                .HasColumnType("enum('Exclude','Except')")
                 .HasColumnName("type");
 
             entity.HasOne(d => d.Building).WithMany(p => p.BuildingRestrictions)
                 .HasForeignKey(d => d.BuildingId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("building_restriction_ibfk_1");
 
             entity.HasOne(d => d.Category).WithMany(p => p.BuildingRestrictions)
                 .HasForeignKey(d => d.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_BuildingRestriction_Category");
         });
 
@@ -142,10 +146,12 @@ public partial class ShowreelContext : DbContext
 
             entity.HasOne(d => d.Building).WithMany()
                 .HasForeignKey(d => d.BuildingId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("buildingplaylist_ibfk_1");
 
             entity.HasOne(d => d.Playlist).WithMany()
                 .HasForeignKey(d => d.PlaylistId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("buildingplaylist_ibfk_2");
         });
 
@@ -196,10 +202,12 @@ public partial class ShowreelContext : DbContext
 
             entity.HasOne(d => d.Building).WithMany(p => p.Landlordads)
                 .HasForeignKey(d => d.BuildingId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_landlordads_building");
 
             entity.HasOne(d => d.Video).WithMany(p => p.Landlordads)
                 .HasForeignKey(d => d.VideoId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("landlordads_ibfk_1");
         });
 
@@ -253,10 +261,12 @@ public partial class ShowreelContext : DbContext
 
             entity.HasOne(d => d.Playlist).WithMany()
                 .HasForeignKey(d => d.PlaylistId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("playlistvideo_ibfk_2");
 
             entity.HasOne(d => d.Video).WithMany()
                 .HasForeignKey(d => d.VideoId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("playlistvideo_ibfk_1");
         });
 
@@ -266,9 +276,9 @@ public partial class ShowreelContext : DbContext
 
             entity.ToTable("restriction_except");
 
-            entity.HasIndex(e => e.BuildingRestrictionId, "building_restriction_id");
+            entity.HasIndex(e => e.BuildingRestrictionId, "restriction_except_ibfk_1");
 
-            entity.HasIndex(e => e.VideoTypeId, "video_type_id");
+            entity.HasIndex(e => e.VideoTypeId, "restriction_except_ibfk_2");
 
             entity.Property(e => e.Id)
                 .HasColumnType("int(11)")
@@ -282,11 +292,54 @@ public partial class ShowreelContext : DbContext
 
             entity.HasOne(d => d.BuildingRestriction).WithMany(p => p.RestrictionExcepts)
                 .HasForeignKey(d => d.BuildingRestrictionId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("restriction_except_ibfk_1");
 
             entity.HasOne(d => d.VideoType).WithMany(p => p.RestrictionExcepts)
                 .HasForeignKey(d => d.VideoTypeId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("restriction_except_ibfk_2");
+        });
+
+        modelBuilder.Entity<Rule>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("rule");
+
+            entity.HasIndex(e => e.VideoId, "rule_ibfk_1");
+
+            entity.HasIndex(e => e.NoBackToBack, "rule_ibfk_2");
+
+            entity.HasIndex(e => e.DoNotPlay, "rule_ibfk_3");
+
+            entity.Property(e => e.Id)
+                .HasColumnType("int(11)")
+                .HasColumnName("id");
+            entity.Property(e => e.DoNotPlay)
+                .HasColumnType("int(11)")
+                .HasColumnName("do_not_play");
+            entity.Property(e => e.NoBackToBack)
+                .HasColumnType("int(11)")
+                .HasColumnName("no_back_to_back");
+            entity.Property(e => e.VideoId)
+                .HasColumnType("int(11)")
+                .HasColumnName("video_id");
+
+            entity.HasOne(d => d.DoNotPlayNavigation).WithMany(p => p.Rules)
+                .HasForeignKey(d => d.DoNotPlay)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("rule_ibfk_3");
+
+            entity.HasOne(d => d.NoBackToBackNavigation).WithMany(p => p.Rules)
+                .HasForeignKey(d => d.NoBackToBack)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("rule_ibfk_2");
+
+            entity.HasOne(d => d.Video).WithMany(p => p.Rules)
+                .HasForeignKey(d => d.VideoId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("rule_ibfk_1");
         });
 
         modelBuilder.Entity<Video>(entity =>
@@ -315,9 +368,9 @@ public partial class ShowreelContext : DbContext
                 .HasMaxLength(45)
                 .HasColumnName("key_no");
             entity.Property(e => e.LastUpdateTime).HasColumnName("last_update_time");
-            entity.Property(e => e.Rule)
+            entity.Property(e => e.Remark)
                 .HasMaxLength(255)
-                .HasColumnName("rule");
+                .HasColumnName("remark");
             entity.Property(e => e.Title)
                 .HasMaxLength(255)
                 .HasColumnName("title");
@@ -327,6 +380,7 @@ public partial class ShowreelContext : DbContext
 
             entity.HasOne(d => d.VideoType).WithMany(p => p.Videos)
                 .HasForeignKey(d => d.VideoTypeId)
+                .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("fk_video_video_type");
         });
 
@@ -372,10 +426,12 @@ public partial class ShowreelContext : DbContext
 
             entity.HasOne(d => d.Video).WithMany(p => p.VideoVideolists)
                 .HasForeignKey(d => d.VideoId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("video_videolist_ibfk_1");
 
             entity.HasOne(d => d.VideoList).WithMany(p => p.VideoVideolists)
                 .HasForeignKey(d => d.VideoListId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("video_videolist_ibfk_2");
         });
 
