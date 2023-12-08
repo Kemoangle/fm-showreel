@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BackEnd.Service;
 using Microsoft.AspNetCore.Mvc;
 using Showreel.Models;
 using Showreel.Service;
@@ -15,11 +16,19 @@ namespace Showreel.Controllers
         private readonly IVideoListService videoListService;
         private readonly IVideoService videoService;
         private readonly IVideoCategoryService categoryService;
-        public VideoListController(IVideoListService _videoListService, IVideoService _videoService, IVideoCategoryService _categoryService)
+        private readonly IRuleService ruleService;
+
+        public VideoListController(
+            IVideoListService _videoListService, 
+            IVideoService _videoService, 
+            IVideoCategoryService _categoryService,
+            IRuleService _ruleService
+            )
         {
             videoListService = _videoListService;
             videoService = _videoService;
             categoryService = _categoryService;
+            ruleService = _ruleService;
         }
 
         [HttpGet("getAll")]
@@ -98,7 +107,9 @@ namespace Showreel.Controllers
                          {
                              video = videoService.GetVideoById((int)v.VideoId),
                              category = categoryService.GetCategoryByVideoId((int)v.VideoId),
-                             loopNum = v.LoopNum
+                             loopNum = v.LoopNum,
+                             doNotPlay = ruleService.GetDoNotPlay((int)v.VideoId),
+                             noBackToBack = ruleService.GetNoBackToback((int)v.VideoId)
                          }).ToList();
             return Ok(query);
         }

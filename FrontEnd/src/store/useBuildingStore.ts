@@ -69,6 +69,7 @@ export const useBuildingStore = defineStore('building', {
                         this.allBuilding = response;
                         return response;
                     })) as Building[];
+                    
             }
         },
 

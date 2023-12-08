@@ -32,7 +32,7 @@ const isFormValid = ref(false);
 const refForm = ref<VForm>();
 
 const videoTypes = ref<VideoType[] | any>([]);
-
+const checkAutocomplete = ref(false);
 const videoTypeStore = useVideoTypeStore();
 const buildingStore = useBuildingStore();
 const videoData = ref<Video | any>({
@@ -50,6 +50,8 @@ const videoData = ref<Video | any>({
 watch(props, async (oldId, newId) => {
     refForm.value?.reset();
     refForm.value?.resetValidation();
+    checkAutocomplete.value = false;
+
     await axiosIns.get<Category[]>('Category').then((response) => {
         categories.value = response;
     });
@@ -89,7 +91,10 @@ watch(props, async (oldId, newId) => {
     }
 });
 
-onMounted(() => {});
+onMounted(() => {
+    console.log(videoData.value);
+    
+});
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -102,6 +107,7 @@ const closeNavigationDrawer = () => {
 };
 
 const onSubmit = () => {
+    checkAutocomplete.value = true;
     refForm.value?.validate().then(({ valid }) => {
         if (valid) {
             emit('videoData', videoData.value);
@@ -188,6 +194,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                         :menu-props="{ maxHeight: 250 }"
                                         multiple
                                         return-object
+                                        :rules="[checkAutocomplete? requiredValidator:false]"
                                     >
                                         <template #chip="{ props, item }">
                                             <VChip v-bind="props" :text="item.raw.name" />
@@ -207,6 +214,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                         item-value="id"
                                         label="Video Type"
                                         :menu-props="{ maxHeight: 250 }"
+                                        :rules="[requiredValidator]"
                                     />
                                 </VCol>
                                 

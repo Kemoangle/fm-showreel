@@ -206,8 +206,8 @@ const handleSearch = async () => {
                         </td>
 
                         <td style="color: rgb(236, 114, 114);">
-                            <p v-if="video.doNotplay.length">Do pot play on
-                                (<span v-for="(item, idx) in video.doNotplay" :key="item.id">{{item.buildingName}}<span v-if="idx < video.doNotplay.length - 1">/ </span>
+                            <p v-if="video.doNotPlay.length">Do pot play on
+                                (<span v-for="(item, idx) in video.doNotPlay" :key="item.id">{{item.buildingName}}<span v-if="idx < video.doNotPlay.length - 1">/ </span>
                                 </span>)
                             </p>
                             <p v-if="video.noBackToBack.length">No back to back with

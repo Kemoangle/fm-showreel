@@ -50,7 +50,7 @@ namespace Showreel.Controllers
                             v.Remark,
                             videoType = _videoTypeService.GetVideoTypeById((int)v.VideoTypeId),
                             category = _categoryService.GetCategoryByVideoId(v.Id),
-                            doNotplay = _ruleService.GetDoNotPlay(v.Id),
+                            doNotPlay = _ruleService.GetDoNotPlay(v.Id),
                             noBackToBack = _ruleService.GetNoBackToback(v.Id)
                         };
 

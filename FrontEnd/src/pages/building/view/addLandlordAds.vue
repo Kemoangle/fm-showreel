@@ -31,11 +31,13 @@ const landlordData = ref<LandlordAds | any>({
     loop: 0,
     videoId: 0,
     buildingId: 0,
-    startDate: '',
-    endDate: '',
+    startDate: new Date(),
+    endDate: new Date(),
 });
 
 watch(props, async (oldId, newId) => {
+    refForm.value?.reset();
+    refForm.value?.resetValidation();
     if (newId.landlordAdsId && newId.landlordAdsId > 0 ) {
         axiosIns.get('LandlordAds/GetLandlordAdsById/' + newId.landlordAdsId).then((response: any) => {
             landlordData.value = response;
@@ -43,6 +45,8 @@ watch(props, async (oldId, newId) => {
     }
     else{
         landlordData.value.id = 0;
+        landlordData.value.startDate = '';
+        landlordData.value.endDate = '';
     }
 });
 
@@ -139,6 +143,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                 <AppDateTimePicker
                                     v-model="landlordData.startDate"
                                     label="Start Date"
+                                    
                                 />
                             </VCol>
                             <VCol cols="12">
