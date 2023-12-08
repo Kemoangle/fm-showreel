@@ -156,6 +156,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                             'Exclude',
                                         ]"
                                         :menu-props="{ maxHeight: 200 }"
+                                        :rules="[(restrictionData.category && restrictionData.except && restrictionData.except.length > 0)?requiredValidator:false]"
                                     />
                                     
                             </VCol>
@@ -170,6 +171,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                         :menu-props="{ maxHeight: 250 }"
                                         multiple
                                         return-object
+                                        :rules="[(restrictionData.category && restrictionData.type)?requiredValidator:false]"
                                     >
                                         <template #chip="{ props, item }">
                                             <VChip v-bind="props" :text="item.raw.name" />

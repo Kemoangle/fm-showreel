@@ -31,7 +31,10 @@ watchEffect(() => {
 });
 
 onMounted(() => {
+    videoStore.data.videos = !videoStore.data.videos;
     getAll();
+    console.log(videoStore.isLoading);
+    
 });
 const changePage = (newPage: number) => {
     currentPage.value = newPage;
@@ -129,19 +132,30 @@ const handleSearch = async () => {
                             Create New Video
                         </VBtn>
                     </VCol>
-                    <VCol cols="12" sm="8" class="display">
+                   
+                    <VCol cols="12" sm="6" class="display">
                         <VTextField
                             placeholder="Search"
                             density="compact"
                             class="me-3"
-                            @input="getAll"
                             v-model="keySearch"
+                            :loading="videoStore.isLoading"
                         />
                         <!-- <VProgressLinear
                             v-if="searching"
                             indeterminate
                             color="primary"
                         /> -->
+                        
+                    </VCol>
+                    <VCol cols="12" sm="2" class="display">
+                        <VBtn
+                            variant="tonal"
+                            color="secondary"
+                            prepend-icon="mdi-search"
+                            @click="getAll"
+                        >
+                        </VBtn>
                     </VCol>
                 </VRow>
             </VCardText>

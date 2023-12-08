@@ -3,9 +3,10 @@ import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 
 export const useVideoStore = defineStore('video', {
-    state: (): { data: any, video: Video[] | any} => ({
+    state: (): { data: any, video: Video[] | any, isLoading: boolean} => ({
         data: [],
-        video: []
+        video: [],
+        isLoading: false
     }),
     actions: {
         async getAllVideos() {
@@ -14,6 +15,7 @@ export const useVideoStore = defineStore('video', {
             });
         },
         async getPageVideo(keySearch: string, page: number, pageSize: number) {
+            this.isLoading = true;
             await axiosIns.get<Video[]>('Video', {
                 params: {
                     keySearch: keySearch,
@@ -22,6 +24,7 @@ export const useVideoStore = defineStore('video', {
                 }
             }).then((response) => {
                 this.data = response;
+                this.isLoading = false;
             });
         },
 
