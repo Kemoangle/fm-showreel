@@ -73,7 +73,7 @@ watch(props, async (oldId, newId) => {
                                 <span class="">{{ video.video?.keyNo }}</span>
                             </td>
                             <td>
-                                {{ video.video?.rule }}
+                                {{ video.video?.remark }}
                             </td>
                         </tr>
                     </tbody>

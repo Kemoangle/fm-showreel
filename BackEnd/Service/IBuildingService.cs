@@ -9,5 +9,6 @@ namespace Showreel.Service
         void AddBuilding(Building building);
         void UpdateBuilding(Building building);
         void DeleteBuilding(int id);
+        IEnumerable<Building> GetBuildings();
     }
 }

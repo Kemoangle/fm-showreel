@@ -108,5 +108,12 @@ namespace Showreel.Controllers
             _buildingService.DeleteBuilding(id);
             return Ok();
         }
+
+        [HttpGet("getBuilding")]
+        public ActionResult<Building> GetBuildings()
+        {
+            var query = _buildingService.GetBuildings();
+            return Ok(query);
+        }
     }
 }

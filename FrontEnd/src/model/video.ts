@@ -1,13 +1,14 @@
+import { Building } from "./building"
 import { Category } from "./category"
 import { VideoType } from "./videoType"
 
 export interface Video{
-    id?: number
+    id: number
     title?: string
     filePath?: string
     duration?: number
     keyNo?: string
-    rule?: string
+    remark?: string
     isActive?: boolean
     createTime?: Date
     lastUpdateTime?: Date
@@ -15,4 +16,6 @@ export interface Video{
     loop?: number
     videoTypeId?: number
     videoType?: VideoType
+    noBackToBack?: Category[]
+    doNotPlay?: Building[]
 }

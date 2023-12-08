@@ -23,6 +23,7 @@ builder.Services.AddScoped<ILanlordAdsService, LandlordAdsService>();
 builder.Services.AddScoped<IVideoTypeService, VideoTypeService>();
 builder.Services.AddScoped<IRestrictionService, RestrcitionService>();
 builder.Services.AddScoped<IPlaylistService, PlaylistService>();
+builder.Services.AddScoped<IRuleService, RuleService>();
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 //  builder.Services.AddCors(options =>

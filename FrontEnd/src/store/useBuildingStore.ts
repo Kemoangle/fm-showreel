@@ -1,7 +1,7 @@
 import { Building } from '@/model/building';
 import axiosIns from '@/plugins/axios';
-import { defineStore } from 'pinia';
 import _ from 'lodash';
+import { defineStore } from 'pinia';
 
 export const useBuildingStore = defineStore('building', {
     state: (): { data: any; building: Building | null; allBuilding: Building[] } => ({
@@ -60,8 +60,8 @@ export const useBuildingStore = defineStore('building', {
                             isGetLandlord: true,
                         },
                     })
-                    .then((response) => {
-                        this.data.buildings = response;
+                    .then((response: any) => {
+                        this.allBuilding = response;
                         return response;
                     })) as Building[];
             }
