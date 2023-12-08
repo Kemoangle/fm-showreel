@@ -167,7 +167,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                         closable-chips
                                         :items="videoTypes"
                                         item-title="name"
-                                        label="Except/Exclude"
+                                        :label="(restrictionData.type == 'Except')?'Except':(restrictionData.type == 'Exclude'?'Exclude':'Except/Exclude')"
                                         :menu-props="{ maxHeight: 250 }"
                                         multiple
                                         return-object

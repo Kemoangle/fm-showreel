@@ -72,9 +72,16 @@ watch(props, async (oldId, newId) => {
                             <td>
                                 <span class="">{{ video.video?.keyNo }}</span>
                             </td>
-                            <td>
-                                {{ video.video?.rule }}
-                            </td>
+                            <td style="color: rgb(236, 114, 114);">
+                            <p v-if="video.doNotPlay.length">Do pot play on
+                                (<span v-for="(item, idx) in video.doNotPlay" :key="item.id">{{item.buildingName}}<span v-if="idx < video.doNotPlay.length - 1">/ </span>
+                                </span>)
+                            </p>
+                            <p v-if="video.noBackToBack.length">No back to back with
+                                (<span v-for="(item, idx) in video.noBackToBack" :key="item.id">{{item.name}}<span v-if="idx < video.noBackToBack.length - 1">/ </span>
+                                </span>)
+                            </p>
+                        </td>
                         </tr>
                     </tbody>
                 </VTable>

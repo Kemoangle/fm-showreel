@@ -2,6 +2,7 @@
 import { useSnackbar } from '@/components/Snackbar.vue';
 import { Video } from '@/model/video';
 import { useCategoryStore } from '@/store/useCategoryStore';
+import { useRuleStore } from '@/store/useRuleStore';
 import { useVideoStore } from '@/store/useVideoStore';
 import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
@@ -9,6 +10,7 @@ import Add from './add.vue';
 
 const videoStore = useVideoStore();
 const categoryStore = useCategoryStore();
+const ruleStore = useRuleStore();
 
 const idUpdate = ref(0);
 const searching = ref(false);
@@ -23,6 +25,7 @@ const { showSnackbar } = useSnackbar();
 
 const getAll = async () => {
     await videoStore.getPageVideo(keySearch.value, currentPage.value, pageSize.value);
+    console.log(videoStore.data.videos);
 };
 watchEffect(() => {
     totalPages.value = videoStore.data.totalPages;
@@ -33,7 +36,7 @@ watchEffect(() => {
 onMounted(() => {
     videoStore.data.videos = !videoStore.data.videos;
     getAll();
-    console.log(videoStore.isLoading);
+    
     
 });
 const changePage = (newPage: number) => {
@@ -77,13 +80,15 @@ const deleteVideo = (id: number) => {
 };
 
 const addNewVideo = async (videoData: Video) => {
-    const { category, ...rest } = videoData;
+    const { category,doNotPlay,noBackToBack, ...rest } = videoData;
     showSnackbar('Processing...', 'warning');
     if (videoData.id && videoData.id > 0) {
         await videoStore
             .updateVideo(rest)
             .then((response) => {
                 categoryStore.updateVideoCategory(videoData.id, category);
+                ruleStore.UpdateDoNotPlay(doNotPlay,videoData.id);
+                ruleStore.UpdateNoBackToBack(noBackToBack,videoData.id);
             })
             .catch((error) => {
                 showSnackbar(error.data.Video[0], 'error');
@@ -93,6 +98,8 @@ const addNewVideo = async (videoData: Video) => {
             .addVideo(rest)
             .then((response) => {
                 categoryStore.updateVideoCategory(response.id, category);
+                ruleStore.UpdateDoNotPlay(doNotPlay,response.id);
+                ruleStore.UpdateNoBackToBack(noBackToBack,response.id);
             })
             .catch((error) => {
                 showSnackbar(error.data.Video[0], 'error');
@@ -172,7 +179,7 @@ const handleSearch = async () => {
                         <th scope="col" class="text-center">KEY NO</th>
                         <th scope="col">RULE</th>
                         <th scope="col">CATEGORIES</th>
-                        <th scope="col" class="text-left">Video Type</th>
+                        <th scope="col" class="text-left">VIDEO TYPE</th>
                         <th scope="col" class="text-center">ACTION</th>
                     </tr>
                 </thead>
@@ -198,8 +205,15 @@ const handleSearch = async () => {
                             {{ video.keyNo }}
                         </td>
 
-                        <td>
-                            <span style="color: rgb(248, 114, 114)">{{ video.rule }}</span>
+                        <td style="color: rgb(236, 114, 114);">
+                            <p v-if="video.doNotPlay.length">Do pot play on
+                                (<span v-for="(item, idx) in video.doNotPlay" :key="item.id">{{item.buildingName}}<span v-if="idx < video.doNotPlay.length - 1">/ </span>
+                                </span>)
+                            </p>
+                            <p v-if="video.noBackToBack.length">No back to back with
+                                (<span v-for="(item, idx) in video.noBackToBack" :key="item.id">{{item.name}}<span v-if="idx < video.noBackToBack.length - 1">/ </span>
+                                </span>)
+                            </p>
                         </td>
 
                         <td>
@@ -271,7 +285,7 @@ const handleSearch = async () => {
             <!-- SECTION Pagination -->
             <VCardText class="d-flex flex-wrap justify-end gap-4 pa-2">
                 <!-- 👉 Rows per page -->
-                <div class="d-flex align-center me-3" style="width: 171px">
+                <div class="d-flex align-center me-3" style="width: 171px;">
                     <span class="text-no-wrap me-3">Rows per page:</span>
 
                     <VSelect
@@ -306,23 +320,23 @@ const handleSearch = async () => {
 
 <style lang="scss">
 .app-user-search-filter {
-    inline-size: 24.0625rem;
+  inline-size: 24.0625rem;
 }
 
 .text-capitalize {
-    text-transform: capitalize;
+  text-transform: capitalize;
 }
 
 .user-list-name:not(:hover) {
-    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
 }
 </style>
 
 <style lang="scss" scope>
 .user-pagination-select {
-    .v-field__input,
-    .v-field__append-inner {
-        padding-block-start: 0.3rem;
-    }
+  .v-field__input,
+  .v-field__append-inner {
+    padding-block-start: 0.3rem;
+  }
 }
 </style>

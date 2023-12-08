@@ -1,10 +1,10 @@
 import { Building } from '@/model/building';
 import axiosIns from '@/plugins/axios';
-import { defineStore } from 'pinia';
 import _ from 'lodash';
 import { Video } from '@/model/video';
 import { LandlordAds } from '@/model/landlordAds';
 import { IVideos } from '@/model/generatorPlaylist';
+import { defineStore } from 'pinia';
 
 interface IState {
     data: any;

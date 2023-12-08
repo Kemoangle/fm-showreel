@@ -3,14 +3,18 @@ import { PerfectScrollbar } from 'vue3-perfect-scrollbar';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import type { VForm } from 'vuetify/components';
 
+import { Building } from '@/model/building';
 import { Category } from '@/model/category';
 import { Video } from '@/model/video';
 import { VideoType } from '@/model/videoType';
 import axiosIns from '@/plugins/axios';
+import { useBuildingStore } from '@/store/useBuildingStore';
 import { useVideoTypeStore } from '@/store/useVideoTypeStore';
 import { requiredValidator } from '@validators';
 
 const categories = ref();
+const buildings = ref();
+
 interface Emit {
     (e: 'update:isDrawerOpen', value: boolean): void;
     (e: 'videoData', value: Video): void;
@@ -28,35 +32,58 @@ const isFormValid = ref(false);
 const refForm = ref<VForm>();
 
 const videoTypes = ref<VideoType[] | any>([]);
-
+const checkAutocomplete = ref(false);
 const videoTypeStore = useVideoTypeStore();
-
+const buildingStore = useBuildingStore();
 const videoData = ref<Video | any>({
     id: 0,
     title: '',
     duration: '',
     keyNo: '',
-    rule: '',
+    remark: '',
     videoTypeId: 0,
     category: [],
+    doNotPlay: [],
+    noBackToBack: []
 });
 
 watch(props, async (oldId, newId) => {
     refForm.value?.reset();
     refForm.value?.resetValidation();
+    checkAutocomplete.value = false;
+
     await axiosIns.get<Category[]>('Category').then((response) => {
         categories.value = response;
+    });
+    await axiosIns.get<Building[]>('Building/getBuilding').then((response) => {
+        buildings.value = response;
     });
     videoTypeStore.getAllVideoType();
 
     if (newId.videoId) {
         axiosIns.get('http://localhost:5124/api/Video/' + newId.videoId).then((response: any) => {
             videoData.value = response;
+            console.log(videoData.value);
+            
             const matchingCategories = response.category.map((category: any) => {
                 return categories.value.find((c: Category) => c.name === category.name);
             });
             videoData.value.category = matchingCategories.filter(
                 (category: any) => category !== null
+            );
+
+            const matchingNoBackToBack = response.noBackToBack.map((category: any) => {
+                return categories.value.find((c: Category) => c.name == category.name);
+            });
+            videoData.value.noBackToBack = matchingNoBackToBack.filter(
+                (category: any) => category !== null
+            );
+
+            const matchingDoNotPlay = response.doNotPlay.map((building: any) => {
+                return buildings.value.find((c: Building) => c.buildingName === building.buildingName);
+            });
+            videoData.value.doNotPlay = matchingDoNotPlay.filter(
+                (building: any) => building !== null
             );
         });
     } else {
@@ -64,7 +91,10 @@ watch(props, async (oldId, newId) => {
     }
 });
 
-onMounted(() => {});
+onMounted(() => {
+    console.log(videoData.value);
+    
+});
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -77,6 +107,7 @@ const closeNavigationDrawer = () => {
 };
 
 const onSubmit = () => {
+    checkAutocomplete.value = true;
     refForm.value?.validate().then(({ valid }) => {
         if (valid) {
             emit('videoData', videoData.value);
@@ -149,7 +180,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                 </VCol>
                                 
                                 <VCol cols="12">
-                                    <VTextField v-model="videoData.rule" label="Rule" />
+                                    <VTextField v-model="videoData.remark" label="Remark" />
                                 </VCol>
 
                                 <VCol cols="12">
@@ -163,6 +194,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                         :menu-props="{ maxHeight: 250 }"
                                         multiple
                                         return-object
+                                        :rules="[checkAutocomplete? requiredValidator:false]"
                                     >
                                         <template #chip="{ props, item }">
                                             <VChip v-bind="props" :text="item.raw.name" />
@@ -182,9 +214,52 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                         item-value="id"
                                         label="Video Type"
                                         :menu-props="{ maxHeight: 250 }"
+                                        :rules="[requiredValidator]"
                                     />
                                 </VCol>
+                                
+                                <VCol cols="12">
+                                    <VAutocomplete
+                                        v-model="videoData.noBackToBack"
+                                        chips
+                                        closable-chips
+                                        :items="categories"
+                                        item-title="name"
+                                        label="No back to back with"
+                                        :menu-props="{ maxHeight: 250 }"
+                                        multiple
+                                        return-object
+                                    >
+                                        <template #chip="{ props, item }">
+                                            <VChip v-bind="props" :text="item.raw.name" />
+                                        </template>
 
+                                        <template #item="{ props, item }">
+                                            <VListItem v-bind="props" :title="item?.raw?.name" />
+                                        </template>
+                                    </VAutocomplete>
+                                </VCol>
+                                <VCol cols="12">
+                                    <VAutocomplete
+                                        v-model="videoData.doNotPlay"
+                                        chips
+                                        closable-chips
+                                        :items="buildings"
+                                        item-title="buildingName"
+                                        label="Do not play on"
+                                        :menu-props="{ maxHeight: 250 }"
+                                        multiple
+                                        return-object
+                                    >
+                                        <template #chip="{ props, item }">
+                                            <VChip v-bind="props" :text="item.raw.buildingName" />
+                                        </template>
+
+                                        <template #item="{ props, item }">
+                                            <VListItem v-bind="props" :title="item?.raw?.buildingName" />
+                                        </template>
+                                    </VAutocomplete>
+                                </VCol>
                                 <!-- 👉 Submit and Cancel -->
                                 <VCol cols="12">
                                     <VBtn type="submit" class="me-3"> Submit </VBtn>

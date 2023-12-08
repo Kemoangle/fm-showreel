@@ -26,7 +26,7 @@ namespace Showreel.Service.impl
 
         public Building GetBuildingById(int id)
         {
-            return _context.Buildings.FirstOrDefault((Building b) => b.Id == id);
+            return _context.Buildings.SingleOrDefault((Building b) => b.Id == id);
         }
 
         public void AddBuilding(Building building)
@@ -49,6 +49,11 @@ namespace Showreel.Service.impl
                 _context.Buildings.Remove(buildingToDelete);
                 _context.SaveChanges();
             }
+        }
+
+        public IEnumerable<Building> GetBuildings()
+        {
+            return _context.Buildings.ToList();
         }
     }
 }
