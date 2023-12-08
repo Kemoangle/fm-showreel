@@ -39,6 +39,21 @@ namespace Showreel.Controllers
             return Ok(query.ToList());
         }
 
+        [HttpGet("building/{id}")]
+        public IActionResult GetLandlordAdsBuilding(int id)
+        {
+            var query = from l in lanlordAdsService.GetAllLandlordAds(id)
+                        select new
+                        {
+                            id = l.Id,
+                            loop = l.Loop,
+                            startDate = l.StartDate,
+                            endDate = l.EndDate,
+                            video = videoService.GetVideoById((int)l.VideoId)
+                        };
+            return Ok(query.ToList());
+        }
+
         [HttpPost]
         public IActionResult CreateLandlordAds([FromBody] Landlordad landlordad)
         {
@@ -70,7 +85,8 @@ namespace Showreel.Controllers
 
                 return NotFound(ModelState);
             }
-            var response = new {
+            var response = new
+            {
                 id = landlordads.Id,
                 loop = landlordads.Loop,
                 videoId = landlordads.VideoId,
