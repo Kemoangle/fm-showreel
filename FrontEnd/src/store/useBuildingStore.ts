@@ -15,15 +15,20 @@ interface IState {
 }
 
 export interface IBuildingLandlord {
-    buildingId: Number;
+    buildingId: number;
     videos: Video[] | any;
 }
 
 function convertVideoLandlordToVideo(landlordAds: LandlordAds[]) {
+    const dataLandlord = _.cloneDeep(landlordAds);
     const newVideos: IVideos[] = [];
-    landlordAds.forEach((el) => {
-        newVideos.push({ ...el.video, loop: el.loop ?? 0 } as IVideos);
+    dataLandlord.forEach((el) => {
+        const loop = el.loop;
+        if (loop) {
+            newVideos.push({ ...el.video, loop } as IVideos);
+        }
     });
+
     return newVideos;
 }
 
@@ -100,7 +105,7 @@ export const useBuildingStore = defineStore('building', {
 
             let arrLandLordAds: IBuildingLandlord[] = [];
 
-            const promise = new Promise((resolve, reject) => {
+            const promise = new Promise(async (resolve, reject) => {
                 ids.forEach(async (id) => {
                     const landlordAds = await this.getLandlordBuilding(id);
                     arrLandLordAds.push({

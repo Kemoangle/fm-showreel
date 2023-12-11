@@ -277,7 +277,9 @@ export class generatorPlaylist {
     addLandLordAds = (listVideo: IVideos[], videos: IVideos[]) => {
         let newListVideo: IVideos[] = [...listVideo];
         const newVideosAds = [...videos];
+        console.log('generatorPlaylist  newVideosAds:', newVideosAds);
         const loop = newVideosAds.reduce((prev, currentValue) => prev + currentValue.loop, 0);
+        console.log('generatorPlaylist  loop:', loop);
 
         const index = +((listVideo.length + loop) / (loop + 1)).toFixed(0);
 
@@ -291,6 +293,7 @@ export class generatorPlaylist {
                 indexVideoAds++;
             }
         }
+        console.log('generatorPlaylist  newListVideo:', newListVideo);
         newListVideo = this.handleCheckAndSortCategoriesCloselyTogether(newListVideo);
         newListVideo = this.handleCheckAndSortNoBackToBack(newListVideo);
         return newListVideo;

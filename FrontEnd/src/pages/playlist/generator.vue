@@ -36,6 +36,7 @@ const isViewPlaylistGeneric = ref(false);
 const playlistGeneric = ref<IPlaylist[]>([]);
 
 const listVideoActive = ref();
+const listVideoPlaylist = ref<IVideos[]>([]);
 
 const dragOptions = () => {
     return {
@@ -161,10 +162,6 @@ const handleCloseDialog = () => {
     isDialogListVideoVisible.value = !isDialogListVideoVisible.value;
 };
 
-const handleCloseDialogShowListVideo = () => {
-    isDialogListVideoCurrent.value = !isDialogListVideoCurrent.value;
-};
-
 const checkPlaylistInvalid = (playlist: IPlaylist[]) => {
     const exportPlaylist = new generatorPlaylist();
 
@@ -177,7 +174,7 @@ const checkPlaylistInvalid = (playlist: IPlaylist[]) => {
 
     const listVideo: IVideos[] = playlist.map((x) => ({
         name: x.name,
-        restriction: listVideoCurrent?.find((l) => l.key == x.key)?.restriction || '',
+        restriction: listVideoCurrent?.find((l: any) => l.key == x.key)?.restriction || '',
         key: x.key,
         loop: 1,
     }));
@@ -197,8 +194,6 @@ const checkPlaylistInvalid = (playlist: IPlaylist[]) => {
 
 const handleSaveOnePlaylist = (playlist: IPlaylist[], name: string) => {
     if (checkPlaylistInvalid(playlist)) {
-        console.log('playlist', playlist);
-
         showSnackbar(`Save playlist ${name} Successfuly`, 'success');
     }
 };
@@ -224,6 +219,7 @@ const handleCreatePlaylistGeneric = () => {
     const playlist = exportPlaylist.createListVideo(
         convertListVideoRenderPlaylist(listVideoActive.value)
     );
+    listVideoPlaylist.value = playlist;
 
     playlist.forEach((l, index) => {
         if (l) {
@@ -231,7 +227,7 @@ const handleCreatePlaylistGeneric = () => {
                 category: l.category || [],
                 durations: l.duration,
                 key: l.keyNo || '',
-                remarks: '1',
+                remarks: 'hello',
                 name: l.title || '',
                 order: index,
             });
@@ -245,6 +241,7 @@ const convertPlaylistToListVideo = (playlist: IPlaylist[]) => {
     playlist.forEach((element: unknown) => {
         newListVideo.push(element as IVideos);
     });
+
     return newListVideo;
 };
 
@@ -265,33 +262,49 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
                     const playlist: IPlaylist[] = [];
                     let newList = [...listVideo];
                     if (!_.isEmpty(landLordAds)) {
-                        newList = exportPlaylist.addLandLordAds(newList as IVideos[], landLordAds);
+                        newList = exportPlaylist.addLandLordAds(
+                            listVideoPlaylist.value,
+                            landLordAds
+                        );
+                        newList.forEach((l: IVideos, index: number) => {
+                            if (l) {
+                                playlist.push({
+                                    category: l.category || [],
+                                    durations: l.duration,
+                                    key: l.keyNo || '',
+                                    remarks: 'hello',
+                                    name: l.title || '',
+                                    order: index,
+                                });
+                            }
+                        });
+                    } else {
+                        newList.forEach((l: IPlaylist, index: number) => {
+                            if (l) {
+                                playlist.push({
+                                    category: l.category || [],
+                                    durations: l.durations,
+                                    key: l.key || '',
+                                    remarks: 'hello',
+                                    name: l.name || '',
+                                    order: index,
+                                });
+                            }
+                        });
                     }
-
-                    newList.forEach((l: IPlaylist, index: number) => {
-                        if (l) {
-                            playlist.push({
-                                category: l.category || [],
-                                durations: l.durations,
-                                key: l.key || '',
-                                remarks: '1',
-                                name: l.name || '',
-                                order: index,
-                            });
-                        }
-                    });
 
                     return playlist;
                 };
 
                 buildingActive.forEach((building, index) => {
+                    const playlist = genPlaylist(
+                        convertPlaylistToListVideo(playlistGeneric.value),
+                        LandlordAds.find((x) => x.buildingId == building.id)?.videos
+                    );
                     newPlaylistBuilding.push({
                         id: index + 1,
                         buildingName: 'building ' + building.title,
-                        playlist: genPlaylist(
-                            convertPlaylistToListVideo(playlistGeneric.value),
-                            LandlordAds.find((x) => x.buildingId == building.id)?.videos
-                        ),
+                        playlist,
                     });
                 });
 
@@ -513,7 +526,7 @@ const handleViewPlaylistGeneric = () => {
                                 {{ playlist.category?.map((x) => x.name).join(', ') }}
                             </td>
                             <td>
-                                <VTextField class="input-remark" :v-model="playlist.remarks" />
+                                <VTextField class="input-remark" :model-value="playlist.remarks" />
                             </td>
                         </tr>
                         <tr key="j">
