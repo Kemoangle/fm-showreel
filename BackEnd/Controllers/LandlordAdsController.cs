@@ -42,7 +42,8 @@ namespace Showreel.Controllers
         [HttpGet("building/{id}")]
         public IActionResult GetLandlordAdsBuilding(int id)
         {
-            var query = from l in lanlordAdsService.GetAllLandlordAds(id)
+            // var query = lanlordAdsService.GetLandlordAdsBuilding(id);
+            var query = from l in lanlordAdsService.GetLandlordAdsBuilding(id)
                         select new
                         {
                             id = l.Id,
@@ -51,6 +52,7 @@ namespace Showreel.Controllers
                             endDate = l.EndDate,
                             video = videoService.GetVideoById((int)l.VideoId)
                         };
+
             return Ok(query.ToList());
         }
 

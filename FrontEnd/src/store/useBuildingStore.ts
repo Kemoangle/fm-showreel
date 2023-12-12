@@ -1,6 +1,9 @@
 import { Building } from '@/model/building';
 import axiosIns from '@/plugins/axios';
 import _ from 'lodash';
+import { Video } from '@/model/video';
+import { LandlordAds } from '@/model/landlordAds';
+import { IVideos } from '@/model/generatorPlaylist';
 import { defineStore } from 'pinia';
 
 interface IState {
@@ -9,6 +12,24 @@ interface IState {
     allBuilding: Building[];
     listIdBuildingActive: number[];
     isLoadingLandlordAds: boolean;
+}
+
+export interface IBuildingLandlord {
+    buildingId: number;
+    videos: Video[] | any;
+}
+
+function convertVideoLandlordToVideo(landlordAds: LandlordAds[]) {
+    const dataLandlord = _.cloneDeep(landlordAds);
+    const newVideos: IVideos[] = [];
+    dataLandlord.forEach((el) => {
+        const loop = el.loop;
+        if (loop) {
+            newVideos.push({ ...el.video, loop } as IVideos);
+        }
+    });
+
+    return newVideos;
 }
 
 export const useBuildingStore = defineStore('building', {
@@ -69,21 +90,37 @@ export const useBuildingStore = defineStore('building', {
                         this.allBuilding = response;
                         return response;
                     })) as Building[];
-                    
             }
         },
 
         async getLandlordBuilding(id: number) {
-            return await axiosIns.get('LandlordAds/building/' + id).then((data) => {});
+            return await axiosIns.get<LandlordAds[]>('LandlordAds/building/' + id);
         },
 
-        async setListBuildingActive(ids: number[], callBack: Function) {
+        async setListBuildingActive(
+            ids: number[],
+            callBack: (LandlordAds: IBuildingLandlord[]) => void
+        ) {
             this.listIdBuildingActive = ids;
 
-            ids.forEach(async (id) => {
-                await this.getLandlordBuilding(id);
+            let arrLandLordAds: IBuildingLandlord[] = [];
+
+            const promise = new Promise(async (resolve, reject) => {
+                ids.forEach(async (id) => {
+                    const landlordAds = await this.getLandlordBuilding(id);
+                    arrLandLordAds.push({
+                        buildingId: id,
+                        videos: convertVideoLandlordToVideo(landlordAds),
+                    });
+                    if (arrLandLordAds.length == ids.length) {
+                        resolve('');
+                    }
+                });
             });
-            callBack();
+
+            promise.then((data) => {
+                callBack(arrLandLordAds);
+            });
         },
     },
 });

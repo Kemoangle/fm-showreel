@@ -12,6 +12,7 @@ import { Video } from './video';
 
 export interface IVideos extends Video {
     loop: number;
+    rule?: string;
 }
 
 export interface IListInfoCompany {
