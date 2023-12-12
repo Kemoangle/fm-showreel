@@ -8,13 +8,11 @@ namespace BackEnd.Service
 {
     public interface IRestrictionService
     {
-        IEnumerable<BuildingRestriction> GetBuildingRestriction(int buildingId);
-        IEnumerable<RestrictionExcept> GetRestrictionExcepts(int buildingRestrictionId);
-        IEnumerable<VideoType> GetVideoExcept(int buildingRestrictionId);
-        BuildingRestriction AddBuildingRestriction(BuildingRestriction buildingRestriction);
-        BuildingRestriction UpdateBuildingRestriction(BuildingRestriction buildingRestriction);
+        IEnumerable<Restriction> GetBuildingRestriction(int buildingId);
+        IEnumerable<Category> GetRestrictionExcepts(int restrictionId);
         void DeleteRestriction(int id);
-        void UpdateRestrictionExcept(VideoType[] videoTypes, int buildingRestrictionId);    
-        BuildingRestriction GetBuildingRestrictionById(int id);    
+        Restriction GetRestrictionById(int id);
+        void AddRestriction(Restriction restriction );
+        void UpdateRestriction(Restriction restriction );
     }
 }

@@ -23,13 +23,9 @@ public partial class Video
 
     public bool? IsActive { get; set; }
 
-    public int? VideoTypeId { get; set; }
-
     public virtual ICollection<Landlordad> Landlordads { get; set; } = new List<Landlordad>();
 
     public virtual ICollection<Rule> Rules { get; set; } = new List<Rule>();
-
-    public virtual VideoType? VideoType { get; set; }
 
     public virtual ICollection<VideoVideolist> VideoVideolists { get; set; } = new List<VideoVideolist>();
 

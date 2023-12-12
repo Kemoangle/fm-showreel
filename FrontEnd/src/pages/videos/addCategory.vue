@@ -3,9 +3,10 @@ import { PerfectScrollbar } from 'vue3-perfect-scrollbar';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import type { VForm } from 'vuetify/components';
 
-import { Category } from '@/model/category';
-import { VideoType } from '@/model/videoType';
+import { useSnackbar } from '@/components/Snackbar.vue';
+import { Category, SubCategory } from '@/model/category';
 import axiosIns from '@/plugins/axios';
+import { useCategoryStore } from '@/store/useCategoryStore';
 import { requiredValidator } from '@validators';
 
 interface Emit {
@@ -18,30 +19,44 @@ interface Props {
     categoryId: number;
 }
 const props = defineProps<Props>();
+
 const emit = defineEmits<Emit>();
+const categoryStore = useCategoryStore();
+
+let dataRef = toRefs(props).categoryId;
 
 const isFormValid = ref(false);
 const refForm = ref<VForm>();
+const { showSnackbar } = useSnackbar();
 
-const categoryData = ref<VideoType | any>({
+const categoryData = ref<Category>({
     id: 0,
     name: '',
+    parent: 0,
+    subCategory: []
 });
 
 watch(props, async (oldId, newId) => {
+    console.log("ssss");
     refForm.value?.reset();
     refForm.value?.resetValidation();
-    if (newId.categoryId && newId.categoryId > 0) {
-        axiosIns.get<Category>('Category/' + newId.categoryId).then((reponse) => {
+    if (newId.categoryId > 0) {
+        axiosIns.get<Category>('Category/' + newId.categoryId).then((reponse: any) => {
             categoryData.value = reponse;
         });
-    } else {
+    }else{
         categoryData.value.id = 0;
+        categoryData.value.subCategory = [];
         refForm.value?.reset();
         refForm.value?.resetValidation();
     }
 });
-onMounted(() => {});
+
+
+onMounted(() => {
+    refForm.value?.reset();
+    refForm.value?.resetValidation();
+});
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -53,15 +68,41 @@ const closeNavigationDrawer = () => {
     });
 };
 
-const onSubmit = () => {
-    refForm.value?.validate().then(({ valid }) => {
+const onSubmit = async () => {
+    refForm.value?.validate().then(async ({ valid }) => {
         if (valid) {
-            emit('categoryData', categoryData.value);
-            emit('update:isDrawerOpenCategory', false);
-            nextTick(() => {
-                refForm.value?.reset();
-                refForm.value?.resetValidation();
-            });
+            const { subCategory, ...rest } = categoryData.value;
+            if (categoryData.value.id && categoryData.value.id > 0) {
+                await categoryStore.updateCategory(rest)
+                .then(response =>{
+                    categoryStore.updateSubCategory(subCategory, response.id).then(data => {
+                        emit('categoryData', categoryData.value);
+                        emit('update:isDrawerOpenCategory', false);
+                        nextTick(() => {
+                            refForm.value?.reset();
+                            refForm.value?.resetValidation();
+                        });
+                    });
+                })
+                .catch((error) => {
+                    showSnackbar(error.data.Category[0], 'error');
+                });
+            } else {
+                await categoryStore.addCategory(rest)
+                .then(response =>{
+                    categoryStore.updateSubCategory(subCategory, response.id).then(data => {
+                        emit('categoryData', categoryData.value);
+                        emit('update:isDrawerOpenCategory', false);
+                        nextTick(() => {
+                            refForm.value?.reset();
+                            refForm.value?.resetValidation();
+                        });
+                    });
+                })
+                .catch((error) => {
+                    showSnackbar(error.data.Category[0], 'error');
+                });
+            }
         }
     });
 };
@@ -69,6 +110,19 @@ const onSubmit = () => {
 const handleDrawerModelValueUpdate = (val: boolean) => {
     emit('update:isDrawerOpenCategory', val);
 };
+
+const addInput = () =>{
+    if (categoryData.value.subCategory === undefined) {
+        categoryData.value.subCategory = [];
+    }
+    const newSubCategory: SubCategory = {
+        id: 0,
+        name: '',
+    };
+    categoryData.value.subCategory.push({ ...newSubCategory });
+
+    console.log('After addInput:', categoryData.value.subCategory);
+}
 
 </script>
 
@@ -84,10 +138,8 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
         >
             <!-- 👉 Title -->
             <div class="d-flex align-center bg-var-theme-background px-5 py-2">
-                <h6 class="text-h6">Video Type</h6>
-
+                <h6 class="text-h6">Category</h6>
                 <VSpacer />
-
                 <VBtn
                     size="small"
                     color="secondary"
@@ -107,7 +159,23 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                     <VTextField
                                         v-model="categoryData.name"
                                         :rules="[requiredValidator]"
-                                        label="Name"
+                                        label="Category Name"
+                                    />
+                                </VCol>
+                                <VCol>
+                                    <VBtn
+                                        variant="tonal"
+                                        color="secondary"
+                                        prepend-icon="mdi-add"
+                                        @click="addInput"
+                                    >
+                                        Add Sub Category
+                                    </VBtn>
+                                </VCol>
+                                <VCol cols="12" v-if="categoryData.subCategory"  v-for="(item, index) in categoryData.subCategory" :key="index">
+                                    <VTextField
+                                        v-model="item.name"
+                                        label=" Sub Category Name"
                                     />
                                 </VCol>
 

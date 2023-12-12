@@ -1,4 +1,5 @@
-﻿using Showreel.Models;
+﻿using System.Linq;
+using Showreel.Models;
 
 namespace Showreel.Service.impl
 {
@@ -10,31 +11,11 @@ namespace Showreel.Service.impl
             _context = context;
         }
 
-        public void AddCategory(Category category)
+        public Category AddCategory(Category category)
         {
             _context.Categories.Add(category);
             _context.SaveChanges();
-        }
-
-        public void AddVideoCategory(Videocategory videocategory)
-        {
-            _context.Videocategories.Add(videocategory);
-            _context.SaveChanges();
-        }
-
-        public void DeleteCategory(int id)
-        {
-            var categoryDelete = _context.Categories.Find(id);
-            if (categoryDelete != null)
-            {
-                _context.Categories.Remove(categoryDelete);
-                _context.SaveChanges();
-            }
-        }
-
-        public IEnumerable<Category> GetAllCategory()
-        {
-            return _context.Categories.ToList();
+            return category;
         }
 
         public Category GetCategoryById(int id)
@@ -46,7 +27,7 @@ namespace Showreel.Service.impl
         {
             var query = from v in _context.Videocategories
                         join c in _context.Categories on v.CategoryId equals c.Id
-                        where v.VideoId == id
+                        where v.VideoId == id && (c.Parent == null || c.Parent == 0)
                         select new Category
                         {
                             Id = c.Id,
@@ -63,13 +44,68 @@ namespace Showreel.Service.impl
             {
                 query = query.Where(c => c.Name.Contains(keySearch));
             }
-            query = query.OrderByDescending(b => b.Id);
+            query = query.Where(c => c.Parent == 0 || c.Parent == null).OrderByDescending(b => b.Id);
             return query.ToList();
         }
 
-        public void UpdateCategory(Category category)
+        public IEnumerable<Category> GetCategoryByParent(int parentId = 0, int[] arrParentId = null)
+        {
+            var query = _context.Categories.AsQueryable();
+            if(arrParentId != null && arrParentId.Any()){
+                query = query.Where(q => q.Parent > 0 && arrParentId.Contains((int)q.Parent));
+            }
+            if(parentId > 0){
+                query = query.Where(c => c.Parent == parentId);
+            }
+            
+            return query;
+        }
+
+        public IEnumerable<Category> GetSubCategoryByVideoId(int id)
+        {
+            var query = from v in _context.Videocategories
+                        join c in _context.Categories on v.CategoryId equals c.Id
+                        where v.VideoId == id && c.Parent > 0
+                        select new Category
+                        {
+                            Id = c.Id,
+                            Name = c.Name
+                        };
+
+            return query.ToList();
+        }
+
+        public Category UpdateCategory(Category category)
         {
             _context.Update(category);
+            _context.SaveChanges();
+            return category;
+        }
+
+        public void UpdateSubCategory(Category[] categories, int parentId)
+        {
+            var existingSubCategories = _context.Categories
+                                            .Where(v => v.Parent == parentId)
+                                            .ToList();
+            if (existingSubCategories.Any())
+            {
+                _context.Categories.RemoveRange(existingSubCategories);
+            }
+
+            foreach (var category in categories)
+            {
+                var newSubCategory = new Category
+                {
+                    Name = category.Name,
+                    Parent = parentId,
+                    Restrictions = new List<Restriction>(),
+                    Rules = new List<Rule>(),
+                    Videocategories = new List<Videocategory>()
+                };
+
+                _context.Categories.Add(newSubCategory);
+            }
+
             _context.SaveChanges();
         }
 
@@ -95,6 +131,11 @@ namespace Showreel.Service.impl
             }
 
             _context.SaveChanges();
+        }
+
+        public IEnumerable<Category> GetAllParentCategory()
+        {
+            return _context.Categories.Where(c => c.Parent == 0 || c.Parent == null);
         }
     }
 }

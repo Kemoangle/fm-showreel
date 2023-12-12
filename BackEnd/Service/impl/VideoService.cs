@@ -56,7 +56,7 @@ namespace Showreel.Service.impl
         public IEnumerable<Video> GetAllVideos()
         {
             return _context.Videos.ToList();
-        }
+        }   
 
         public Video GetVideoByKeyNo(string keyNo)
         {

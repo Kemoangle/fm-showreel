@@ -53,28 +53,23 @@ const capitalizeFirstLetter = (str: string) =>{
 
 const handleSubmit = async (restrictionData: any) => {
     restrictionData.buildingId = props.buildingId;
-    restrictionData.name = 'No ' + restrictionData.category.name;
     restrictionData.categoryId = restrictionData.category.id;
     delete(restrictionData.category);
-    console.log(restrictionData.except)
-    const { except, ...rest } = restrictionData;
-    
+    restrictionData.arrCategory = restrictionData.arrCategory.map((category: any) => category.id);
+    restrictionData.arrCategory = JSON.stringify(restrictionData.arrCategory);
+
     if (restrictionData.id && restrictionData.id > 0) {
-        await restrictionStore.updateBuildingRestriction(rest)
+        await restrictionStore.updateBuildingRestriction(restrictionData)
         .then((response) => {
-            restrictionStore.UpdateRestrictionExcept(except, response.id).then(data =>{
-                restrictionStore.getRestrictionByBuildingId(props.buildingId);
-            });
+            restrictionStore.getRestrictionByBuildingId(props.buildingId);
         })
         .catch((error) => {
             showSnackbar(error.data.Restriction[0], 'error');
         });
     } else {
-        await restrictionStore.addBuildingRestriction(rest)
+        await restrictionStore.addBuildingRestriction(restrictionData)
         .then((response) => {
-            restrictionStore.UpdateRestrictionExcept(except, response.id).then(data =>{
-                restrictionStore.getRestrictionByBuildingId(props.buildingId);
-            });
+            restrictionStore.getRestrictionByBuildingId(props.buildingId);
         })
         .catch((error) => {
             showSnackbar(error.data.Restriction[0], 'error');
@@ -119,16 +114,18 @@ const handleSubmit = async (restrictionData: any) => {
                         <td>{{ index + 1 }}</td>
                         <td>
                             <div class="d-flex align-center">
-                                <span style="color: rgb(236, 114, 114);">{{ item.name }}</span>
+                                <span style="color: rgb(236, 114, 114);">
+                                    No {{ item.category.name }}
+                                </span>
                             </div>
                         </td>
 
                         <td class="">
                             {{ capitalizeFirstLetter(item.type)}}
-                            <span v-if="item.except.length">
-                                (<span v-for="(v,idx) in item.except" :key="v.id">
+                            <span v-if="item.arrCategory.length">
+                                (<span v-for="(v,idx) in item.arrCategory" :key="v.id">
                                 {{ v.name}}
-                                <span v-if="idx < item.except.length - 1">/</span>
+                                <span v-if="idx < item.arrCategory.length - 1">/</span>
                                 </span>)
                             </span>
                         </td>

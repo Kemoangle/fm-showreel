@@ -18,4 +18,5 @@ export interface Video{
     videoType?: VideoType
     noBackToBack?: Category[]
     doNotPlay?: Building[]
+    subCategory: Category[]
 }

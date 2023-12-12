@@ -20,7 +20,6 @@ builder.Services.AddScoped<IVideoService, VideoService>();
 builder.Services.AddScoped<IVideoCategoryService, VideoCategoryService>();
 builder.Services.AddScoped<IVideoListService, VideoListService>();
 builder.Services.AddScoped<ILanlordAdsService, LandlordAdsService>();
-builder.Services.AddScoped<IVideoTypeService, VideoTypeService>();
 builder.Services.AddScoped<IRestrictionService, RestrcitionService>();
 builder.Services.AddScoped<IPlaylistService, PlaylistService>();
 builder.Services.AddScoped<IRuleService, RuleService>();

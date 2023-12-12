@@ -3,86 +3,70 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Showreel.Models;
+using Newtonsoft;
+using Newtonsoft.Json;
+using Showreel.Service;
 
 namespace BackEnd.Service.impl
 {
     public class RestrcitionService : IRestrictionService
     {
         private readonly ShowreelContext context;
-        public RestrcitionService(ShowreelContext _context)
+        private readonly IVideoCategoryService categoryService;
+        public RestrcitionService(ShowreelContext _context, IVideoCategoryService _categoryService)
         {
             context = _context;
+            categoryService = _categoryService;
         }
 
-        public BuildingRestriction AddBuildingRestriction(BuildingRestriction buildingRestriction)
+        public void AddRestriction(Restriction restriction)
         {
-            context.Add(buildingRestriction);
+            context.Restrictions.Add(restriction);
             context.SaveChanges();
-            return buildingRestriction;
         }
 
         public void DeleteRestriction(int id)
         {
-            var restrictionDelete = context.BuildingRestrictions.Find(id);
+            var restrictionDelete = context.Restrictions.Find(id);
             if (restrictionDelete != null)
             {
-                context.BuildingRestrictions.Remove(restrictionDelete);
+                context.Restrictions.Remove(restrictionDelete);
                 context.SaveChanges();
             }
         }
 
-        public IEnumerable<BuildingRestriction> GetBuildingRestriction(int buildingId)
-        {
-            return context.BuildingRestrictions.Where(b => b.BuildingId == buildingId).ToList();
-        }
-
-        public BuildingRestriction GetBuildingRestrictionById(int id)
-        {
-            return context.BuildingRestrictions.FirstOrDefault(br => br.Id == id);
-        }
-
-        public IEnumerable<RestrictionExcept> GetRestrictionExcepts(int buildingRestrictionId)
-        {
-            return context.RestrictionExcepts.Where(r => r.BuildingRestrictionId == buildingRestrictionId).ToList();
-        }
-
-        public IEnumerable<VideoType> GetVideoExcept(int buildingRestrictionId)
-        {
-            var query = from br in context.BuildingRestrictions.Where(b => b.Id == buildingRestrictionId)
-                        join rx in context.RestrictionExcepts on br.Id equals rx.BuildingRestrictionId
-                        join vt in context.VideoTypes on rx.VideoTypeId equals vt.Id
-                        select new VideoType{
-                            Id = vt.Id,
-                            Name = vt.Name
-                        };
+        public IEnumerable<Restriction> GetBuildingRestriction(int buildingId)
+        {   
+            var query = context.Restrictions.Where(r => r.BuildingId == buildingId);
             return query.ToList();
         }
 
-        public BuildingRestriction UpdateBuildingRestriction(BuildingRestriction buildingRestriction)
+        public Restriction GetRestrictionById(int id)
         {
-            context.Update(buildingRestriction);
-            context.SaveChanges();
-            return buildingRestriction;
+            return context.Restrictions.FirstOrDefault(r => r.Id == id);
         }
 
-        public void UpdateRestrictionExcept(VideoType[] videoTypes, int buildingRestrictionId)
+        public IEnumerable<Category> GetRestrictionExcepts(int restrictionId)
         {
-             var existingExcept = context.RestrictionExcepts
-                                    .Where(v => v.BuildingRestrictionId == buildingRestrictionId)
-                                    .ToList();
-            if (existingExcept.Any())
+            var restriction = context.Restrictions.FirstOrDefault(r => r.Id == restrictionId);
+
+            if (restriction == null || restriction.ArrCategory == null)
             {
-                context.RestrictionExcepts.RemoveRange(existingExcept);
+                return Enumerable.Empty<Category>();
             }
-            foreach (var item in videoTypes)
+            int[]? arrCategoryId = JsonConvert.DeserializeObject<int[]>(restriction.ArrCategory);
+
+            if (arrCategoryId == null || arrCategoryId.Length == 0)
             {
-                var newExcept = new RestrictionExcept
-                {
-                    VideoTypeId = item.Id,
-                    BuildingRestrictionId = buildingRestrictionId
-                };
-                context.RestrictionExcepts.Add(newExcept);
+                return Enumerable.Empty<Category>();
             }
+            
+            return context.Categories.Where(c => arrCategoryId.Contains(c.Id));
+        }
+
+        public void UpdateRestriction(Restriction restriction)
+        {
+            context.Restrictions.Update(restriction);
             context.SaveChanges();
         }
     }

@@ -1,5 +1,13 @@
 
 export interface Category{
-    id?: number
+    id: number
     name?: string
+    parent?: number
+    subCategory?: SubCategory[] 
+}
+
+export interface SubCategory{
+    id: number
+    name?: string
+    parent?: number
 }

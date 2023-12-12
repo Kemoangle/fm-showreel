@@ -3,16 +3,15 @@ import { PerfectScrollbar } from 'vue3-perfect-scrollbar';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import type { VForm } from 'vuetify/components';
 
-import { Building } from '@/model/building';
-import { BuildingRestriction } from '@/model/buildingRestriction';
-import { VideoType } from '@/model/videoType';
+import { Category } from '@/model/category';
+import { Restriction } from '@/model/restriction';
 import axiosIns from '@/plugins/axios';
 import { useCategoryStore } from '@/store/useCategoryStore';
 import { requiredValidator } from '@validators';
 
 interface Emit {
     (e: 'update:isDrawerOpen', value: boolean): void;
-    (e: 'restrictionData', value: Building): void;
+    (e: 'restrictionData', value: Restriction): void;
 }
 
 interface Props {
@@ -26,43 +25,41 @@ const categoryStore = useCategoryStore();
 
 const isFormValid = ref(false);
 const refForm = ref<VForm>();
-const videoTypes = ref<VideoType[] | any>([]);
-const restrictionData = ref<BuildingRestriction>({
+const subCategories = ref<Category[]>([]);
+const restrictionData = ref<Restriction>({
     id: 0,
-    categoryId: 0,
-    category: null,
     buildingId: 0,
-    name:'',
+    categoryId: 0,
     type: 'Except',
-    except: [],
+    arrCategory: [],
+    category: {id: 0}
 });
 
 watch(props, async (oldId, newId) => {
     refForm.value?.reset();
     refForm.value?.resetValidation();
     if (newId.restrictionId) {
-        axiosIns.get('http://localhost:5124/api/Restriction/GetBuildingRestrictionById/' + newId.restrictionId).then((response: any) => {
+        axiosIns.get('Restriction/GetBuildingRestrictionById/' + newId.restrictionId).then((response: any) => {
+            categoryStore.getSubCategory(response.category.id).then((data: any) => {
+                subCategories.value = data;
+            })
             restrictionData.value = response;
-            axiosIns.get<VideoType[]>('VideoType/GetVideoTypeByCategory/' + response.categoryId).then(reponse => {
-                videoTypes.value = reponse;
-                restrictionData.value.except = videoTypes.value.filter((videoType: VideoType) => {
-                    return response.except.some((exceptItem: VideoType) => exceptItem.id === videoType.id);
-                });
-            });
+
+            
         });
     } else {
         restrictionData.value.id = 0;
     }
 });
 
-const getVideoTypes = () => {
+const getSubCategories = () => {
     if(restrictionData.value.category){
-        restrictionData.value.except = [];
-        axiosIns.get<VideoType[]>('VideoType/GetVideoTypeByCategory/' + restrictionData.value.category.id).then((reponse: any) => {
-            videoTypes.value = reponse;
-        });
+        restrictionData.value.arrCategory = [];
+        restrictionData.value.type = undefined;
+        categoryStore.getSubCategory(restrictionData.value.category.id).then((response: any) => {
+            subCategories.value = response;
+        })
     }
-    
 }
 
 const createVideos = () => {
@@ -118,7 +115,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
     >
         <!-- 👉 Title -->
         <div class="d-flex align-center bg-var-theme-background px-5 py-2">
-            <h6 class="text-h6">Building </h6>
+            <h6 class="text-h6">Restriction </h6>
             <VSpacer />
             <VBtn
                 size="small"
@@ -143,7 +140,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                     label="Restriction"
                                     :menu-props="{ maxHeight: 250 }"
                                     :rules="[requiredValidator]"
-                                    @update:model-value="getVideoTypes"
+                                    @update:model-value="getSubCategories"
                                     return-object
                                 />
                             </VCol>
@@ -156,22 +153,22 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                             'Exclude',
                                         ]"
                                         :menu-props="{ maxHeight: 200 }"
-                                        :rules="[(restrictionData.category && restrictionData.except && restrictionData.except.length > 0)?requiredValidator:false]"
+                                        :rules="[(restrictionData.category && restrictionData.arrCategory && restrictionData.arrCategory.length > 0)?requiredValidator:true]"
                                     />
                                     
                             </VCol>
                             <VCol cols="12">
                                 <VAutocomplete
-                                        v-model="restrictionData.except"
+                                        v-model="restrictionData.arrCategory"
                                         chips
                                         closable-chips
-                                        :items="videoTypes"
+                                        :items="subCategories"
                                         item-title="name"
                                         :label="(restrictionData.type == 'Except')?'Except':(restrictionData.type == 'Exclude'?'Exclude':'Except/Exclude')"
                                         :menu-props="{ maxHeight: 250 }"
                                         multiple
                                         return-object
-                                        :rules="[(restrictionData.category && restrictionData.type)?requiredValidator:false]"
+                                        :rules="[(restrictionData.category && restrictionData.type)?requiredValidator:true]"
                                     >
                                         <template #chip="{ props, item }">
                                             <VChip v-bind="props" :text="item.raw.name" />

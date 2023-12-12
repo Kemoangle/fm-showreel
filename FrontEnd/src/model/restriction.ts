@@ -1,4 +1,12 @@
+import { Category } from "./category"
+
 export interface Restriction{
     id?: number
-    restrictionName?: string
+    buildingId?: number
+    categoryId?: number
+    type?: string
+    category?: Category
+    arrCategory?: []
+    arrItem?: Category[]
+
 }

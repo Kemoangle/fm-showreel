@@ -33,7 +33,7 @@ export const useVideoStore = defineStore('video', {
             return item;
         },
    
-        async addVideo(video: Video): Promise<Video> {
+        async addVideo(video: any): Promise<Video> {
             return await axiosIns.post('Video', video);
         },
         async deleteVideo(id: number) {

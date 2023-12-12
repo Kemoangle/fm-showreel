@@ -13,19 +13,16 @@ namespace Showreel.Controllers
     {
         private readonly IVideoService _videoService;
         private readonly IVideoCategoryService _categoryService;
-        private readonly IVideoTypeService _videoTypeService;
         private readonly IRuleService _ruleService;
 
         public VideoController(
             IVideoService videoService, 
             IVideoCategoryService categoryService,
-            IVideoTypeService videoTypeService,
             IRuleService ruleService
         )
         {
             _videoService = videoService;
             _categoryService = categoryService;
-            _videoTypeService = videoTypeService;
             _ruleService = ruleService;
         }
 
@@ -48,8 +45,8 @@ namespace Showreel.Controllers
                             v.Duration,
                             v.KeyNo,
                             v.Remark,
-                            videoType = _videoTypeService.GetVideoTypeById((int)v.VideoTypeId),
                             category = _categoryService.GetCategoryByVideoId(v.Id),
+                            subCategory = _categoryService.GetSubCategoryByVideoId(v.Id),
                             doNotPlay = _ruleService.GetDoNotPlay(v.Id),
                             noBackToBack = _ruleService.GetNoBackToback(v.Id)
                         };
@@ -85,6 +82,7 @@ namespace Showreel.Controllers
                 return NotFound();
             }
             var categories = _categoryService.GetCategoryByVideoId(id);
+            var subCategories = _categoryService.GetSubCategoryByVideoId(id);
             var response = new
             {
                 video.Id,
@@ -94,7 +92,7 @@ namespace Showreel.Controllers
                 video.LastUpdateTime,
                 video.Title,
                 video.Remark,
-                video.VideoTypeId,
+                subCategory = subCategories.ToList(),
                 category = categories.ToList(),
                 doNotPlay = _ruleService.GetDoNotPlay(video.Id),
                 noBackToBack = _ruleService.GetNoBackToback(video.Id)
