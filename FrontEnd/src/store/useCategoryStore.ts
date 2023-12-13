@@ -10,7 +10,7 @@ export const useCategoryStore = defineStore('category', {
     }),
     actions: {
         async getAllCategory() {
-            await axiosIns.get<Category[]>('Category').then((response) => {
+            await axiosIns.get<Category[]>('Category/GetParent').then((response) => {
                 this.data = response;
             });
         },
@@ -36,12 +36,20 @@ export const useCategoryStore = defineStore('category', {
             });
         },
 
-        async addCategory(category: Category) {
+        async addCategory(category: Category): Promise<Category> {
             return await axiosIns.post('Category', category);
         },
         
-        async updateCategory(category: Category) {
+        async updateCategory(category: Category): Promise<Category>  {
             return await axiosIns.patch('Category/UpdateCategory/' + category.id, category);
+        },
+
+        async getSubCategory(parentId: number) {
+            return await axiosIns.get<Category[]>('Category/GetCategoryByParent/' + parentId);
+        },
+
+        async updateSubCategory(categories: Category[] | undefined, id: number) {
+            return await axiosIns.patch('Category/UpdateSubCategory/' + id, categories);
         },
     },
 });

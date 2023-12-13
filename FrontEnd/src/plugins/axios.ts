@@ -7,13 +7,22 @@ const axiosIns = axios.create({
         // 'Access-Control-Allow-Methods': '*',
         // 'Access-Control-Allow-Origin': 'http://localhost:5173',
     },
+    
 });
 
 axiosIns.interceptors.request.use((config) => {
     const token = localStorage.getItem('accessToken');
 
     if (token && config.headers) config.headers.Authorization = `Bearer ${token}`;
+    config.paramsSerializer = {
+indexes:null
+        // encode: (params) => {
+        //     console.log('params:', params);
+        //     return queryString.stringify(params);
 
+    
+        // },
+    };
     return config;
 });
 

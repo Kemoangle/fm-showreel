@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Showreel.Models;
@@ -18,13 +19,20 @@ namespace Showreel.Controllers
             _categoryService = categoryService;
         }
 
-        [HttpGet]
-        public IActionResult GetAllCategoriess()
+        [HttpGet("GetSub")]
+        public IActionResult GetSubCategoriess([FromQuery] int[] categories)
         {
-            var response = _categoryService.GetAllCategory();
-
+            var response = _categoryService.GetCategoryByParent(arrParentId: categories);
             return Ok(response);
         }
+
+        [HttpGet("GetParent")]
+        public IActionResult GetParentCategoriess()
+        {
+            var response = _categoryService.GetAllParentCategory();
+            return Ok(response);
+        }
+
 
         [HttpGet("GetPageCategory")]
         public IActionResult GetPageCategoriess(string? keySearch = null, int page = 1, int pageSize = 10)
@@ -35,6 +43,7 @@ namespace Showreel.Controllers
                         {
                             c.Id,
                             c.Name,
+                            subCategory = _categoryService.GetCategoryByParent(c.Id)
                         };
 
             int startIndex = (page - 1) * pageSize;
@@ -77,27 +86,33 @@ namespace Showreel.Controllers
         [HttpPost]
         public IActionResult CreateCategory([FromBody] Category category)
         {
-            var categoryExist = _categoryService.GetAllCategory().ToList();
-            if (categoryExist.Any(b => b.Name?.ToUpper() == category.Name?.ToUpper()))
+            var categoryExist = _categoryService.GetAllParentCategory().Select(c => c.Name).ToList();
+            if (categoryExist.Contains(category.Name))
             {
                 ModelState.AddModelError("Category", "The Category already exists");
                 return BadRequest(ModelState);
             }
-            _categoryService.AddCategory(category);
-            return Ok();
+            category.Restrictions = new List<Restriction>();
+            category.Rules = new List<Rule>();
+            category.Videocategories = new List<Videocategory>();
+            var response = _categoryService.AddCategory(category);
+            return Ok(response);
         }
 
         [HttpPatch("UpdateCategory/{id}")]
         public IActionResult UpdateCategory(int id, [FromBody] Category category)
         {
-            var categoryName = _categoryService.GetAllCategory().Where(b => b.Id != id).Select(b => b.Name).ToList();
+            var categoryName = _categoryService.GetAllParentCategory().Where(b => b.Id != id).Select(b => b.Name).ToList();
             if (categoryName.Contains(category.Name))
             {
                 ModelState.AddModelError("Category", "The Category already exists");
                 return BadRequest(ModelState);
             }
-            _categoryService.UpdateCategory(category);
-            return Ok();
+            category.Restrictions = new List<Restriction>();
+            category.Rules = new List<Rule>();
+            category.Videocategories = new List<Videocategory>();
+            var response = _categoryService.UpdateCategory(category);
+            return Ok(response);
         }
 
         [HttpGet("{id}")]
@@ -108,7 +123,26 @@ namespace Showreel.Controllers
             {
                 return NotFound();
             }
-            return Ok(category);
+            var response = new {
+                id = category.Id,
+                name = category.Name,
+                subCategory = _categoryService.GetCategoryByParent(category.Id),
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("GetCategoryByParent/{id}")]
+        public IActionResult GetCategoryByParent(int id)
+        {
+            var categories = _categoryService.GetCategoryByParent(id);
+            return Ok(categories);
+        }
+
+        [HttpPatch("UpdateSubCategory/{id}")]
+        public IActionResult UpdateSubCategory([FromBody] Category[] categories, int id)
+        {
+            _categoryService.UpdateSubCategory(categories, id);
+            return Ok();
         }
     }
 }

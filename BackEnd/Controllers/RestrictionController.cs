@@ -30,43 +30,43 @@ namespace Showreel.Controllers
                             id = br.Id,
                             buildingId = br.BuildingId,
                             type = br.Type,
-                            name = br.Name,
-                            except = restrictionService.GetVideoExcept(br.Id)
+                            category = _categoryService.GetCategoryById((int)br.CategoryId),
+                            arrCategory = restrictionService.GetRestrictionExcepts(br.Id)
                         };
             return Ok(query.ToList());
         }
 
-        [HttpPatch("{id}")]
-        public IActionResult UpdateRestrictionExcept(int id, [FromBody] VideoType[] videoTypes)
-        {
-            restrictionService.UpdateRestrictionExcept(videoTypes, id);
-            return Ok("success");
-        }
+        // [HttpPatch("{id}")]
+        // public IActionResult UpdateRestrictionExcept(int id, [FromBody] VideoType[] videoTypes)
+        // {
+        //     restrictionService.UpdateRestrictionExcept(videoTypes, id);
+        //     return Ok("success");
+        // }
 
         [HttpPatch("UpdateBuildingRestriction")]
-        public IActionResult UpdateBuildingRestriction([FromBody] BuildingRestriction buildingRestriction)
+        public IActionResult UpdateBuildingRestriction([FromBody] Restriction restriction)
         {   
-            var restrictionExist = restrictionService.GetBuildingRestriction((int)buildingRestriction.BuildingId).ToList();
-            if (restrictionExist.Any(b => b.CategoryId == buildingRestriction.CategoryId && b.Id != buildingRestriction.Id))
+            var restrictionExist = restrictionService.GetBuildingRestriction((int)restriction.BuildingId).ToList();
+            if (restrictionExist.Any(b => b.CategoryId == restriction.CategoryId && b.Id != restriction.Id))
             {
                 ModelState.AddModelError("Restriction", "The restriction already exists");
                 return BadRequest(ModelState);
             }
-            var response = restrictionService.UpdateBuildingRestriction(buildingRestriction);
-            return Ok(response);
+            restrictionService.UpdateRestriction(restriction);
+            return Ok();
         }
 
         [HttpPost]
-        public IActionResult AddBuildingRestriction([FromBody] BuildingRestriction buildingRestriction)
+        public IActionResult AddBuildingRestriction([FromBody] Restriction restriction)
         {
-            var restrictionExist = restrictionService.GetBuildingRestriction((int)buildingRestriction.BuildingId).ToList();
-            if (restrictionExist.Any(b => b.CategoryId == buildingRestriction.CategoryId))
+            var restrictionExist = restrictionService.GetBuildingRestriction((int)restriction.BuildingId).ToList();
+            if (restrictionExist.Any(b => b.CategoryId == restriction.CategoryId))
             {
                 ModelState.AddModelError("Restriction", "The restriction already exists");
                 return BadRequest(ModelState);
             }
-            var response = restrictionService.AddBuildingRestriction(buildingRestriction);
-            return Ok(response);
+            restrictionService.AddRestriction(restriction);
+            return Ok();
         }
 
         [HttpDelete("{id}")]
@@ -79,14 +79,13 @@ namespace Showreel.Controllers
         [HttpGet("GetBuildingRestrictionById/{id}")]
         public IActionResult GetBuildingRestrictionById(int id)
         {
-            var query = restrictionService.GetBuildingRestrictionById(id);
+            var query = restrictionService.GetRestrictionById(id);
             var response = new {
                 id = query.Id,
                 buildingId = query.BuildingId,
                 type = query.Type,
-                categoryId = query.CategoryId,
                 category = _categoryService.GetCategoryById((int)query.CategoryId),
-                except = restrictionService.GetVideoExcept(query.Id)
+                arrCategory = restrictionService.GetRestrictionExcepts(query.Id)
             };
 
             return Ok(response);

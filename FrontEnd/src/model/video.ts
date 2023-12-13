@@ -1,6 +1,5 @@
 import { Building } from "./building"
 import { Category } from "./category"
-import { VideoType } from "./videoType"
 
 export interface Video{
     id: number
@@ -15,7 +14,7 @@ export interface Video{
     category?: Category[]
     loop?: number
     videoTypeId?: number
-    videoType?: VideoType
     noBackToBack?: Category[]
     doNotPlay?: Building[]
+    subCategory: Category[]
 }

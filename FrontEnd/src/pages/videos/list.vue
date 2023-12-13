@@ -80,13 +80,16 @@ const deleteVideo = (id: number) => {
 };
 
 const addNewVideo = async (videoData: Video) => {
-    const { category,doNotPlay,noBackToBack, ...rest } = videoData;
+    const { subCategory,category,doNotPlay,noBackToBack, ...rest } = videoData;
+    const allCategories = [...subCategory, ...(category || [])];
+    console.log(allCategories);
+    
     showSnackbar('Processing...', 'warning');
     if (videoData.id && videoData.id > 0) {
         await videoStore
             .updateVideo(rest)
             .then((response) => {
-                categoryStore.updateVideoCategory(videoData.id, category);
+                categoryStore.updateVideoCategory(videoData.id, allCategories);
                 ruleStore.UpdateDoNotPlay(doNotPlay,videoData.id);
                 ruleStore.UpdateNoBackToBack(noBackToBack,videoData.id);
             })
@@ -97,7 +100,7 @@ const addNewVideo = async (videoData: Video) => {
         await videoStore
             .addVideo(rest)
             .then((response) => {
-                categoryStore.updateVideoCategory(response.id, category);
+                categoryStore.updateVideoCategory(response.id, allCategories);
                 ruleStore.UpdateDoNotPlay(doNotPlay,response.id);
                 ruleStore.UpdateNoBackToBack(noBackToBack,response.id);
             })
@@ -179,7 +182,7 @@ const handleSearch = async () => {
                         <th scope="col" class="text-center">KEY NO</th>
                         <th scope="col">RULE</th>
                         <th scope="col">CATEGORIES</th>
-                        <th scope="col" class="text-left">VIDEO TYPE</th>
+                        <th scope="col" class="text-left">SUB CATEGORY</th>
                         <th scope="col" class="text-center">ACTION</th>
                     </tr>
                 </thead>
@@ -229,7 +232,15 @@ const handleSearch = async () => {
                         </td>
 
                         <td class="text-left">
-                            {{ video.videoType.name }}
+                            <VChip
+                                size="small"
+                                class="text-capitalize ml-2 chip-wrap"
+                                v-for="item in video.subCategory"
+                                :key="item.id"
+                                :color="randomColor()"
+                            >
+                                {{ item.name }}
+                            </VChip>
                         </td>
 
                         <td class="text-center">

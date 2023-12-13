@@ -6,13 +6,12 @@ import type { VForm } from 'vuetify/components';
 import { Building } from '@/model/building';
 import { Category } from '@/model/category';
 import { Video } from '@/model/video';
-import { VideoType } from '@/model/videoType';
 import axiosIns from '@/plugins/axios';
-import { useBuildingStore } from '@/store/useBuildingStore';
 import { useVideoTypeStore } from '@/store/useVideoTypeStore';
 import { requiredValidator } from '@validators';
 
 const categories = ref();
+const subCategories = ref();
 const buildings = ref();
 
 interface Emit {
@@ -31,10 +30,8 @@ const emit = defineEmits<Emit>();
 const isFormValid = ref(false);
 const refForm = ref<VForm>();
 
-const videoTypes = ref<VideoType[] | any>([]);
 const checkAutocomplete = ref(false);
 const videoTypeStore = useVideoTypeStore();
-const buildingStore = useBuildingStore();
 const videoData = ref<Video | any>({
     id: 0,
     title: '',
@@ -44,7 +41,8 @@ const videoData = ref<Video | any>({
     videoTypeId: 0,
     category: [],
     doNotPlay: [],
-    noBackToBack: []
+    noBackToBack: [],
+    subCategory: []
 });
 
 watch(props, async (oldId, newId) => {
@@ -52,48 +50,39 @@ watch(props, async (oldId, newId) => {
     refForm.value?.resetValidation();
     checkAutocomplete.value = false;
 
-    await axiosIns.get<Category[]>('Category').then((response) => {
+    await axiosIns.get<Category[]>('Category/GetParent').then((response) => {
         categories.value = response;
     });
     await axiosIns.get<Building[]>('Building/getBuilding').then((response) => {
         buildings.value = response;
     });
-    videoTypeStore.getAllVideoType();
-
     if (newId.videoId) {
         axiosIns.get('http://localhost:5124/api/Video/' + newId.videoId).then((response: any) => {
             videoData.value = response;
-            console.log(videoData.value);
-            
-            const matchingCategories = response.category.map((category: any) => {
-                return categories.value.find((c: Category) => c.name === category.name);
-            });
-            videoData.value.category = matchingCategories.filter(
-                (category: any) => category !== null
-            );
-
-            const matchingNoBackToBack = response.noBackToBack.map((category: any) => {
-                return categories.value.find((c: Category) => c.name == category.name);
-            });
-            videoData.value.noBackToBack = matchingNoBackToBack.filter(
-                (category: any) => category !== null
-            );
-
-            const matchingDoNotPlay = response.doNotPlay.map((building: any) => {
-                return buildings.value.find((c: Building) => c.buildingName === building.buildingName);
-            });
-            videoData.value.doNotPlay = matchingDoNotPlay.filter(
-                (building: any) => building !== null
-            );
+            axiosIns.get<Category[]>('Category/GetSub', {
+                params: {
+                    categories: response.category.map((cat: Category) => cat.id)
+                }
+            }).then((data) => {
+                subCategories.value = data;
+                videoData.value.subCategory = activateAutocomplete(response.subCategory, subCategories.value);
+            })
+            videoData.value.category = activateAutocomplete(response.category, categories.value);
+            videoData.value.noBackToBack = activateAutocomplete(response.noBackToBack, categories.value);
+            videoData.value.doNotPlay = activateAutocomplete(response.doNotPlay, buildings.value);
         });
     } else {
         videoData.value.id = 0;
+        
     }
 });
 
+const activateAutocomplete = (arr1: any[], arr2: any[]): any[] => {
+    return arr2.filter(item2 => arr1.some(item1 => item1.id === item2.id));
+};
+
 onMounted(() => {
     console.log(videoData.value);
-    
 });
 
 // 👉 drawer close
@@ -123,13 +112,35 @@ const onSubmit = () => {
 const handleDrawerModelValueUpdate = (val: boolean) => {
     emit('update:isDrawerOpen', val);
 };
+
+const getSubCategory = () => {
+    if(videoData.value.category){
+        videoData.value.subCategory = [];
+        const categoryIds = videoData.value.category.map((cat: Category) => cat.id);
+
+        if (categoryIds) {
+            axiosIns.get<Category[]>('Category/GetSub', {
+                params: {
+                    categories: categoryIds
+                }
+            }).then((response: any) => {
+                subCategories.value = response;
+            }).catch((error: any) => {
+                console.error('Error fetching subcategories:', error);
+            });
+        }
+    }else{
+        subCategories.value = [];
+    }
+    refForm.value?.resetValidation();
+}
 </script>
 
 <template>
     <section>
         <VNavigationDrawer
             temporary
-            :width="400"
+            :width="500"
             location="end"
             class="scrollable-content"
             :model-value="props.isDrawerOpen"
@@ -194,7 +205,9 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                         :menu-props="{ maxHeight: 250 }"
                                         multiple
                                         return-object
-                                        :rules="[checkAutocomplete? requiredValidator:false]"
+                                        @update:model-value="getSubCategory"
+
+                                        :rules="[checkAutocomplete? requiredValidator:true]"
                                     >
                                         <template #chip="{ props, item }">
                                             <VChip v-bind="props" :text="item.raw.name" />
@@ -206,16 +219,27 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                     </VAutocomplete>
                                 </VCol>
 
-                                <VCol cols="12">
+                                <VCol cols="12" v-if="videoData.category.length > 0">
                                     <VAutocomplete
-                                        v-model="videoData.videoTypeId"
-                                        :items="videoTypeStore.videoTypes"
+                                        v-model="videoData.subCategory"
+                                        chips
+                                        closable-chips
+                                        :items="subCategories"
                                         item-title="name"
-                                        item-value="id"
-                                        label="Video Type"
+                                        label="Sub Category"
                                         :menu-props="{ maxHeight: 250 }"
-                                        :rules="[requiredValidator]"
-                                    />
+                                        multiple
+                                        return-object
+                                        :rules="[checkAutocomplete? requiredValidator:true]"
+                                    >
+                                        <template #chip="{ props, item }">
+                                            <VChip v-bind="props" :text="item.raw.name" />
+                                        </template>
+
+                                        <template #item="{ props, item }">
+                                            <VListItem v-bind="props" :title="item?.raw?.name" />
+                                        </template>
+                                    </VAutocomplete>
                                 </VCol>
                                 
                                 <VCol cols="12">
