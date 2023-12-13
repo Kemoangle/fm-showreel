@@ -176,6 +176,7 @@ const addInput = () =>{
                                     <VTextField
                                         v-model="item.name"
                                         label=" Sub Category Name"
+                                        :rules="[requiredValidator]"
                                     />
                                 </VCol>
 

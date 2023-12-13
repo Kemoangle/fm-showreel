@@ -6,7 +6,7 @@ export interface Restriction{
     categoryId?: number
     type?: string
     category?: Category
-    arrCategory?: []
+    arrCategory?: Category[]
     arrItem?: Category[]
 
 }

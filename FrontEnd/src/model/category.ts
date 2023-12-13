@@ -3,7 +3,7 @@ export interface Category{
     id: number
     name?: string
     parent?: number
-    subCategory?: SubCategory[] 
+    subCategory?: Category[] 
 }
 
 export interface SubCategory{

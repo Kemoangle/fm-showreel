@@ -65,41 +65,21 @@ watch(props, async (oldId, newId) => {
                 }
             }).then((data) => {
                 subCategories.value = data;
+                videoData.value.subCategory = activateAutocomplete(response.subCategory, subCategories.value);
             })
-
-            const matchingCategories = response.category.map((category: any) => {
-                return categories.value.find((c: Category) => c.name === category.name);
-            });
-            videoData.value.category = matchingCategories.filter(
-                (category: any) => category !== null
-            );
-            
-            const matchingSubCategories = response.subCategory.map((category: any) => {
-                return subCategories.value.find((c: any) => c.name === category.name);
-            });
-            videoData.value.subCategory = matchingSubCategories.filter(
-                (category: any) => category !== null
-            );
-
-            const matchingNoBackToBack = response.noBackToBack.map((category: any) => {
-                return categories.value.find((c: Category) => c.name == category.name);
-            });
-            videoData.value.noBackToBack = matchingNoBackToBack.filter(
-                (category: any) => category !== null
-            );
-
-            const matchingDoNotPlay = response.doNotPlay.map((building: any) => {
-                return buildings.value.find((c: Building) => c.buildingName === building.buildingName);
-            });
-            videoData.value.doNotPlay = matchingDoNotPlay.filter(
-                (building: any) => building !== null
-            );
+            videoData.value.category = activateAutocomplete(response.category, categories.value);
+            videoData.value.noBackToBack = activateAutocomplete(response.noBackToBack, categories.value);
+            videoData.value.doNotPlay = activateAutocomplete(response.doNotPlay, buildings.value);
         });
     } else {
         videoData.value.id = 0;
         
     }
 });
+
+const activateAutocomplete = (arr1: any[], arr2: any[]): any[] => {
+    return arr2.filter(item2 => arr1.some(item1 => item1.id === item2.id));
+};
 
 onMounted(() => {
     console.log(videoData.value);
@@ -160,7 +140,7 @@ const getSubCategory = () => {
     <section>
         <VNavigationDrawer
             temporary
-            :width="400"
+            :width="500"
             location="end"
             class="scrollable-content"
             :model-value="props.isDrawerOpen"

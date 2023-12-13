@@ -42,15 +42,19 @@ watch(props, async (oldId, newId) => {
         axiosIns.get('Restriction/GetBuildingRestrictionById/' + newId.restrictionId).then((response: any) => {
             categoryStore.getSubCategory(response.category.id).then((data: any) => {
                 subCategories.value = data;
+                restrictionData.value = response;
+                restrictionData.value.arrCategory = activateCategories(response.arrCategory, subCategories.value);
             })
-            restrictionData.value = response;
-
-            
         });
     } else {
-        restrictionData.value.id = 0;
+        restrictionData.value.id = 0;   
     }
 });
+
+
+const activateCategories = (arrCategory: any[], subCategories: any[]): any[] => {
+    return subCategories.filter(subCategory => arrCategory.some(category => category.id === subCategory.id));
+};
 
 const getSubCategories = () => {
     if(restrictionData.value.category){
@@ -171,7 +175,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                         :rules="[(restrictionData.category && restrictionData.type)?requiredValidator:true]"
                                     >
                                         <template #chip="{ props, item }">
-                                            <VChip v-bind="props" :text="item.raw.name" />
+                                            <VChip v-bind="props" :text="item.raw.name"/>
                                         </template>
 
                                         <template #item="{ props, item }">
