@@ -397,7 +397,6 @@ const handleViewPlaylistGeneric = () => {
             v-if="!_.isEmpty(playlistGeneric) && isViewPlaylistGeneric"
         >
             <div class="position-absolute">
-                <VBtn color="primary"> Export EXCEL </VBtn>
                 <VBtn color="primary" @click="handleGeneratorPlaylistBuildings(playlistGeneric)">
                     Generator PlayList Buildings
                 </VBtn>
