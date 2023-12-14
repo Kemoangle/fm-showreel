@@ -42,7 +42,6 @@ namespace Showreel.Controllers
         [HttpGet("building/{id}")]
         public IActionResult GetLandlordAdsBuilding(int id)
         {
-            // var query = lanlordAdsService.GetLandlordAdsBuilding(id);
             var query = from l in lanlordAdsService.GetLandlordAdsBuilding(id)
                         select new
                         {

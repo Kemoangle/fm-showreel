@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BackEnd.Service;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Showreel.Models;
@@ -11,11 +12,20 @@ namespace Showreel.Controllers
     [ApiController]
     public class BuildingController : ControllerBase
     {
+        private readonly IVideoService _videoService;
+        private readonly ILanlordAdsService _lanlordAdsService;
+        private readonly IRestrictionService _restrictionService;
+        private readonly IVideoCategoryService _categoryService;
         private readonly IBuildingService _buildingService;
 
-        public BuildingController(IBuildingService buildingService)
+        public BuildingController(IBuildingService buildingService, ILanlordAdsService lanlordAdsService, IVideoService videoService, IRestrictionService restrictionService, IVideoCategoryService categoryService)
         {
             _buildingService = buildingService;
+            _lanlordAdsService = lanlordAdsService;
+            _videoService = videoService;
+            _videoService = videoService;
+            _restrictionService = restrictionService;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
@@ -42,6 +52,35 @@ namespace Showreel.Controllers
             };
 
             return Ok(response);
+        }
+
+        [HttpGet("detail/{id}")]
+        public ActionResult<Building> GetAllBuildings(int id)
+        {
+
+            var lanlordAds = from l in _lanlordAdsService.GetLandlordAdsBuilding(id)
+                             select new
+                             {
+                                 id = l.Id,
+                                 loop = l.Loop,
+                                 startDate = l.StartDate,
+                                 endDate = l.EndDate,
+                                 video = _videoService.GetVideoById((int)l.VideoId)
+                             };
+            var restriction = from br in _restrictionService.GetBuildingRestriction(id)
+                              select new
+                              {
+                                  id = br.Id,
+                                  buildingId = br.BuildingId,
+                                  type = br.Type,
+                                  category = _categoryService.GetCategoryById((int)br.CategoryId),
+                                  arrCategory = _restrictionService.GetRestrictionExcepts(br.Id)
+                              };
+            return Ok(new
+            {
+                lanlordAds,
+                restriction
+            });
         }
 
         [HttpGet("getAll")]

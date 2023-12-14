@@ -19,8 +19,8 @@ namespace Showreel.Controllers
         private readonly IRuleService ruleService;
 
         public VideoListController(
-            IVideoListService _videoListService, 
-            IVideoService _videoService, 
+            IVideoListService _videoListService,
+            IVideoService _videoService,
             IVideoCategoryService _categoryService,
             IRuleService _ruleService
             )
@@ -108,9 +108,12 @@ namespace Showreel.Controllers
                              video = videoService.GetVideoById((int)v.VideoId),
                              category = categoryService.GetCategoryByVideoId((int)v.VideoId),
                              loopNum = v.LoopNum,
+                             subCategory = categoryService.GetSubCategoryByVideoId((int)v.VideoId),
                              doNotPlay = ruleService.GetDoNotPlay((int)v.VideoId),
                              noBackToBack = ruleService.GetNoBackToback((int)v.VideoId)
                          }).ToList();
+
+
             return Ok(query);
         }
 

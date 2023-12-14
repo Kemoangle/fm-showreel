@@ -2,12 +2,6 @@ import axios from 'axios';
 
 const axiosIns = axios.create({
     baseURL: 'http://localhost:5124/api/',
-    headers: {
-        // 'Access-Control-Allow-Credentials': 'true',
-        // 'Access-Control-Allow-Methods': '*',
-        // 'Access-Control-Allow-Origin': 'http://localhost:5173',
-    },
-    
 });
 
 axiosIns.interceptors.request.use((config) => {
@@ -15,13 +9,7 @@ axiosIns.interceptors.request.use((config) => {
 
     if (token && config.headers) config.headers.Authorization = `Bearer ${token}`;
     config.paramsSerializer = {
-indexes:null
-        // encode: (params) => {
-        //     console.log('params:', params);
-        //     return queryString.stringify(params);
-
-    
-        // },
+        indexes: null,
     };
     return config;
 });

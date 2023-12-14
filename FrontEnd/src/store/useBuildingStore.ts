@@ -1,10 +1,16 @@
-import { Building } from '@/model/building';
+import {
+    Building,
+    IBuildingLandlord,
+    IDetailBuilding,
+    IBuildingRestriction,
+} from '@/model/building';
 import axiosIns from '@/plugins/axios';
 import _ from 'lodash';
 import { Video } from '@/model/video';
 import { LandlordAds } from '@/model/landlordAds';
 import { IVideos } from '@/model/generatorPlaylist';
 import { defineStore } from 'pinia';
+import { Restriction } from '@/model/restriction';
 
 interface IState {
     data: any;
@@ -12,11 +18,6 @@ interface IState {
     allBuilding: Building[];
     listIdBuildingActive: number[];
     isLoadingLandlordAds: boolean;
-}
-
-export interface IBuildingLandlord {
-    buildingId: number;
-    videos: Video[] | any;
 }
 
 function convertVideoLandlordToVideo(landlordAds: LandlordAds[]) {
@@ -93,21 +94,37 @@ export const useBuildingStore = defineStore('building', {
             }
         },
 
+        async getDetailBuilding(id: number) {
+            const data: IDetailBuilding = await await axiosIns.get<IDetailBuilding>(
+                'Building/detail/' + id
+            );
+            return data;
+        },
+
         async getLandlordBuilding(id: number) {
             return await axiosIns.get<LandlordAds[]>('LandlordAds/building/' + id);
         },
 
         async setListBuildingActive(
             ids: number[],
-            callBack: (LandlordAds: IBuildingLandlord[]) => void
+            callBack: (
+                LandlordAds: IBuildingLandlord[],
+                restriction: IBuildingRestriction[]
+            ) => void
         ) {
             this.listIdBuildingActive = ids;
 
             let arrLandLordAds: IBuildingLandlord[] = [];
+            let restriction: IBuildingRestriction[] = [];
 
             const promise = new Promise(async (resolve, reject) => {
                 ids.forEach(async (id) => {
-                    const landlordAds = await this.getLandlordBuilding(id);
+                    const detail = await this.getDetailBuilding(id);
+                    const landlordAds = detail.lanlordAds;
+                    restriction.push({
+                        buildingId: id,
+                        restriction: detail.restriction,
+                    });
                     arrLandLordAds.push({
                         buildingId: id,
                         videos: convertVideoLandlordToVideo(landlordAds),
@@ -119,7 +136,7 @@ export const useBuildingStore = defineStore('building', {
             });
 
             promise.then((data) => {
-                callBack(arrLandLordAds);
+                callBack(arrLandLordAds, restriction);
             });
         },
     },

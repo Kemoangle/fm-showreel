@@ -2,11 +2,15 @@
 import PopupCreateListVideo from '@/components/PopupCreateListVideo.vue';
 import { useSnackbar } from '@/components/Snackbar.vue';
 import ViewListVideo from '@/components/ViewListVideo.vue';
+import { IBuildingLandlord, IBuildingRestriction } from '@/model/building';
 import { Building } from '@/model/building';
+import { Category } from '@/model/category';
 import { IListPlaylist, IPlaylist, IVideos } from '@/model/generatorPlaylist';
+import { Restriction } from '@/model/restriction';
 import { Video } from '@/model/video';
-import { VideoList } from '@/model/videoList';
-import { IBuildingLandlord, useBuildingStore } from '@/store/useBuildingStore';
+import { IVideoInList, VideoList } from '@/model/videoList';
+import { VideoVideolist } from '@/model/videoVideolist';
+import { useBuildingStore } from '@/store/useBuildingStore';
 import { useVideoListStore } from '@/store/useVideoListStore';
 import { generatorPlaylist } from '@/utils/generatorPlaylist';
 import _ from 'lodash';
@@ -35,7 +39,7 @@ const isDialogListVideoCurrent = ref(false);
 const isViewPlaylistGeneric = ref(false);
 const playlistGeneric = ref<IPlaylist[]>([]);
 
-const listVideoActive = ref();
+const listVideoActive = ref<IVideoInList[]>([]);
 const listVideoPlaylist = ref<IVideos[]>([]);
 
 const dragOptions = () => {
@@ -49,74 +53,6 @@ const dragOptions = () => {
 
 const isDragging = ref(false);
 
-// const buildings = [
-//     {
-//         title: 'CIMB',
-//         value: 'cimb',
-//         landlordAds: [
-//             {
-//                 key: 'sSPZ004',
-//                 name: 'JOHN',
-//                 durations: 150,
-//                 loop: 1,
-//                 category: 'F&B',
-//                 restriction: 'No Back to Back With F&B',
-//             },
-//         ],
-//         restriction: [
-//             {
-//                 category: 'Movie',
-//                 except: ['Mac'],
-//                 exclude: ['Mo'],
-//             },
-//         ],
-//     },
-//     { title: 'OGW', value: 'ogw', landlordAds: [] },
-//     {
-//         title: 'SunPlaza',
-//         value: 'sunplaza',
-//         landlordAds: [
-//             {
-//                 key: 'sSPZ004',
-//                 name: 'The Charcoal Grill Legend',
-//                 durations: 150,
-//                 loop: 4,
-//                 category: 'F&B',
-//                 restriction: 'No Back to Back With F&B',
-//             },
-//         ],
-//         restriction: [
-//             {
-//                 category: 'Movie',
-//                 except: [],
-//                 exclude: [],
-//             },
-//         ],
-//     },
-//     {
-//         title: 'UOL United Sq Off Twr_(RN)',
-//         value: 'UOLUnitedSqOffTwr',
-//         landlordAds: [
-//             {
-//                 key: 'sUOL029',
-//                 name: 'UOL - UPOPP',
-//                 durations: 15,
-//                 loop: 4,
-//                 category: 'UOL',
-//                 restriction: '',
-//             },
-//             {
-//                 key: 'sUOL032',
-//                 name: 'sUOL032 UOL - Pinetree Hill 15s',
-//                 durations: 15,
-//                 loop: 2,
-//                 category: 'UOL',
-//                 restriction: '',
-//             },
-//         ],
-//     },
-// ];
-
 const buildings = ref<IListBuildingSelect[]>([]);
 
 const listVideos = ref<IListVideoSelect[]>([]);
@@ -125,11 +61,14 @@ const listVideos = ref<IListVideoSelect[]>([]);
 
 watch(selectedListVideo, async (value, oldvalue) => {
     if (value != oldvalue) {
-        listVideoActive.value = '';
+        listVideoActive.value = [];
         playlistGeneric.value = [];
         isViewPlaylistGeneric.value = false;
         if (selectedListVideo.value) {
-            listVideoActive.value = await useStoreVideo.getVideoByListId(selectedListVideo.value);
+            const data: unknown = await useStoreVideo.getVideoByListId(selectedListVideo.value);
+            if (data as IVideoInList[]) {
+                listVideoActive.value = data as IVideoInList[];
+            }
         }
     }
 });
@@ -158,25 +97,20 @@ const handleClickShowListVideo = () => {
     isDialogListVideoCurrent.value = !isDialogListVideoCurrent.value;
 };
 
-const handleCloseDialog = () => {
-    isDialogListVideoVisible.value = !isDialogListVideoVisible.value;
-};
-
 const checkPlaylistInvalid = (playlist: IPlaylist[]) => {
     const exportPlaylist = new generatorPlaylist();
-
-    const listVideoCurrent = listVideos.value.find(
-        (x) => x.value == selectedListVideo.value
-    )?.videos;
 
     const isCheckCategoriesCloselyTogether =
         exportPlaylist.checkCategoriesCloselyTogether(playlist);
 
     const listVideo: IVideos[] = playlist.map((x) => ({
         name: x.name,
-        restriction: listVideoCurrent?.find((l: any) => l.key == x.key)?.restriction || '',
+        noBackToBack: listVideoActive.value.find((l) => x.key == l.video.keyNo)?.noBackToBack,
         key: x.key,
         loop: 1,
+        subCategory: x.category || [],
+        category: x.category || [],
+        id: 1,
     }));
 
     const isCheckNoBackToBack = exportPlaylist.checkNoBackToBack(listVideo);
@@ -203,6 +137,8 @@ const convertListVideoRenderPlaylist = (listVideo: any[]) => {
         ...x.video,
         loop: x.loopNum,
         category: x.category,
+        noBackToBack: x.noBackToBack,
+        subCategory: x.subCategory,
     }));
 };
 
@@ -219,6 +155,7 @@ const handleCreatePlaylistGeneric = () => {
     const playlist = exportPlaylist.createListVideo(
         convertListVideoRenderPlaylist(listVideoActive.value)
     );
+
     listVideoPlaylist.value = playlist;
 
     playlist.forEach((l, index) => {
@@ -227,7 +164,7 @@ const handleCreatePlaylistGeneric = () => {
                 category: l.category || [],
                 durations: l.duration,
                 key: l.keyNo || '',
-                remarks: 'hello',
+                remarks: '',
                 name: l.title || '',
                 order: index,
             });
@@ -255,24 +192,35 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
 
         useBuilding.setListBuildingActive(
             buildingActive.map((x) => x.id),
-            function (LandlordAds: IBuildingLandlord[]) {
+            function (LandlordAds: IBuildingLandlord[], dataRestrictions: IBuildingRestriction[]) {
                 isViewPlaylistGeneric.value = false;
 
-                const genPlaylist = (listVideo: Video[], landLordAds: IVideos[]) => {
+                const genPlaylist = (
+                    listVideo: Video[],
+                    landLordAds: IVideos[],
+                    restriction: Restriction[] | undefined
+                ) => {
+                    let listVideoBuilding = [...listVideoPlaylist.value];
+
+                    // check restriction building
+                    if (!_.isEmpty(restriction) && restriction) {
+                        listVideoBuilding = exportPlaylist.handleRestrictionBuilding(
+                            restriction,
+                            convertListVideoRenderPlaylist(listVideoActive.value)
+                        );
+                    }
+
                     const playlist: IPlaylist[] = [];
                     let newList = [...listVideo];
                     if (!_.isEmpty(landLordAds)) {
-                        newList = exportPlaylist.addLandLordAds(
-                            listVideoPlaylist.value,
-                            landLordAds
-                        );
+                        newList = exportPlaylist.addLandLordAds(listVideoBuilding, landLordAds);
                         newList.forEach((l: IVideos, index: number) => {
                             if (l) {
                                 playlist.push({
                                     category: l.category || [],
                                     durations: l.duration,
                                     key: l.keyNo || '',
-                                    remarks: 'hello',
+                                    remarks: '',
                                     name: l.title || '',
                                     order: index,
                                 });
@@ -285,7 +233,7 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
                                     category: l.category || [],
                                     durations: l.durations,
                                     key: l.key || '',
-                                    remarks: 'hello',
+                                    remarks: '',
                                     name: l.name || '',
                                     order: index,
                                 });
@@ -299,7 +247,8 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
                 buildingActive.forEach((building, index) => {
                     const playlist = genPlaylist(
                         convertPlaylistToListVideo(playlistGeneric.value),
-                        LandlordAds.find((x) => x.buildingId == building.id)?.videos
+                        LandlordAds.find((x) => x.buildingId == building.id)?.videos,
+                        dataRestrictions.find((x) => x.buildingId == building.id)?.restriction
                     );
                     newPlaylistBuilding.push({
                         id: index + 1,
@@ -525,7 +474,7 @@ const handleViewPlaylistGeneric = () => {
                                 {{ playlist.category?.map((x) => x.name).join(', ') }}
                             </td>
                             <td>
-                                <VTextField class="input-remark" :model-value="playlist.remarks" />
+                                <VTextField class="input-remark" v-model="playlist.remarks" />
                             </td>
                         </tr>
                         <tr key="j">
@@ -549,12 +498,6 @@ const handleViewPlaylistGeneric = () => {
             </VTable>
         </VCard>
 
-        <PopupCreateListVideo
-            v-model:isDialogVisible="isDialogListVideoVisible"
-            @close="handleCloseDialog"
-        />
-        <!-- :is-dialog-visible="isDialogListVideoVisible" -->
-
         <ViewListVideo
             v-if="selectedListVideo"
             v-model:is-drawer-open="isDialogListVideoCurrent"
@@ -566,85 +509,85 @@ const handleViewPlaylistGeneric = () => {
 
 <style lang="scss">
 .app-user-search-filter {
-  inline-size: 24.0625rem;
+    inline-size: 24.0625rem;
 }
 
 .text-capitalize {
-  text-transform: capitalize;
+    text-transform: capitalize;
 }
 
 .user-list-name:not(:hover) {
-  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
 }
 </style>
 
 <style lang="scss" scope>
 .m-0 {
-  margin: 0 !important;
+    margin: 0 !important;
 }
 
 .user-pagination-select {
-  .v-field__input,
-  .v-field__append-inner {
-    padding-block-start: 0.3rem;
-  }
+    .v-field__input,
+    .v-field__append-inner {
+        padding-block-start: 0.3rem;
+    }
 }
 
 .position-absolute {
-  display: flex;
-  gap: 10px;
-  inset-block-start: 20px;
-  inset-inline-end: 20px;
+    display: flex;
+    gap: 10px;
+    inset-block-start: 20px;
+    inset-inline-end: 20px;
 }
 
 .flip-list-move {
-  transition: transform 0.5s;
+    transition: transform 0.5s;
 }
 
 .no-move {
-  transition: transform 0s;
+    transition: transform 0s;
 }
 
 .ghost {
-  background: #c8ebfb;
-  opacity: 0.5;
+    background: #c8ebfb;
+    opacity: 0.5;
 }
 
 .list-group {
-  min-block-size: 20px;
+    min-block-size: 20px;
 }
 
 .list-group-item {
-  cursor: move;
+    cursor: move;
 }
 
 .list-group-item i {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 .input-remark {
-  input {
-    block-size: 35px !important;
-    min-block-size: unset;
-    padding-block: 0;
-    padding-inline: 20px;
-  }
+    input {
+        block-size: 35px !important;
+        min-block-size: unset;
+        padding-block: 0;
+        padding-inline: 20px;
+    }
 }
 
 // table
 
 .th--table {
-  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
-  font-size: 12px;
-  font-weight: bold;
+    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+    font-size: 12px;
+    font-weight: bold;
 }
 
 .tr--table {
-  border-block-start: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
+    border-block-start: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
 
 .td--table {
-  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
-  font-size: 14px;
+    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+    font-size: 14px;
 }
 </style>

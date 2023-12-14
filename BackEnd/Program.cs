@@ -44,7 +44,7 @@ builder.Services.AddCors(options =>
                .AllowCredentials());
           });
 
-var connectionString = builder.Configuration.GetConnectionString("MyDBJ");
+var connectionString = builder.Configuration.GetConnectionString("MyDB");
 var serverVersion = new MySqlServerVersion(new Version(8, 0, 33)); // Thay đổi phiên bản MySQL tương ứng
 builder.Services.AddDbContext<ShowreelContext>(options =>
 {

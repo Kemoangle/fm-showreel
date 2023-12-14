@@ -1,4 +1,4 @@
-import { VideoList } from '@/model/videoList';
+import { IVideoInList, VideoList } from '@/model/videoList';
 import { VideoVideolist } from '@/model/videoVideolist';
 import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
@@ -55,7 +55,7 @@ export const useVideoListStore = defineStore('videoList', {
         },
 
         async getVideoByListId(id: number) {
-            return await axiosIns.get<VideoVideolist[]>('VideoList/' + id);
+            return await axiosIns.get<IVideoInList[]>('VideoList/' + id);
         },
 
         async deleteList(id: number) {
