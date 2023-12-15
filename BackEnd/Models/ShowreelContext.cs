@@ -46,7 +46,7 @@ public partial class ShowreelContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
-            .UseCollation("utf8mb4_0900_ai_ci")
+            .UseCollation("utf8mb3_general_ci")
             .HasCharSet("utf8mb4");
 
         modelBuilder.Entity<Building>(entity =>
