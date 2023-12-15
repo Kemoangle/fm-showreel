@@ -22,9 +22,6 @@ const props = defineProps<Props>();
 
 const emit = defineEmits<Emit>();
 const categoryStore = useCategoryStore();
-
-let dataRef = toRefs(props).categoryId;
-
 const isFormValid = ref(false);
 const refForm = ref<VForm>();
 const { showSnackbar } = useSnackbar();
@@ -33,25 +30,24 @@ const categoryData = ref<Category>({
     id: 0,
     name: '',
     parent: 0,
-    subCategory: []
+    subCategory: [],
 });
 
 watch(props, async (oldId, newId) => {
-    console.log("ssss");
+    console.log('ssss');
     refForm.value?.reset();
     refForm.value?.resetValidation();
     if (newId.categoryId > 0) {
         axiosIns.get<Category>('Category/' + newId.categoryId).then((reponse: any) => {
             categoryData.value = reponse;
         });
-    }else{
+    } else {
         categoryData.value.id = 0;
         categoryData.value.subCategory = [];
         refForm.value?.reset();
         refForm.value?.resetValidation();
     }
 });
-
 
 onMounted(() => {
     refForm.value?.reset();
@@ -73,35 +69,37 @@ const onSubmit = async () => {
         if (valid) {
             const { subCategory, ...rest } = categoryData.value;
             if (categoryData.value.id && categoryData.value.id > 0) {
-                await categoryStore.updateCategory(rest)
-                .then(response =>{
-                    categoryStore.updateSubCategory(subCategory, response.id).then(data => {
-                        emit('categoryData', categoryData.value);
-                        emit('update:isDrawerOpenCategory', false);
-                        nextTick(() => {
-                            refForm.value?.reset();
-                            refForm.value?.resetValidation();
+                await categoryStore
+                    .updateCategory(rest)
+                    .then((response) => {
+                        categoryStore.updateSubCategory(subCategory, response.id).then((data) => {
+                            emit('categoryData', categoryData.value);
+                            emit('update:isDrawerOpenCategory', false);
+                            nextTick(() => {
+                                refForm.value?.reset();
+                                refForm.value?.resetValidation();
+                            });
                         });
+                    })
+                    .catch((error) => {
+                        showSnackbar(error.data.Category[0], 'error');
                     });
-                })
-                .catch((error) => {
-                    showSnackbar(error.data.Category[0], 'error');
-                });
             } else {
-                await categoryStore.addCategory(rest)
-                .then(response =>{
-                    categoryStore.updateSubCategory(subCategory, response.id).then(data => {
-                        emit('categoryData', categoryData.value);
-                        emit('update:isDrawerOpenCategory', false);
-                        nextTick(() => {
-                            refForm.value?.reset();
-                            refForm.value?.resetValidation();
+                await categoryStore
+                    .addCategory(rest)
+                    .then((response) => {
+                        categoryStore.updateSubCategory(subCategory, response.id).then((data) => {
+                            emit('categoryData', categoryData.value);
+                            emit('update:isDrawerOpenCategory', false);
+                            nextTick(() => {
+                                refForm.value?.reset();
+                                refForm.value?.resetValidation();
+                            });
                         });
+                    })
+                    .catch((error) => {
+                        showSnackbar(error.data.Category[0], 'error');
                     });
-                })
-                .catch((error) => {
-                    showSnackbar(error.data.Category[0], 'error');
-                });
             }
         }
     });
@@ -111,7 +109,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
     emit('update:isDrawerOpenCategory', val);
 };
 
-const addInput = () =>{
+const addInput = () => {
     if (categoryData.value.subCategory === undefined) {
         categoryData.value.subCategory = [];
     }
@@ -120,10 +118,7 @@ const addInput = () =>{
         name: '',
     };
     categoryData.value.subCategory.push({ ...newSubCategory });
-
-    console.log('After addInput:', categoryData.value.subCategory);
-}
-
+};
 </script>
 
 <template>
@@ -140,12 +135,7 @@ const addInput = () =>{
             <div class="d-flex align-center bg-var-theme-background px-5 py-2">
                 <h6 class="text-h6">Category</h6>
                 <VSpacer />
-                <VBtn
-                    size="small"
-                    color="secondary"
-                    variant="text"
-                    icon="mdi-close"
-                />
+                <VBtn size="small" color="secondary" variant="text" icon="mdi-close" />
             </div>
 
             <PerfectScrollbar :options="{ wheelPropagation: false }">
@@ -172,7 +162,12 @@ const addInput = () =>{
                                         Add Sub Category
                                     </VBtn>
                                 </VCol>
-                                <VCol cols="12" v-if="categoryData.subCategory"  v-for="(item, index) in categoryData.subCategory" :key="index">
+                                <VCol
+                                    cols="12"
+                                    v-if="categoryData.subCategory"
+                                    v-for="(item, index) in categoryData.subCategory"
+                                    :key="index"
+                                >
                                     <VTextField
                                         v-model="item.name"
                                         label=" Sub Category Name"

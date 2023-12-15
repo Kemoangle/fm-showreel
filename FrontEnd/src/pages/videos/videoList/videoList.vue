@@ -97,7 +97,7 @@ const deleteList = async (id: number) => {
                         <VBtn
                             variant="tonal"
                             color="secondary"
-                            prepend-icon="mdi-tray-arrow-down"
+                            prepend-icon="mdi-plus-thick"
                             @click="isDialogListVideoVisible = true"
                         >
                             Create List Video

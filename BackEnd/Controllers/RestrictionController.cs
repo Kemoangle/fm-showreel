@@ -36,13 +36,6 @@ namespace Showreel.Controllers
             return Ok(query.ToList());
         }
 
-        // [HttpPatch("{id}")]
-        // public IActionResult UpdateRestrictionExcept(int id, [FromBody] VideoType[] videoTypes)
-        // {
-        //     restrictionService.UpdateRestrictionExcept(videoTypes, id);
-        //     return Ok("success");
-        // }
-
         [HttpPatch("UpdateBuildingRestriction")]
         public IActionResult UpdateBuildingRestriction([FromBody] Restriction restriction)
         {   

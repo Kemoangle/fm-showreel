@@ -66,28 +66,25 @@ const handleUpdate = (id: number) => {
 
 const deleteBuilding = (id: number) => {
     Swal.fire({
-        title: "Are you sure?",
+        title: 'Are you sure?',
         text: "You won't be able to revert this!",
-        icon: "warning",
+        icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, delete it!"
-        }).then((result) => {
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+    }).then((result) => {
         if (result.isConfirmed) {
             buildingStore.deleteBuilding(id).then((response) => {
                 Swal.fire({
-                    title: "Deleted!",
-                    icon: "success"
-                    });
+                    title: 'Deleted!',
+                    icon: 'success',
+                });
                 getAll();
             });
-            
         }
     });
 };
-
-
 </script>
 
 <template>
@@ -99,7 +96,7 @@ const deleteBuilding = (id: number) => {
                         <VBtn
                             variant="tonal"
                             color="secondary"
-                            prepend-icon="mdi-tray-arrow-down"
+                            prepend-icon="mdi-plus-thick"
                             @click="handleUpdate(0)"
                         >
                             Create New Building

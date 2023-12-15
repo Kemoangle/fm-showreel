@@ -4,9 +4,9 @@ import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 
 export const useCategoryStore = defineStore('category', {
-    state: (): { data: any, video: Category | null} => ({
+    state: (): { data: any, pageCategory: any} => ({
         data: [],
-        video: null
+        pageCategory: []
     }),
     actions: {
         async getAllCategory() {
@@ -32,7 +32,7 @@ export const useCategoryStore = defineStore('category', {
                     pageSize: pageSize
                 }
             }).then((response) => {
-                this.data = response;
+                this.pageCategory = response;
             });
         },
 
