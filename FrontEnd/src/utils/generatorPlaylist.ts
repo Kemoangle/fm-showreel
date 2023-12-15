@@ -1,6 +1,15 @@
 import { Category } from '@/model/category';
 import { IPlaylist, IVideos } from '@/model/generatorPlaylist';
+import { Restriction } from '@/model/restriction';
 import _ from 'lodash';
+
+const getNoBackToBack = (noBackToBack: Category[] | undefined) => {
+    if (noBackToBack) {
+        const arrText = noBackToBack.map((x) => 'no back to back with ' + x.name);
+        return arrText.join('|');
+    }
+    return '';
+};
 export class generatorPlaylist {
     createVideo = (data: IVideos) => {
         const newArr = [];
@@ -35,41 +44,28 @@ export class generatorPlaylist {
     checkNoBackToBack = (listVideo: IVideos[]) => {
         for (let i = 0; i < listVideo.length; i++) {
             const element = listVideo[i];
-            if (element?.rule) {
-                if (element?.rule.toLocaleLowerCase().includes('no back to back with ')) {
-                    const btbName = element?.rule.toLocaleLowerCase().split(' with ')[1];
-                    switch (btbName) {
-                        case 'fmsg contents':
-                            if (
-                                listVideo[i - 1]?.title?.includes('FMSG') ||
-                                listVideo[i + 1]?.title?.includes('FMSG')
-                            ) {
-                                return {
-                                    status: true,
-                                    index: i,
-                                    indexReject: listVideo[i - 1]?.title?.includes('FMSG')
-                                        ? i - 1
-                                        : i + 1,
-                                };
-                            }
-                            break;
-                        case 'crystal tomato':
-                            if (
-                                listVideo[i - 1]?.title?.includes('Crystal Tomato') ||
-                                listVideo[i + 1]?.title?.includes('Crystal Tomato')
-                            ) {
-                                return {
-                                    status: true,
-                                    index: i,
-                                    indexReject: listVideo[i - 1]?.title?.includes('Crystal Tomato')
-                                        ? i - 1
-                                        : i + 1,
-                                };
-                            }
-                            break;
+            const rule = getNoBackToBack(element?.noBackToBack);
+            if (rule) {
+                if (rule.toLocaleLowerCase().includes('no back to back with ')) {
+                    const btbName = rule.toLocaleLowerCase().split(' with ')[1];
 
-                        default:
-                            break;
+                    if (
+                        listVideo[i - 1]?.category?.some((x) =>
+                            x.name?.toLocaleLowerCase()?.includes(btbName)
+                        ) ||
+                        listVideo[i + 1]?.category?.some((x) =>
+                            x.name?.toLocaleLowerCase()?.includes(btbName)
+                        )
+                    ) {
+                        return {
+                            status: true,
+                            index: i,
+                            indexReject: listVideo[i - 1]?.category?.some((x) =>
+                                x.name?.toLocaleLowerCase()?.includes(btbName)
+                            )
+                                ? i - 1
+                                : i + 1,
+                        };
                     }
                 }
             }
@@ -277,9 +273,7 @@ export class generatorPlaylist {
     addLandLordAds = (listVideo: IVideos[], videos: IVideos[]) => {
         let newListVideo: IVideos[] = [...listVideo];
         const newVideosAds = [...videos];
-        console.log('generatorPlaylist  newVideosAds:', newVideosAds);
         const loop = newVideosAds.reduce((prev, currentValue) => prev + currentValue.loop, 0);
-        console.log('generatorPlaylist  loop:', loop);
 
         const index = +((listVideo.length + loop) / (loop + 1)).toFixed(0);
 
@@ -293,7 +287,6 @@ export class generatorPlaylist {
                 indexVideoAds++;
             }
         }
-        console.log('generatorPlaylist  newListVideo:', newListVideo);
         newListVideo = this.handleCheckAndSortCategoriesCloselyTogether(newListVideo);
         newListVideo = this.handleCheckAndSortNoBackToBack(newListVideo);
         return newListVideo;
@@ -317,11 +310,46 @@ export class generatorPlaylist {
             oldListVideo = this.handleRemoveVideos(oldListVideo);
         } while (oldListVideo.length && i < 20);
 
+        newListVideo = this.handleCheckAndSortCategoriesCloselyTogether(newListVideo);
+        newListVideo = this.handleCheckAndSortNoBackToBack(newListVideo);
+
         return newListVideo;
     };
 
-    handleRestrictionBuilding = (building: any, videos: IVideos[]) => {
-        console.log('videos:', videos);
-        console.log('building:', building);
+    handleRestrictionBuilding = (restriction: Restriction[], videos: IVideos[]) => {
+        let newVideos: IVideos[] = [];
+        if (!_.isEmpty(restriction)) {
+            newVideos = videos.filter((x) =>
+                restriction.some((r) => {
+                    if (r.type == 'Except') {
+                        return !(
+                            x.category?.some(
+                                (c) =>
+                                    c.name?.toLocaleLowerCase().trim() ==
+                                    r.category?.name?.toLocaleLowerCase().trim()
+                            ) &&
+                            r.arrCategory?.some((s) => x.subCategory.some((v) => v.name == s.name))
+                        );
+                    } else if (r.type == 'Exclude') {
+                        return !(
+                            x.category?.some(
+                                (c) =>
+                                    c.name?.toLocaleLowerCase().trim() ==
+                                    r.category?.name?.toLocaleLowerCase().trim()
+                            ) &&
+                            !r.arrCategory?.some((s) => x.subCategory.some((v) => v.name == s.name))
+                        );
+                    } else {
+                        return x.category?.some(
+                            (c) =>
+                                c.name?.toLocaleLowerCase().trim() !=
+                                r.category?.name?.toLocaleLowerCase().trim()
+                        );
+                    }
+                })
+            );
+        }
+
+        return this.createListVideo(newVideos);
     };
 }
