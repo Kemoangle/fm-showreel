@@ -33,5 +33,6 @@ export interface IPlaylist {
 export interface IListPlaylist {
     id: number;
     buildingName: string;
+    nameTimestamp: string;
     playlist: IPlaylist[];
 }

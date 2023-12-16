@@ -16,6 +16,7 @@ public partial class Playlist
     public string? Title { get; set; }
 
     public string? Duration { get; set; }
+
     public string? JsonPlaylist { get; set; }
 
     public string? Creator { get; set; }
