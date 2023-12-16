@@ -72,10 +72,10 @@ const deleteLandlordAds = async (id: number) => {
         <VCard>
             <VCardItem>
                 <template #prepend>
-                    <VIcon icon="mdi-arrow-down" color="info" />
+                    <VIcon icon="mdi-home-add" color="success" />
                 </template>
                 <VBtn variant="tonal" color="secondary" 
-                    prepend-icon="mdi-tray-arrow-down"
+                    prepend-icon="mdi-plus-thick"
                     style="float: inline-end;" 
                     @click="handleUpdate(0)">
                     Add Video

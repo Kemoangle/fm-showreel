@@ -18,62 +18,64 @@ const handleUpdate = (id: number) => {
     isDrawerOpen.value = true;
 };
 
-onMounted(() =>{
+onMounted(() => {
     restrictionStore.getRestrictionByBuildingId(props.buildingId);
-})
+});
 
 const deleteRestriction = async (id: number) => {
     await Swal.fire({
-        title: "Are you sure?",
+        title: 'Are you sure?',
         text: "You won't be able to revert this!",
-        icon: "warning",
+        icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, delete it!"
-        }).then((result) => {
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+    }).then((result) => {
         if (result.isConfirmed) {
             restrictionStore.deleteRestriction(id).then((response) => {
                 Swal.fire({
-                    title: "Deleted!",
-                    icon: "success"
-                }); 
-            }); 
-        } 
-    });    
+                    title: 'Deleted!',
+                    icon: 'success',
+                });
+            });
+        }
+    });
 };
 
-const capitalizeFirstLetter = (str: string) =>{
+const capitalizeFirstLetter = (str: string) => {
     if (str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
-      } else {
+    } else {
         return '';
-      }
-}
+    }
+};
 
 const handleSubmit = async (restrictionData: any) => {
     restrictionData.buildingId = props.buildingId;
     restrictionData.categoryId = restrictionData.category.id;
-    delete(restrictionData.category);
+    delete restrictionData.category;
     restrictionData.arrCategory = restrictionData.arrCategory.map((category: any) => category.id);
     restrictionData.arrCategory = JSON.stringify(restrictionData.arrCategory);
 
     if (restrictionData.id && restrictionData.id > 0) {
-        await restrictionStore.updateBuildingRestriction(restrictionData)
-        .then((response) => {
-            restrictionStore.getRestrictionByBuildingId(props.buildingId);
-        })
-        .catch((error) => {
-            showSnackbar(error.data.Restriction[0], 'error');
-        });
+        await restrictionStore
+            .updateBuildingRestriction(restrictionData)
+            .then((response) => {
+                restrictionStore.getRestrictionByBuildingId(props.buildingId);
+            })
+            .catch((error) => {
+                showSnackbar(error.data.Restriction[0], 'error');
+            });
     } else {
-        await restrictionStore.addBuildingRestriction(restrictionData)
-        .then((response) => {
-            restrictionStore.getRestrictionByBuildingId(props.buildingId);
-        })
-        .catch((error) => {
-            showSnackbar(error.data.Restriction[0], 'error');
-        });
+        await restrictionStore
+            .addBuildingRestriction(restrictionData)
+            .then((response) => {
+                restrictionStore.getRestrictionByBuildingId(props.buildingId);
+            })
+            .catch((error) => {
+                showSnackbar(error.data.Restriction[0], 'error');
+            });
     }
 };
 </script>
@@ -85,10 +87,13 @@ const handleSubmit = async (restrictionData: any) => {
                 <template #prepend>
                     <VIcon icon="mdi-alert-outline" color="error" />
                 </template>
-                <VBtn variant="tonal" color="secondary" 
-                    prepend-icon="mdi-tray-arrow-down"
-                    style="float: inline-end;" 
-                    @click="handleUpdate(0)">
+                <VBtn
+                    variant="tonal"
+                    color="secondary"
+                    prepend-icon="mdi-plus-thick"
+                    style="float: inline-end;"
+                    @click="handleUpdate(0)"
+                >
                     Add Restriction
                 </VBtn>
                 <VCardTitle>Restriction</VCardTitle>
@@ -121,12 +126,12 @@ const handleSubmit = async (restrictionData: any) => {
                         </td>
 
                         <td class="">
-                            {{ capitalizeFirstLetter(item.type)}}
+                            {{ capitalizeFirstLetter(item.type) }}
                             <span v-if="item.arrCategory.length">
-                                (<span v-for="(v,idx) in item.arrCategory" :key="v.id">
-                                {{ v.name}}
-                                <span v-if="idx < item.arrCategory.length - 1">/</span>
-                                </span>)
+                                (<span v-for="(v, idx) in item.arrCategory" :key="v.id">
+                                    {{ v.name }}
+                                    <span v-if="idx < item.arrCategory.length - 1">/</span> </span
+                                >)
                             </span>
                         </td>
                         <td>

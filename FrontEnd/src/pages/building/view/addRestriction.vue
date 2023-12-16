@@ -32,39 +32,45 @@ const restrictionData = ref<Restriction>({
     categoryId: 0,
     type: 'Except',
     arrCategory: [],
-    category: {id: 0}
+    category: { id: 0 },
 });
 
 watch(props, async (oldId, newId) => {
     refForm.value?.reset();
     refForm.value?.resetValidation();
     if (newId.restrictionId) {
-        axiosIns.get('Restriction/GetBuildingRestrictionById/' + newId.restrictionId).then((response: any) => {
-            categoryStore.getSubCategory(response.category.id).then((data: any) => {
-                subCategories.value = data;
-                restrictionData.value = response;
-                restrictionData.value.arrCategory = activateCategories(response.arrCategory, subCategories.value);
-            })
-        });
+        axiosIns
+            .get('Restriction/GetBuildingRestrictionById/' + newId.restrictionId)
+            .then((response: any) => {
+                categoryStore.getSubCategory(response.category.id).then((data: any) => {
+                    subCategories.value = data;
+                    restrictionData.value = response;
+                    restrictionData.value.arrCategory = activateCategories(
+                        response.arrCategory,
+                        subCategories.value
+                    );
+                });
+            });
     } else {
-        restrictionData.value.id = 0;   
+        restrictionData.value.id = 0;
     }
 });
 
-
 const activateCategories = (arrCategory: any[], subCategories: any[]): any[] => {
-    return subCategories.filter(subCategory => arrCategory.some(category => category.id === subCategory.id));
+    return subCategories.filter((subCategory) =>
+        arrCategory.some((category) => category.id === subCategory.id)
+    );
 };
 
 const getSubCategories = () => {
-    if(restrictionData.value.category){
+    if (restrictionData.value.category) {
         restrictionData.value.arrCategory = [];
         restrictionData.value.type = undefined;
         categoryStore.getSubCategory(restrictionData.value.category.id).then((response: any) => {
             subCategories.value = response;
-        })
+        });
     }
-}
+};
 
 const createVideos = () => {
     categoryStore.getAllCategory();
@@ -76,7 +82,6 @@ onMounted(() => {
     refForm.value?.resetValidation();
 });
 
-
 // 👉 drawer close
 const closeNavigationDrawer = () => {
     emit('update:isDrawerOpen', false);
@@ -86,7 +91,6 @@ const closeNavigationDrawer = () => {
         refForm.value?.resetValidation();
     });
 };
-
 
 const onSubmit = () => {
     refForm.value?.validate().then(({ valid }) => {
@@ -104,103 +108,113 @@ const onSubmit = () => {
 const handleDrawerModelValueUpdate = (val: boolean) => {
     emit('update:isDrawerOpen', val);
 };
-
 </script>
 
 <template>
-     <section>
+    <section>
         <VNavigationDrawer
-        temporary
-        :width="400"
-        location="end"
-        class="scrollable-content"
-        :model-value="props.isDrawerOpen"
-        @update:model-value="handleDrawerModelValueUpdate"
-    >
-        <!-- 👉 Title -->
-        <div class="d-flex align-center bg-var-theme-background px-5 py-2">
-            <h6 class="text-h6">Restriction </h6>
-            <VSpacer />
-            <VBtn
-                size="small"
-                color="secondary"
-                variant="text"
-                icon="mdi-close"
-                @click="closeNavigationDrawer"
-            />
-        </div>
+            temporary
+            :width="400"
+            location="end"
+            class="scrollable-content"
+            :model-value="props.isDrawerOpen"
+            @update:model-value="handleDrawerModelValueUpdate"
+        >
+            <!-- 👉 Title -->
+            <div class="d-flex align-center bg-var-theme-background px-5 py-2">
+                <h6 class="text-h6">Restriction</h6>
+                <VSpacer />
+                <VBtn
+                    size="small"
+                    color="secondary"
+                    variant="text"
+                    icon="mdi-close"
+                    @click="closeNavigationDrawer"
+                />
+            </div>
 
-        <PerfectScrollbar :options="{ wheelPropagation: false }">
-            <VCard flat>
-                <VCardText>
-                    <!-- 👉 Form -->
-                    <VForm ref="refForm" v-model="isFormValid" @submit.prevent="onSubmit">
-                        <VRow>
-                            <VCol cols="12">
-                                <VAutocomplete
-                                    v-model="restrictionData.category"
-                                    :items="categoryStore.data"
-                                    item-title="name"
-                                    label="Restriction"
-                                    :menu-props="{ maxHeight: 250 }"
-                                    :rules="[requiredValidator]"
-                                    @update:model-value="getSubCategories"
-                                    return-object
-                                />
-                            </VCol>
-                            <VCol cols="12">
-                                <VSelect
+            <PerfectScrollbar :options="{ wheelPropagation: false }">
+                <VCard flat>
+                    <VCardText>
+                        <!-- 👉 Form -->
+                        <VForm ref="refForm" v-model="isFormValid" @submit.prevent="onSubmit">
+                            <VRow>
+                                <VCol cols="12">
+                                    <VAutocomplete
+                                        v-model="restrictionData.category"
+                                        :items="categoryStore.data"
+                                        item-title="name"
+                                        label="Restriction"
+                                        :menu-props="{ maxHeight: 250 }"
+                                        :rules="[requiredValidator]"
+                                        @update:model-value="getSubCategories"
+                                        return-object
+                                    />
+                                </VCol>
+                                <VCol cols="12">
+                                    <VSelect
                                         v-model="restrictionData.type"
                                         label="Select Type"
-                                        :items="[
-                                            'Except',
-                                            'Exclude',
-                                        ]"
+                                        :items="['Except', 'Exclude']"
                                         :menu-props="{ maxHeight: 200 }"
-                                        :rules="[(restrictionData.category && restrictionData.arrCategory && restrictionData.arrCategory.length > 0)?requiredValidator:true]"
+                                        :rules="[
+                                            restrictionData.category &&
+                                            restrictionData.arrCategory &&
+                                            restrictionData.arrCategory.length > 0
+                                                ? requiredValidator
+                                                : true,
+                                        ]"
                                     />
-                                    
-                            </VCol>
-                            <VCol cols="12">
-                                <VAutocomplete
+                                </VCol>
+                                <VCol cols="12">
+                                    <VAutocomplete
                                         v-model="restrictionData.arrCategory"
                                         chips
                                         closable-chips
                                         :items="subCategories"
                                         item-title="name"
-                                        :label="(restrictionData.type == 'Except')?'Except':(restrictionData.type == 'Exclude'?'Exclude':'Except/Exclude')"
+                                        :label="
+                                            restrictionData.type == 'Except'
+                                                ? 'Except'
+                                                : restrictionData.type == 'Exclude'
+                                                ? 'Exclude'
+                                                : 'Except/Exclude'
+                                        "
                                         :menu-props="{ maxHeight: 250 }"
                                         multiple
                                         return-object
-                                        :rules="[(restrictionData.category && restrictionData.type)?requiredValidator:true]"
+                                        :rules="[
+                                            restrictionData.category && restrictionData.type
+                                                ? requiredValidator
+                                                : true,
+                                        ]"
                                     >
                                         <template #chip="{ props, item }">
-                                            <VChip v-bind="props" :text="item.raw.name"/>
+                                            <VChip v-bind="props" :text="item.raw.name" />
                                         </template>
 
                                         <template #item="{ props, item }">
                                             <VListItem v-bind="props" :title="item?.raw?.name" />
                                         </template>
                                     </VAutocomplete>
-                            </VCol>
-                            <!-- 👉 Submit and Cancel -->
-                            <VCol cols="12">
-                                <VBtn type="submit" class="me-3"> Submit </VBtn>
-                                <VBtn
-                                    type="reset"
-                                    variant="tonal"
-                                    color="secondary"
-                                    @click="closeNavigationDrawer"
-                                >
-                                    Cancel
-                                </VBtn>
-                            </VCol>
-                        </VRow>
-                    </VForm>
-                </VCardText>
-            </VCard>
-        </PerfectScrollbar>
-    </VNavigationDrawer>
-     </section>
-    
+                                </VCol>
+                                <!-- 👉 Submit and Cancel -->
+                                <VCol cols="12">
+                                    <VBtn type="submit" class="me-3"> Submit </VBtn>
+                                    <VBtn
+                                        type="reset"
+                                        variant="tonal"
+                                        color="secondary"
+                                        @click="closeNavigationDrawer"
+                                    >
+                                        Cancel
+                                    </VBtn>
+                                </VCol>
+                            </VRow>
+                        </VForm>
+                    </VCardText>
+                </VCard>
+            </PerfectScrollbar>
+        </VNavigationDrawer>
+    </section>
 </template>

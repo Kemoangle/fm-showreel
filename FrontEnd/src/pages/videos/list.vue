@@ -36,9 +36,8 @@ watchEffect(() => {
 onMounted(() => {
     videoStore.data.videos = !videoStore.data.videos;
     getAll();
-    
-    
 });
+
 const changePage = (newPage: number) => {
     currentPage.value = newPage;
     getAll();
@@ -117,14 +116,6 @@ const randomColor = () => {
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
     return randomColor;
 };
-
-const handleSearch = async () => {
-    searching.value = true;
-    videoStore.data.videos = [];
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    searching.value = false;
-    getAll();
-};
 </script>
 
 <template>
@@ -136,7 +127,7 @@ const handleSearch = async () => {
                         <VBtn
                             variant="tonal"
                             color="secondary"
-                            prepend-icon="mdi-tray-arrow-down"
+                            prepend-icon="mdi-plus-thick"
                             @click="handleUpdate(0)"
                         >
                             Create New Video
@@ -151,12 +142,6 @@ const handleSearch = async () => {
                             v-model="keySearch"
                             :loading="videoStore.isLoading"
                         />
-                        <!-- <VProgressLinear
-                            v-if="searching"
-                            indeterminate
-                            color="primary"
-                        /> -->
-                        
                     </VCol>
                     <VCol cols="12" sm="2" class="display">
                         <VBtn
