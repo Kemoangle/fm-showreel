@@ -119,6 +119,12 @@ const addInput = () => {
     };
     categoryData.value.subCategory.push({ ...newSubCategory });
 };
+
+const removeSubCategory = (index: number) => {
+    if (categoryData.value.subCategory) {
+        categoryData.value.subCategory.splice(index, 1);
+    }
+};
 </script>
 
 <template>
@@ -167,12 +173,26 @@ const addInput = () => {
                                     v-if="categoryData.subCategory"
                                     v-for="(item, index) in categoryData.subCategory"
                                     :key="index"
-                                >
+                                    class="d-flex align-center"
+                                >   
                                     <VTextField
                                         v-model="item.name"
                                         label=" Sub Category Name"
                                         :rules="[requiredValidator]"
                                     />
+                                   
+                                    <VBtn
+                                        style="background-color: transparent;"
+                                        variant="text"
+                                        @click="removeSubCategory(index)"
+                                    >
+                                        <VIcon
+                                            icon="mdi-close-outline"
+                                            color="error"
+                                            :size="20"
+                                            style="height: auto;"
+                                        />
+                                    </VBtn>
                                 </VCol>
 
                                 <!-- 👉 Submit and Cancel -->
