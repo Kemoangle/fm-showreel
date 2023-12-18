@@ -123,7 +123,7 @@ const getListVideo = (videos: Video[]) => {
                                             <VCol cols="9" sm="9" md="9">
                                                 <VCardText>{{ video.title }}</VCardText>
                                             </VCol>
-                                            <VCol cols="3" sm="3" md="3" class="mt-2">
+                                            <VCol cols="2" sm="2" md="2" class="mt-2">
                                                 <VTextField
                                                     v-model="video.loop"
                                                     label="Loop"

@@ -39,9 +39,11 @@ namespace Showreel.Service.impl
 
         public Playlist GetPlayListById(int id)
         {
-            return _context.Playlists.FirstOrDefault(p => p.Id == id);
+            var query = _context.Playlists.FirstOrDefault(p => p.Id == id);
+            if(query == null)
+                throw new KeyNotFoundException("Playlist not found");
+            return query;    
         }
-
         public IEnumerable<Video> GetVideoPlayList(int playListId)
         {
             var query = from pv in _context.Playlistvideos.Where(p => p.PlaylistId == playListId)
