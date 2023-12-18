@@ -1,5 +1,7 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using Microsoft.EntityFrameworkCore;
+using MySql.Data.MySqlClient;
+using Newtonsoft.Json;
 using Showreel.Models;
 
 namespace Showreel.Service.impl
@@ -51,7 +53,7 @@ namespace Showreel.Service.impl
                 _context.Videos.Remove(videoDelete);
                 _context.SaveChanges();
             }
-        }
+        }   
 
         public IEnumerable<Video> GetAllVideos()
         {

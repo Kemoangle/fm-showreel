@@ -154,7 +154,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                 <VCol cols="12">
                                     <VSelect
                                         v-model="restrictionData.type"
-                                        label="Select Type"
+                                        label="Action"
                                         :items="['Except', 'Exclude']"
                                         :menu-props="{ maxHeight: 200 }"
                                         :rules="[
