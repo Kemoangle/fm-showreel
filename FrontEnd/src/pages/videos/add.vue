@@ -42,7 +42,7 @@ const videoData = ref<Video | any>({
     category: [],
     doNotPlay: [],
     noBackToBack: [],
-    subCategory: []
+    subCategory: [],
 });
 
 watch(props, async (oldId, newId) => {
@@ -57,28 +57,35 @@ watch(props, async (oldId, newId) => {
         buildings.value = response;
     });
     if (newId.videoId) {
-        axiosIns.get('http://localhost:5124/api/Video/' + newId.videoId).then((response: any) => {
+        axiosIns.get('Video/' + newId.videoId).then((response: any) => {
             videoData.value = response;
-            axiosIns.get<Category[]>('Category/GetSub', {
-                params: {
-                    categories: response.category.map((cat: Category) => cat.id)
-                }
-            }).then((data) => {
-                subCategories.value = data;
-                videoData.value.subCategory = activateAutocomplete(response.subCategory, subCategories.value);
-            })
+            axiosIns
+                .get<Category[]>('Category/GetSub', {
+                    params: {
+                        categories: response.category.map((cat: Category) => cat.id),
+                    },
+                })
+                .then((data) => {
+                    subCategories.value = data;
+                    videoData.value.subCategory = activateAutocomplete(
+                        response.subCategory,
+                        subCategories.value
+                    );
+                });
             videoData.value.category = activateAutocomplete(response.category, categories.value);
-            videoData.value.noBackToBack = activateAutocomplete(response.noBackToBack, categories.value);
+            videoData.value.noBackToBack = activateAutocomplete(
+                response.noBackToBack,
+                categories.value
+            );
             videoData.value.doNotPlay = activateAutocomplete(response.doNotPlay, buildings.value);
         });
     } else {
         videoData.value.id = 0;
-        
     }
 });
 
 const activateAutocomplete = (arr1: any[], arr2: any[]): any[] => {
-    return arr2.filter(item2 => arr1.some(item1 => item1.id === item2.id));
+    return arr2.filter((item2) => arr1.some((item1) => item1.id === item2.id));
 };
 
 onMounted(() => {
@@ -114,26 +121,29 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
 };
 
 const getSubCategory = () => {
-    if(videoData.value.category){
+    if (videoData.value.category) {
         videoData.value.subCategory = [];
         const categoryIds = videoData.value.category.map((cat: Category) => cat.id);
 
         if (categoryIds) {
-            axiosIns.get<Category[]>('Category/GetSub', {
-                params: {
-                    categories: categoryIds
-                }
-            }).then((response: any) => {
-                subCategories.value = response;
-            }).catch((error: any) => {
-                console.error('Error fetching subcategories:', error);
-            });
+            axiosIns
+                .get<Category[]>('Category/GetSub', {
+                    params: {
+                        categories: categoryIds,
+                    },
+                })
+                .then((response: any) => {
+                    subCategories.value = response;
+                })
+                .catch((error: any) => {
+                    console.error('Error fetching subcategories:', error);
+                });
         }
-    }else{
+    } else {
         subCategories.value = [];
     }
     refForm.value?.resetValidation();
-}
+};
 </script>
 
 <template>
@@ -189,7 +199,7 @@ const getSubCategory = () => {
                                         label="Key no"
                                     />
                                 </VCol>
-                                
+
                                 <VCol cols="12">
                                     <VTextField v-model="videoData.remark" label="Remark" />
                                 </VCol>
@@ -206,8 +216,7 @@ const getSubCategory = () => {
                                         multiple
                                         return-object
                                         @update:model-value="getSubCategory"
-
-                                        :rules="[checkAutocomplete? requiredValidator:true]"
+                                        :rules="[checkAutocomplete ? requiredValidator : true]"
                                     >
                                         <template #chip="{ props, item }">
                                             <VChip v-bind="props" :text="item.raw.name" />
@@ -230,7 +239,7 @@ const getSubCategory = () => {
                                         :menu-props="{ maxHeight: 250 }"
                                         multiple
                                         return-object
-                                        :rules="[checkAutocomplete? requiredValidator:true]"
+                                        :rules="[checkAutocomplete ? requiredValidator : true]"
                                     >
                                         <template #chip="{ props, item }">
                                             <VChip v-bind="props" :text="item.raw.name" />
@@ -241,7 +250,7 @@ const getSubCategory = () => {
                                         </template>
                                     </VAutocomplete>
                                 </VCol>
-                                
+
                                 <VCol cols="12">
                                     <VAutocomplete
                                         v-model="videoData.noBackToBack"
@@ -280,7 +289,10 @@ const getSubCategory = () => {
                                         </template>
 
                                         <template #item="{ props, item }">
-                                            <VListItem v-bind="props" :title="item?.raw?.buildingName" />
+                                            <VListItem
+                                                v-bind="props"
+                                                :title="item?.raw?.buildingName"
+                                            />
                                         </template>
                                     </VAutocomplete>
                                 </VCol>
@@ -306,12 +318,12 @@ const getSubCategory = () => {
 </template>
 <style lang="scss">
 .v-autocomplete {
-  .v-chip {
-    white-space: wrap;
-  }
+    .v-chip {
+        white-space: wrap;
+    }
 
-  .v-chip.v-chip--density-default {
-    block-size: unset !important;
-  }
+    .v-chip.v-chip--density-default {
+        block-size: unset !important;
+    }
 }
 </style>

@@ -112,7 +112,7 @@ namespace Showreel.Controllers
                 ModelState.AddModelError("Building", "The name already exists");
                 return BadRequest(ModelState);
             }
-            building.CreateTime = DateOnly.FromDateTime(DateTime.Now);
+            building.CreateTime = DateTime.Now;
             building.LastUpdateTime = null;
             building.Landlordads = new List<Landlordad>();
             _buildingService.AddBuilding(building);
@@ -134,7 +134,7 @@ namespace Showreel.Controllers
                 ModelState.AddModelError("Building", "The name already exists");
                 return BadRequest(ModelState);
             }
-            building.LastUpdateTime = DateOnly.FromDateTime(DateTime.Now);
+            building.LastUpdateTime = DateTime.Now;
             building.Landlordads = new List<Landlordad>();
             _buildingService.UpdateBuilding(building);
 

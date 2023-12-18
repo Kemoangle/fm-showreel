@@ -16,7 +16,7 @@ namespace Showreel.Controllers
         private readonly IRuleService _ruleService;
 
         public VideoController(
-            IVideoService videoService, 
+            IVideoService videoService,
             IVideoCategoryService categoryService,
             IRuleService ruleService
         )
@@ -110,7 +110,7 @@ namespace Showreel.Controllers
                 ModelState.AddModelError("Video", "The video already exists");
                 return BadRequest(ModelState);
             }
-            video.CreateTime = DateOnly.FromDateTime(DateTime.Now);
+            video.CreateTime = DateTime.Now;
             video.LastUpdateTime = null;
             video.Landlordads = new List<Landlordad>();
             video.Videocategories = new List<Videocategory>();
@@ -135,7 +135,7 @@ namespace Showreel.Controllers
                 return BadRequest(ModelState);
             }
 
-            video.LastUpdateTime = DateOnly.FromDateTime(DateTime.Now);
+            video.LastUpdateTime = DateTime.Now;
             video.Landlordads = new List<Landlordad>();
             video.Videocategories = new List<Videocategory>();
             var response = _videoService.UpdateVideo(video);
