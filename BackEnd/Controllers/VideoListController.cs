@@ -73,8 +73,8 @@ namespace Showreel.Controllers
                 ModelState.AddModelError("VideoList", "The video list already exists");
                 return BadRequest(ModelState);
             }
-            videoList.CreatedTime = DateOnly.FromDateTime(DateTime.Now);
-            videoList.LastUpdatedTime = DateOnly.FromDateTime(DateTime.Now);
+            videoList.CreatedTime = DateTime.Now;
+            videoList.LastUpdatedTime = DateTime.Now;
             var item = videoListService.AddVideoList(videoList);
 
             return Ok(item);

@@ -11,9 +11,9 @@ public partial class Videolist
 
     public string? Remark { get; set; }
 
-    public DateOnly? CreatedTime { get; set; }
+    public DateTime? CreatedTime { get; set; }
 
-    public DateOnly? LastUpdatedTime { get; set; }
+    public DateTime? LastUpdatedTime { get; set; }
 
     public virtual ICollection<VideoVideolist> VideoVideolists { get; set; } = new List<VideoVideolist>();
 }

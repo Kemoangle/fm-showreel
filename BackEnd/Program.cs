@@ -13,7 +13,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.WebHost.UseUrls("http://localhost:5124");
+// builder.WebHost.UseUrls("http://localhost:5231");
 
 builder.Services.AddScoped<IBuildingService, BuildingService>();
 builder.Services.AddScoped<IVideoService, VideoService>();

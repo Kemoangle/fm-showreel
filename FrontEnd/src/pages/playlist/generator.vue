@@ -3,11 +3,14 @@ import { useSnackbar } from '@/components/Snackbar.vue';
 import ViewListVideo from '@/components/ViewListVideo.vue';
 import { Building, IBuildingLandlord, IBuildingRestriction } from '@/model/building';
 import { IListPlaylist, IPlaylist, IVideos } from '@/model/generatorPlaylist';
+import { IPostPlaylistStore } from '@/model/playlist';
 import { Restriction } from '@/model/restriction';
 import { Video } from '@/model/video';
 import { IVideoInList, VideoList } from '@/model/videoList';
 import { useBuildingStore } from '@/store/useBuildingStore';
+import { usePlaylistStore } from '@/store/usePlayListStore';
 import { useVideoListStore } from '@/store/useVideoListStore';
+import { getTimestamp } from '@/utils/functions';
 import { generatorPlaylist } from '@/utils/generatorPlaylist';
 import _ from 'lodash';
 import { VueDraggableNext } from 'vue-draggable-next';
@@ -26,6 +29,7 @@ const { showSnackbar } = useSnackbar();
 
 const useStoreVideo = useVideoListStore();
 const useBuilding = useBuildingStore();
+const usePlaylist = usePlaylistStore();
 
 const selectedBuilding = ref<number[]>([]);
 const selectedListVideo = ref<number>();
@@ -52,6 +56,8 @@ const isDragging = ref(false);
 const buildings = ref<IListBuildingSelect[]>([]);
 
 const listVideos = ref<IListVideoSelect[]>([]);
+
+const namePlaylist = ref<string[]>();
 
 // --------------- watch --------------
 
@@ -122,9 +128,24 @@ const checkPlaylistInvalid = (playlist: IPlaylist[]) => {
     return true;
 };
 
-const handleSaveOnePlaylist = (playlist: IPlaylist[], name: string) => {
+const handleSaveOnePlaylist = (playlist: IPlaylist[], name: string, nameTimestamp: string) => {
     if (checkPlaylistInvalid(playlist)) {
-        showSnackbar(`Save playlist ${name} Successfuly`, 'success');
+        const data: IPostPlaylistStore = {
+            id: 0,
+            jsonPlaylist: JSON.stringify(playlist),
+            status: 'active',
+            title: nameTimestamp,
+            duration: 'string',
+            creator: 'string',
+        };
+        usePlaylist
+            .addNewPlaylist(data)
+            .then((data) => {
+                showSnackbar(`Save playlist ${name} Successfuly`, 'success');
+            })
+            .catch((err) => {
+                showSnackbar(`Something went wrong!`, 'error');
+            });
     }
 };
 
@@ -240,6 +261,8 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
                     return playlist;
                 };
 
+                const timestamp = getTimestamp();
+
                 buildingActive.forEach((building, index) => {
                     const playlist = genPlaylist(
                         convertPlaylistToListVideo(playlistGeneric.value),
@@ -249,6 +272,7 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
                     newPlaylistBuilding.push({
                         id: index + 1,
                         buildingName: 'building ' + building.title,
+                        nameTimestamp: 'building ' + building.title + ' - ' + timestamp,
                         playlist,
                     });
                 });
@@ -420,13 +444,21 @@ const handleViewPlaylistGeneric = () => {
             class="mb-6 position-relative"
             v-if="!isViewPlaylistGeneric"
         >
-            <VBtn
-                color="primary"
-                class="position-absolute"
-                @click="handleSaveOnePlaylist(building.playlist, building.buildingName)"
-            >
-                Save
-            </VBtn>
+            <div class="position-absolute">
+                <VTextField class="input-name-building" v-model="building.nameTimestamp" />
+                <VBtn
+                    color="primary"
+                    @click="
+                        handleSaveOnePlaylist(
+                            building.playlist,
+                            building.buildingName,
+                            building.nameTimestamp
+                        )
+                    "
+                >
+                    Save
+                </VBtn>
+            </div>
             <VTable class="text-no-wrap">
                 <thead>
                     <tr>
@@ -568,6 +600,14 @@ const handleViewPlaylistGeneric = () => {
     padding-block: 0;
     padding-inline: 20px;
   }
+}
+
+.input-name-building {
+    input {
+        width: 400px !important;
+        block-size: 35px !important;
+        min-block-size: unset;
+    }
 }
 
 // table

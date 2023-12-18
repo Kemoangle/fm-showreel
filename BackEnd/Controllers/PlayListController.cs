@@ -42,7 +42,12 @@ namespace BackEnd.Controllers
 
             return Ok(response);
         }
-
+        [HttpDelete("{id}")]
+        public IActionResult DeletePlaylist(int id)
+        {
+            playlistService.DeletePlaylist(id);
+            return Ok();
+        }
 
         [HttpPost]
         public IActionResult CreatePlayList([FromBody] Playlist playlist)
@@ -86,7 +91,7 @@ namespace BackEnd.Controllers
             {
                 return NotFound("Playlist not found");
             }
-            playlistService.UpdateVideoPlayList(videos,playListId);
+            playlistService.UpdateVideoPlayList(videos, playListId);
 
             return Ok();
         }

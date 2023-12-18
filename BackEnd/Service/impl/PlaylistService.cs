@@ -59,6 +59,16 @@ namespace Showreel.Service.impl
             return playlist;
         }
 
+        public void DeletePlaylist(int id)
+        {
+            var playlistDelete = _context.Playlists.Find(id);
+            if (playlistDelete != null)
+            {
+                _context.Playlists.Remove(playlistDelete);
+                _context.SaveChanges();
+            }
+        }
+
         public void UpdateVideoPlayList(Video[] videos, int playListId)
         {
             var playlistvideoExist = _context.Playlistvideos

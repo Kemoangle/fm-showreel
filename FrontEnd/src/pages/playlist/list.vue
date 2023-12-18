@@ -1,57 +1,64 @@
 <script setup lang="ts">
 import { useSnackbar } from '@/components/Snackbar.vue';
-import { Building } from '@/model/building';
-import { useBuildingStore } from '@/store/useBuildingStore';
 import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
-import Add from './add.vue';
+import { useDebounce } from '@vueuse/core'
+import { usePlaylistStore } from '@/store/usePlayListStore';
+import PopupViewPlaylist from '@/components/PopupViewPlaylist.vue';
+import { IPostPlaylistStore } from '@/model/playlist';
 
-const buildingStore = useBuildingStore();
-const idUpdate = ref(0);
+const playlistStore = usePlaylistStore();
 
-const isAddNewBuilding = ref(false);
 const keySearch = ref('');
-const router = useRoute();
+const keySearchDebounce = useDebounce(keySearch, 1000)
 
 const pageSize = ref(10);
 const currentPage = ref(1);
 const totalPages = ref(1);
 const totalItems = ref();
+const isViewPlaylist = ref(false)
+const playlistActive = ref<IPostPlaylistStore>()
 
-// const { showSnackbar } = useSnackbar();
+const { showSnackbar } = useSnackbar();
 
-// const getAll = () => {
-//     buildingStore.getPageBuilding(keySearch.value, currentPage.value, pageSize.value);
-// };
-// watchEffect(() => {
-//     totalPages.value = buildingStore.data.totalPages;
-//     totalItems.value = buildingStore.data.totalItems;
-//     if (currentPage.value > totalPages.value) currentPage.value = totalPages.value;
-// });
+const getAll = () => {
+    playlistStore.getPlaylists(keySearchDebounce.value.trim(), currentPage.value, pageSize.value);
+};
 
-// onMounted(() => {
-//     getAll();
-// });
-// const changePage = (newPage: number) => {
-//     currentPage.value = newPage;
-//     getAll();
-// };
+watchEffect(() => {
+    totalPages.value = playlistStore.data.totalPages;
+    totalItems.value = playlistStore.data.totalItems;
+    if (currentPage.value > totalPages.value) currentPage.value = totalPages.value;
+});
 
-// watch(currentPage, () => {
-//     getAll();
-// });
+onMounted(() => {
+    getAll();
+});
 
-// watch(pageSize, () => {
-//     getAll();
-// });
+const changePage = (newPage: number) => {
+    currentPage.value = newPage;
+    getAll();
+};
+
+watch(currentPage, () => {
+    getAll();
+});
+
+watch(pageSize, () => {
+    getAll();
+});
+
+watch(keySearchDebounce, () => {
+    getAll();
+});
 
 // const handleSubmit = async (buildingData: Building) => {
 //     if (buildingData.id && buildingData.id > 0) {
-//         await buildingStore.updateBuilding(buildingData).catch((error) => {
+//         await playlistStore.updateBuilding(buildingData).catch((error) => {
 //             showSnackbar(error.data.Building[0], 'error');
 //         });
 //     } else {
-//         await buildingStore.addBuilding(buildingData).catch((error) => {
+//         await playlistStore.addBuilding(buildingData).catch((error) => {
 //             showSnackbar(error.data.Building[0], 'error');
 //         });
 //     }
@@ -64,49 +71,33 @@ const totalItems = ref();
 //     isAddNewBuilding.value = true;
 // };
 
-// const deleteBuilding = (id: number) => {
-//     Swal.fire({
-//         title: "Are you sure?",
-//         text: "You won't be able to revert this!",
-//         icon: "warning",
-//         showCancelButton: true,
-//         confirmButtonColor: "#3085d6",
-//         cancelButtonColor: "#d33",
-//         confirmButtonText: "Yes, delete it!"
-//         }).then((result) => {
-//         if (result.isConfirmed) {
-//             buildingStore.deleteBuilding(id).then((response) => {
-//                 Swal.fire({
-//                     title: "Deleted!",
-//                     icon: "success"
-//                     });
-//                 getAll();
-//             });
+const viewPlaylist = (playlist:IPostPlaylistStore)=>{
+    isViewPlaylist.value = true
+    playlistActive.value = playlist
+}
 
-//         }
-//     });
-// };
+const deleteBuilding = (id: number) => {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+        if (result.isConfirmed) {
+            playlistStore.removePlaylist(id).then((response) => {
+                Swal.fire({
+                    title: "Deleted!",
+                    icon: "success"
+                    });
+                getAll();
+            });
+        }
+    });
+};
 
-const list = [
-    {
-        id: 1,
-        title: 'hello',
-        duration: 1,
-        keyNo: 1,
-        category: 'ko',
-        remark: '2',
-        order: 1,
-    },
-    {
-        id: 2,
-        title: 'hello',
-        duration: 1,
-        keyNo: 1,
-        category: 'ko',
-        remark: '2',
-        order: 2,
-    },
-];
 </script>
 
 <template>
@@ -122,7 +113,6 @@ const list = [
                             }"
                             color="secondary"
                         >
-                            <!-- @click="handleUpdate(0)" -->
                             Generator playlist
                         </VBtn>
                     </VCol>
@@ -132,8 +122,8 @@ const list = [
                             density="compact"
                             class="me-3"
                             v-model="keySearch"
+                            :loading="playlistStore.isLoading"
                         />
-                        <!-- @input="getAll" -->
                     </VCol>
                 </VRow>
             </VCardText>
@@ -147,48 +137,62 @@ const list = [
                     <tr>
                         <th scope="col">STT</th>
                         <th scope="col">TITLE</th>
-                        <th scope="col">DURATION</th>
-                        <th scope="col">KEY NO</th>
-                        <th scope="col">CATEGORY</th>
-                        <th scope="col">REMARK</th>
+                        <th scope="col">STATUS</th>
+                        <th scope="col">CREATOR</th>
+                        <th scope="col">Action</th>
                     </tr>
                 </thead>
 
                 <!-- 👉 table body -->
                 <tbody>
-                    <tr class="handle" v-for="(playlist, index) in list" :key="playlist.order">
+                    <tr class="handle" v-for="(playlist, index) in playlistStore.data" :key="index">
                         <td>
                             {{ index + 1 }}
                         </td>
                         <td>
                             {{ playlist.title }}
                         </td>
-                        <td class="text-medium-emphasis">
-                            {{ playlist.duration }}
-                        </td>
                         <td>
-                            {{ playlist.keyNo }}
+                            {{ playlist.status }}
                         </td>
-                        <td class="text-capitalize">
-                            {{ playlist.category }}
-                        </td>
+                        <td>Admin</td>
                         <td>
-                            {{ playlist.remark }}
+                            <VBtn size="x-small" color="default" variant="plain" icon>
+                                <VIcon size="24" icon="mdi-dots-vertical" />
+
+                                <VMenu activator="parent">
+                                    <VList>
+                                        <VListItem @click="viewPlaylist(playlist)">
+                                            <template #prepend>
+                                                <VIcon
+                                                    icon="mdi-eye-outline"
+                                                    :size="20"
+                                                    class="me-3"
+                                                    color="info"
+                                                />
+                                            </template>
+                                            <VListItemTitle>View</VListItemTitle>
+                                        </VListItem>
+
+                                        <VListItem @click="deleteBuilding(playlist.id)">
+                                            <template #prepend>
+                                                <VIcon
+                                                    icon="mdi-delete-outline"
+                                                    :size="20"
+                                                    class="me-3"
+                                                    color="error"
+                                                />
+                                            </template>
+                                            <VListItemTitle>Delete</VListItemTitle>
+                                        </VListItem>
+                                    </VList>
+                                </VMenu>
+                            </VBtn>
                         </td>
-                    </tr>
-                    <tr key="j">
-                        <td></td>
-                        <td></td>
-                        <td class="text-medium-emphasis">
-                            {{ list.reduce((a, b) => a + (b?.duration || 0), 0) }}
-                        </td>
-                        <td></td>
-                        <td class="text-capitalize"></td>
-                        <td></td>
                     </tr>
 
                     <!-- 👉 table footer  -->
-                    <!-- <tfoot v-show="!videoStore.data.videos">
+                    <tfoot v-show="!playlistStore.data">
                     <tr>
                         <td colspan="7" class="text-center">
                             <v-row align="center" justify="center" class="fill-height">
@@ -198,12 +202,43 @@ const list = [
                             </v-row>
                         </td>
                     </tr>
-                </tfoot> -->
+                </tfoot>
                 </tbody>
             </VTable>
 
             <VDivider />
+                <!-- SECTION Pagination -->
+                <VCardText class="d-flex flex-wrap justify-end gap-4 pa-2">
+                <!-- 👉 Rows per page -->
+                <div class="d-flex align-center me-3" style="width: 171px;">
+                    <span class="text-no-wrap me-3">Rows per page:</span>
+
+                    <VSelect
+                        v-model="pageSize"
+                        density="compact"
+                        variant="plain"
+                        class="user-pagination-select"
+                        :items="[5, 10, 20, 30, 50]"
+                    />
+                </div>
+
+                <!-- 👉 Pagination and pagination meta -->
+                <div class="d-flex align-center">
+                    <VPagination
+                        v-model="currentPage"
+                        :length="totalPages"
+                        :total-visible="1"
+                        rounded="circle"
+                        @input="changePage"
+                    />
+                </div>
+            </VCardText>
+            <!-- !SECTION -->
         </VCard>
+        <PopupViewPlaylist
+            :data="playlistActive"
+            v-model:is-drawer-open="isViewPlaylist"
+        />
     </section>
 </template>
 

@@ -15,9 +15,9 @@ public partial class Building
 
     public string? Remark { get; set; }
 
-    public DateOnly? CreateTime { get; set; }
+    public DateTime? CreateTime { get; set; }
 
-    public DateOnly? LastUpdateTime { get; set; }
+    public DateTime? LastUpdateTime { get; set; }
 
     public string? Zone { get; set; }
 
