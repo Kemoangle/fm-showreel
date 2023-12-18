@@ -3,13 +3,13 @@ import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 
 export const useLanlordAdsStore = defineStore('landlord', {
-    state: (): { data: LandlordAds[] | any, landlordAds: LandlordAds | null} => ({
+    state: (): { data: LandlordAds[] , landlordAds: LandlordAds | null} => ({
         data: [],
         landlordAds: null
     }),
     actions: {
         async getAllLandlordAds(id: number) {
-            await axiosIns.get<LandlordAds[]>('LandlordAds/' + id).then((response) => {
+            await axiosIns.get<LandlordAds[]>('LandlordAds/' + id).then((response: any) => {
                 this.data = response;
             });
         },

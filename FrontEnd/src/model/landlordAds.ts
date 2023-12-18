@@ -1,7 +1,7 @@
 import { Video } from './video';
 
 export interface LandlordAds {
-    id?: number;
+    id: number;
     loop?: number;
     videoId?: number;
     buildingId?: number;

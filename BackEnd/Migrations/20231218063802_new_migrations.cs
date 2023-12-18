@@ -7,13 +7,26 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Showreel.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class new_migrations : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
                 .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "__efmigrationshistory",
+                columns: table => new
+                {
+                    MigrationId = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false, collation: "utf8mb3_general_ci"),
+                    ProductVersion = table.Column<string>(type: "varchar(32)", maxLength: 32, nullable: false, collation: "utf8mb3_general_ci")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PRIMARY", x => x.MigrationId);
+                })
+                .Annotation("Relational:Collation", "utf8mb3_general_ci");
 
             migrationBuilder.CreateTable(
                 name: "building",
@@ -29,8 +42,8 @@ namespace Showreel.Migrations
                         .Annotation("MySql:CharSet", "utf8mb3"),
                     remark = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true, collation: "utf8mb3_general_ci")
                         .Annotation("MySql:CharSet", "utf8mb3"),
-                    create_time = table.Column<DateOnly>(type: "date", nullable: true),
-                    last_update_time = table.Column<DateOnly>(type: "date", nullable: true),
+                    create_time = table.Column<DateTime>(type: "datetime(6)", maxLength: 6, nullable: true),
+                    last_update_time = table.Column<DateTime>(type: "datetime(6)", maxLength: 6, nullable: true),
                     zone = table.Column<string>(type: "enum('city','west','south','central','east','north')", nullable: true, defaultValueSql: "'city'", collation: "utf8mb3_general_ci")
                         .Annotation("MySql:CharSet", "utf8mb3"),
                     postal_code = table.Column<int>(type: "int", nullable: true)
@@ -67,8 +80,8 @@ namespace Showreel.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     status = table.Column<string>(type: "enum('pending','active','expired')", nullable: true, defaultValueSql: "'pending'", collation: "utf8mb3_general_ci")
                         .Annotation("MySql:CharSet", "utf8mb3"),
-                    start_date = table.Column<DateOnly>(type: "date", nullable: true),
-                    end_date = table.Column<DateOnly>(type: "date", nullable: true),
+                    start_date = table.Column<DateTime>(type: "datetime(6)", maxLength: 6, nullable: true),
+                    end_date = table.Column<DateTime>(type: "datetime(6)", maxLength: 6, nullable: true),
                     title = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true, collation: "utf8mb3_general_ci")
                         .Annotation("MySql:CharSet", "utf8mb3"),
                     duration = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true, collation: "utf8mb3_general_ci")
@@ -100,8 +113,8 @@ namespace Showreel.Migrations
                         .Annotation("MySql:CharSet", "utf8mb3"),
                     remark = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true, collation: "utf8mb3_general_ci")
                         .Annotation("MySql:CharSet", "utf8mb3"),
-                    create_time = table.Column<DateOnly>(type: "date", nullable: true),
-                    last_update_time = table.Column<DateOnly>(type: "date", nullable: true),
+                    create_time = table.Column<DateTime>(type: "datetime(6)", maxLength: 6, nullable: true),
+                    last_update_time = table.Column<DateTime>(type: "datetime(6)", maxLength: 6, nullable: true),
                     is_active = table.Column<bool>(type: "tinyint(1)", nullable: true)
                 },
                 constraints: table =>
@@ -121,8 +134,8 @@ namespace Showreel.Migrations
                         .Annotation("MySql:CharSet", "utf8mb3"),
                     remark = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true, collation: "utf8mb3_general_ci")
                         .Annotation("MySql:CharSet", "utf8mb3"),
-                    createdTime = table.Column<DateOnly>(type: "date", nullable: true),
-                    lastUpdatedTime = table.Column<DateOnly>(type: "date", nullable: true)
+                    createdTime = table.Column<DateTime>(type: "datetime(6)", maxLength: 6, nullable: true),
+                    lastUpdatedTime = table.Column<DateTime>(type: "datetime(6)", maxLength: 6, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -139,8 +152,10 @@ namespace Showreel.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     category_id = table.Column<int>(type: "int", nullable: true),
                     building_id = table.Column<int>(type: "int", nullable: true),
-                    type = table.Column<string>(type: "enum('Exclude','Except')", nullable: true, collation: "utf8mb3_general_ci"),
+                    type = table.Column<string>(type: "enum('Exclude','Except')", nullable: true, collation: "utf8mb3_general_ci")
+                        .Annotation("MySql:CharSet", "utf8mb3"),
                     arr_category = table.Column<string>(type: "json", nullable: true, collation: "utf8mb3_general_ci")
+                        .Annotation("MySql:CharSet", "utf8mb3")
                 },
                 constraints: table =>
                 {
@@ -149,13 +164,16 @@ namespace Showreel.Migrations
                         name: "restriction_ibfk_1",
                         column: x => x.category_id,
                         principalTable: "category",
-                        principalColumn: "id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "restriction_ibfk_2",
                         column: x => x.building_id,
                         principalTable: "building",
-                        principalColumn: "id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 })
+                .Annotation("MySql:CharSet", "utf8mb3")
                 .Annotation("Relational:Collation", "utf8mb3_general_ci");
 
             migrationBuilder.CreateTable(
@@ -191,8 +209,8 @@ namespace Showreel.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     loop = table.Column<int>(type: "int", nullable: true),
                     video_id = table.Column<int>(type: "int", nullable: true),
-                    start_date = table.Column<DateOnly>(type: "date", nullable: true),
-                    end_date = table.Column<DateOnly>(type: "date", nullable: true),
+                    start_date = table.Column<DateTime>(type: "datetime(6)", maxLength: 6, nullable: true),
+                    end_date = table.Column<DateTime>(type: "datetime(6)", maxLength: 6, nullable: true),
                     building_id = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -290,12 +308,14 @@ namespace Showreel.Migrations
                         name: "fk_category",
                         column: x => x.category_id,
                         principalTable: "category",
-                        principalColumn: "id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "fk_video",
                         column: x => x.video_id,
                         principalTable: "video",
-                        principalColumn: "id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb3")
                 .Annotation("Relational:Collation", "utf8mb3_general_ci");
@@ -408,6 +428,9 @@ namespace Showreel.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "__efmigrationshistory");
+
             migrationBuilder.DropTable(
                 name: "buildingplaylist");
 

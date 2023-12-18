@@ -5,9 +5,11 @@ import type { VForm } from 'vuetify/components';
 
 import { Building } from '@/model/building';
 import { LandlordAds } from '@/model/landlordAds';
+import { Video } from '@/model/video';
 import axiosIns from '@/plugins/axios';
 import { useVideoStore } from '@/store/useVideoStore';
 import { requiredValidator } from '@validators';
+import { nextTick, onMounted, ref, watch } from 'vue';
 
 interface Emit {
     (e: 'update:isDrawerOpen', value: boolean): void;
@@ -17,12 +19,13 @@ interface Emit {
 interface Props {
     isDrawerOpen: boolean;
     landlordAdsId?: number;
+    videoExist: number[];
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emit>();
 const videoStore = useVideoStore();
-
+const videoData = ref<Video[]>([]);
 const isFormValid = ref(false);
 const refForm = ref<VForm>();
 
@@ -36,6 +39,7 @@ const landlordData = ref<LandlordAds | any>({
 });
 
 watch(props, async (oldId, newId) => {
+    createVideos();
     refForm.value?.reset();
     refForm.value?.resetValidation();
     if (newId.landlordAdsId && newId.landlordAdsId > 0 ) {
@@ -52,6 +56,9 @@ watch(props, async (oldId, newId) => {
 
 const createVideos = () => {
     videoStore.getAllVideos();
+    if(props.videoExist.length > 0 && props.videoExist[0] > 0){
+        videoData.value = videoStore.video.filter(v => !props.videoExist.includes(v.id));
+    }
 };
 
 onMounted(() => {
@@ -124,7 +131,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                             <VCol cols="12">
                                 <VAutocomplete
                                     v-model="landlordData.videoId"
-                                    :items="videoStore.video"
+                                    :items="videoData"
                                     item-title="title"
                                     item-value="id"
                                     label="Video"

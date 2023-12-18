@@ -40,6 +40,7 @@ namespace Showreel.Migrations
                         .HasColumnName("building_name");
 
                     b.Property<DateTime?>("CreateTime")
+                        .HasMaxLength(6)
                         .HasColumnType("datetime(6)")
                         .HasColumnName("create_time");
 
@@ -49,6 +50,7 @@ namespace Showreel.Migrations
                         .HasColumnName("district");
 
                     b.Property<DateTime?>("LastUpdateTime")
+                        .HasMaxLength(6)
                         .HasColumnType("datetime(6)")
                         .HasColumnName("last_update_time");
 
@@ -121,6 +123,23 @@ namespace Showreel.Migrations
                     MySqlEntityTypeBuilderExtensions.UseCollation(b, "utf8mb3_general_ci");
                 });
 
+            modelBuilder.Entity("Showreel.Models.Efmigrationshistory", b =>
+                {
+                    b.Property<string>("MigrationId")
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<string>("ProductVersion")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)");
+
+                    b.HasKey("MigrationId")
+                        .HasName("PRIMARY");
+
+                    b.ToTable("__efmigrationshistory", (string)null);
+                });
+
             modelBuilder.Entity("Showreel.Models.Landlordad", b =>
                 {
                     b.Property<int>("Id")
@@ -133,6 +152,7 @@ namespace Showreel.Migrations
                         .HasColumnName("building_id");
 
                     b.Property<DateTime?>("EndDate")
+                        .HasMaxLength(6)
                         .HasColumnType("datetime(6)")
                         .HasColumnName("end_date");
 
@@ -141,6 +161,7 @@ namespace Showreel.Migrations
                         .HasColumnName("loop");
 
                     b.Property<DateTime?>("StartDate")
+                        .HasMaxLength(6)
                         .HasColumnType("datetime(6)")
                         .HasColumnName("start_date");
 
@@ -179,6 +200,7 @@ namespace Showreel.Migrations
                         .HasColumnName("duration");
 
                     b.Property<DateTime?>("EndDate")
+                        .HasMaxLength(6)
                         .HasColumnType("datetime(6)")
                         .HasColumnName("end_date");
 
@@ -186,6 +208,7 @@ namespace Showreel.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<DateTime?>("StartDate")
+                        .HasMaxLength(6)
                         .HasColumnType("datetime(6)")
                         .HasColumnName("start_date");
 
@@ -260,6 +283,9 @@ namespace Showreel.Migrations
                     b.HasIndex(new[] { "CategoryId" }, "category_id");
 
                     b.ToTable("restriction", (string)null);
+
+                    MySqlEntityTypeBuilderExtensions.HasCharSet(b, "utf8mb3");
+                    MySqlEntityTypeBuilderExtensions.UseCollation(b, "utf8mb3_general_ci");
                 });
 
             modelBuilder.Entity("Showreel.Models.Rule", b =>
@@ -303,6 +329,7 @@ namespace Showreel.Migrations
                         .HasColumnName("id");
 
                     b.Property<DateTime?>("CreateTime")
+                        .HasMaxLength(6)
                         .HasColumnType("datetime(6)")
                         .HasColumnName("create_time");
 
@@ -325,6 +352,7 @@ namespace Showreel.Migrations
                         .HasColumnName("key_no");
 
                     b.Property<DateTime?>("LastUpdateTime")
+                        .HasMaxLength(6)
                         .HasColumnType("datetime(6)")
                         .HasColumnName("last_update_time");
 
@@ -372,8 +400,7 @@ namespace Showreel.Migrations
 
                     b.HasIndex(new[] { "VideoListId" }, "videoList_id");
 
-                    b.HasIndex(new[] { "VideoId" }, "video_id")
-                        .HasDatabaseName("video_id1");
+                    b.HasIndex(new[] { "VideoId" }, "video_id1");
 
                     b.ToTable("video_videolist", (string)null);
 
@@ -417,10 +444,12 @@ namespace Showreel.Migrations
                         .HasColumnName("id");
 
                     b.Property<DateTime?>("CreatedTime")
+                        .HasMaxLength(6)
                         .HasColumnType("datetime(6)")
                         .HasColumnName("createdTime");
 
                     b.Property<DateTime?>("LastUpdatedTime")
+                        .HasMaxLength(6)
                         .HasColumnType("datetime(6)")
                         .HasColumnName("lastUpdatedTime");
 
@@ -506,11 +535,13 @@ namespace Showreel.Migrations
                     b.HasOne("Showreel.Models.Building", "Building")
                         .WithMany("Restrictions")
                         .HasForeignKey("BuildingId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("restriction_ibfk_2");
 
                     b.HasOne("Showreel.Models.Category", "Category")
                         .WithMany("Restrictions")
                         .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("restriction_ibfk_1");
 
                     b.Navigation("Building");
@@ -569,11 +600,13 @@ namespace Showreel.Migrations
                     b.HasOne("Showreel.Models.Category", "Category")
                         .WithMany("Videocategories")
                         .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("fk_category");
 
                     b.HasOne("Showreel.Models.Video", "Video")
                         .WithMany("Videocategories")
                         .HasForeignKey("VideoId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("fk_video");
 
                     b.Navigation("Category");

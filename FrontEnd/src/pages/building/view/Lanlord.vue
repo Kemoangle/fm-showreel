@@ -2,7 +2,9 @@
 import { useSnackbar } from '@/components/Snackbar.vue';
 import { LandlordAds } from '@/model/landlordAds';
 import { useLanlordAdsStore } from '@/store/useLandlordStore';
+import moment from 'moment';
 import Swal from 'sweetalert2';
+import { onMounted, ref } from 'vue';
 import AddLandlordAds from './addLandlordAds.vue';
 
 interface Props {
@@ -65,6 +67,12 @@ const deleteLandlordAds = async (id: number) => {
         }
         });
 };
+
+const dataTransmission = (): number[] =>{
+    const videoIds: number[] = lanlordAdsStore.data.map((ad) => ad.video?.id || 0);  
+    console.log(videoIds);
+    return videoIds;
+}
 </script>
 
 <template>
@@ -125,11 +133,11 @@ const deleteLandlordAds = async (id: number) => {
                         </td>
 
                         <td class="">
-                            {{ item.startDate }}
+                            {{ moment(item.startDate).format('DD-MM-YYYY') }}
                         </td>
 
                         <td class="">
-                            {{ item.endDate }}
+                            {{ moment(item.endDate).format('DD-MM-YYYY') }}
                         </td>
                         <td>
                             <VBtn size="x-small" color="default" variant="plain" icon>
@@ -188,6 +196,7 @@ const deleteLandlordAds = async (id: number) => {
             v-model:isDrawerOpen="isDrawerOpen"
             @landlord-data="handleSubmit"
             v-model:landlordAdsId="idUpdate"
+            :videoExist="dataTransmission()"
         />
     </section>
 </template>

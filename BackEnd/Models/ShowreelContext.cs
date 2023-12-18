@@ -6,7 +6,9 @@ namespace Showreel.Models;
 
 public partial class ShowreelContext : DbContext
 {
-
+    public ShowreelContext()
+    {
+    }
 
     public ShowreelContext(DbContextOptions<ShowreelContext> options)
         : base(options)
@@ -18,6 +20,8 @@ public partial class ShowreelContext : DbContext
     public virtual DbSet<Buildingplaylist> Buildingplaylists { get; set; }
 
     public virtual DbSet<Category> Categories { get; set; }
+
+    public virtual DbSet<Efmigrationshistory> Efmigrationshistories { get; set; }
 
     public virtual DbSet<Landlordad> Landlordads { get; set; }
 
@@ -36,6 +40,10 @@ public partial class ShowreelContext : DbContext
     public virtual DbSet<Videocategory> Videocategories { get; set; }
 
     public virtual DbSet<Videolist> Videolists { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseMySql("server=149.28.152.84;uid=fmshowr_john;pwd=oyvU4Cy21Zzy;database=fmshowr_db;", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.33-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -59,11 +67,15 @@ public partial class ShowreelContext : DbContext
             entity.Property(e => e.BuildingName)
                 .HasMaxLength(255)
                 .HasColumnName("building_name");
-            entity.Property(e => e.CreateTime).HasColumnName("create_time");
+            entity.Property(e => e.CreateTime)
+                .HasMaxLength(6)
+                .HasColumnName("create_time");
             entity.Property(e => e.District)
                 .HasMaxLength(255)
                 .HasColumnName("district");
-            entity.Property(e => e.LastUpdateTime).HasColumnName("last_update_time");
+            entity.Property(e => e.LastUpdateTime)
+                .HasMaxLength(6)
+                .HasColumnName("last_update_time");
             entity.Property(e => e.PostalCode).HasColumnName("postal_code");
             entity.Property(e => e.Remark)
                 .HasMaxLength(255)
@@ -116,6 +128,16 @@ public partial class ShowreelContext : DbContext
             entity.Property(e => e.Parent).HasColumnName("parent");
         });
 
+        modelBuilder.Entity<Efmigrationshistory>(entity =>
+        {
+            entity.HasKey(e => e.MigrationId).HasName("PRIMARY");
+
+            entity.ToTable("__efmigrationshistory");
+
+            entity.Property(e => e.MigrationId).HasMaxLength(150);
+            entity.Property(e => e.ProductVersion).HasMaxLength(32);
+        });
+
         modelBuilder.Entity<Landlordad>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
@@ -131,9 +153,13 @@ public partial class ShowreelContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.BuildingId).HasColumnName("building_id");
-            entity.Property(e => e.EndDate).HasColumnName("end_date");
+            entity.Property(e => e.EndDate)
+                .HasMaxLength(6)
+                .HasColumnName("end_date");
             entity.Property(e => e.Loop).HasColumnName("loop");
-            entity.Property(e => e.StartDate).HasColumnName("start_date");
+            entity.Property(e => e.StartDate)
+                .HasMaxLength(6)
+                .HasColumnName("start_date");
             entity.Property(e => e.VideoId).HasColumnName("video_id");
 
             entity.HasOne(d => d.Building).WithMany(p => p.Landlordads)
@@ -163,8 +189,12 @@ public partial class ShowreelContext : DbContext
             entity.Property(e => e.Duration)
                 .HasMaxLength(255)
                 .HasColumnName("duration");
-            entity.Property(e => e.EndDate).HasColumnName("end_date");
-            entity.Property(e => e.StartDate).HasColumnName("start_date");
+            entity.Property(e => e.EndDate)
+                .HasMaxLength(6)
+                .HasColumnName("end_date");
+            entity.Property(e => e.StartDate)
+                .HasMaxLength(6)
+                .HasColumnName("start_date");
             entity.Property(e => e.Status)
                 .HasDefaultValueSql("'pending'")
                 .HasColumnType("enum('pending','active','expired')")
@@ -204,7 +234,10 @@ public partial class ShowreelContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("restriction");
+            entity
+                .ToTable("restriction")
+                .HasCharSet("utf8mb3")
+                .UseCollation("utf8mb3_general_ci");
 
             entity.HasIndex(e => e.BuildingId, "building_id");
 
@@ -222,10 +255,12 @@ public partial class ShowreelContext : DbContext
 
             entity.HasOne(d => d.Building).WithMany(p => p.Restrictions)
                 .HasForeignKey(d => d.BuildingId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("restriction_ibfk_2");
 
             entity.HasOne(d => d.Category).WithMany(p => p.Restrictions)
                 .HasForeignKey(d => d.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("restriction_ibfk_1");
         });
 
@@ -274,7 +309,9 @@ public partial class ShowreelContext : DbContext
                 .UseCollation("utf8mb3_general_ci");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CreateTime).HasColumnName("create_time");
+            entity.Property(e => e.CreateTime)
+                .HasMaxLength(6)
+                .HasColumnName("create_time");
             entity.Property(e => e.Duration).HasColumnName("duration");
             entity.Property(e => e.FilePath)
                 .HasMaxLength(255)
@@ -283,7 +320,9 @@ public partial class ShowreelContext : DbContext
             entity.Property(e => e.KeyNo)
                 .HasMaxLength(45)
                 .HasColumnName("key_no");
-            entity.Property(e => e.LastUpdateTime).HasColumnName("last_update_time");
+            entity.Property(e => e.LastUpdateTime)
+                .HasMaxLength(6)
+                .HasColumnName("last_update_time");
             entity.Property(e => e.Remark)
                 .HasMaxLength(255)
                 .HasColumnName("remark");
@@ -303,7 +342,7 @@ public partial class ShowreelContext : DbContext
 
             entity.HasIndex(e => e.VideoListId, "videoList_id");
 
-            entity.HasIndex(e => e.VideoId, "video_id");
+            entity.HasIndex(e => e.VideoId, "video_id1");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.LoopNum).HasColumnName("loop_num");
@@ -340,10 +379,12 @@ public partial class ShowreelContext : DbContext
 
             entity.HasOne(d => d.Category).WithMany(p => p.Videocategories)
                 .HasForeignKey(d => d.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_category");
 
             entity.HasOne(d => d.Video).WithMany(p => p.Videocategories)
                 .HasForeignKey(d => d.VideoId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_video");
         });
 
@@ -357,8 +398,12 @@ public partial class ShowreelContext : DbContext
                 .UseCollation("utf8mb3_general_ci");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CreatedTime).HasColumnName("createdTime");
-            entity.Property(e => e.LastUpdatedTime).HasColumnName("lastUpdatedTime");
+            entity.Property(e => e.CreatedTime)
+                .HasMaxLength(6)
+                .HasColumnName("createdTime");
+            entity.Property(e => e.LastUpdatedTime)
+                .HasMaxLength(6)
+                .HasColumnName("lastUpdatedTime");
             entity.Property(e => e.Remark)
                 .HasMaxLength(255)
                 .HasColumnName("remark");

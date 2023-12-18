@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useSnackbar } from '@/components/Snackbar.vue';
+import { Restriction } from '@/model/restriction';
 import { useRestrictionStore } from '@/store/useRestrictionStore';
 import Swal from 'sweetalert2';
 import AddRestriction from './addRestriction.vue';
@@ -78,6 +79,12 @@ const handleSubmit = async (restrictionData: any) => {
             });
     }
 };
+
+const dataTransmission = (): number[] =>{
+    const categoryIds: number[] = restrictionStore.data.map((r: Restriction) => r.category?.id || 0);  
+    console.log(categoryIds);
+    return categoryIds;
+}
 </script>
 
 <template>
@@ -191,6 +198,7 @@ const handleSubmit = async (restrictionData: any) => {
             v-model:isDrawerOpen="isDrawerOpen"
             @restriction-data="handleSubmit"
             v-model:restrictionId="idUpdate"
+            :category-exist="dataTransmission()"
         />
     </section>
 </template>
