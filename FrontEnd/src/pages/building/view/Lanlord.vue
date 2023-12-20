@@ -82,7 +82,7 @@ const dataTransmission = (): number[] =>{
                 <template #prepend>
                     <VIcon icon="mdi-home-add" color="success" />
                 </template>
-                <VBtn variant="tonal" color="secondary" 
+                <VBtn variant="tonal" color="info" 
                     prepend-icon="mdi-plus-thick"
                     style="float: inline-end;" 
                     @click="handleUpdate(0)">
@@ -98,13 +98,13 @@ const dataTransmission = (): number[] =>{
                 <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Video Title</th>
-                        <th scope="col">Duration</th>
-                        <th scope="col">Key No</th>
-                        <th scope="col">Loop</th>
-                        <th scope="col">Start Date</th>
-                        <th scope="col">End Date</th>
-                        <th scope="col">Action</th>
+                        <th scope="col">VIDEO TITLE</th>
+                        <th scope="col">DURATION</th>
+                        <th scope="col">KEY NO</th>
+                        <th scope="col">LOOP</th>
+                        <th scope="col">START DATE</th>
+                        <th scope="col">END DATE</th>
+                        <th scope="col">ACTION</th>
                     </tr>
                 </thead>
 
@@ -133,11 +133,11 @@ const dataTransmission = (): number[] =>{
                         </td>
 
                         <td class="">
-                            {{ moment(item.startDate).format('DD-MM-YYYY') }}
+                            {{ item.startDate ? moment(item.startDate).format('DD-MM-YYYY') : "" }}
                         </td>
 
                         <td class="">
-                            {{ moment(item.endDate).format('DD-MM-YYYY') }}
+                            {{ item.endDate ? moment(item.endDate).format('DD-MM-YYYY') : "" }}
                         </td>
                         <td>
                             <VBtn size="x-small" color="default" variant="plain" icon>

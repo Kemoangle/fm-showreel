@@ -96,7 +96,7 @@ const dataTransmission = (): number[] =>{
                 </template>
                 <VBtn
                     variant="tonal"
-                    color="secondary"
+                    color="info"
                     prepend-icon="mdi-plus-thick"
                     style="float: inline-end;"
                     @click="handleUpdate(0)"
@@ -113,9 +113,9 @@ const dataTransmission = (): number[] =>{
                 <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Restriction</th>
-                        <th scope="col">Except/Exclude</th>
-                        <th scope="col">Action</th>
+                        <th scope="col">RESTRICTION</th>
+                        <th scope="col">EXCEPT/EXCLUDE</th>
+                        <th scope="col">ACTION</th>
                     </tr>
                 </thead>
 

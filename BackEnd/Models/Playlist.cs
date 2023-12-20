@@ -20,4 +20,5 @@ public partial class Playlist
     public string? JsonPlaylist { get; set; }
 
     public string? Creator { get; set; }
+    public int? ParentId { get; set; }
 }

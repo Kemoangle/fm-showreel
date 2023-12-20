@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import PopupViewPlaylist from '@/components/PopupViewPlaylist.vue';
 import { useSnackbar } from '@/components/Snackbar.vue';
+import { IPostPlaylistStore } from '@/model/playlist';
+import { usePlaylistStore } from '@/store/usePlayListStore';
+import { useDebounce } from '@vueuse/core';
 import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
-import { useDebounce } from '@vueuse/core'
-import { usePlaylistStore } from '@/store/usePlayListStore';
-import PopupViewPlaylist from '@/components/PopupViewPlaylist.vue';
-import { IPostPlaylistStore } from '@/model/playlist';
 
 const playlistStore = usePlaylistStore();
 
@@ -111,7 +111,7 @@ const deleteBuilding = (id: number) => {
                             :to="{
                                 name: 'playlist-generator',
                             }"
-                            color="secondary"
+                            color="info"
                         >
                             Generator playlist
                         </VBtn>
@@ -244,23 +244,23 @@ const deleteBuilding = (id: number) => {
 
 <style lang="scss">
 .app-user-search-filter {
-    inline-size: 24.0625rem;
+  inline-size: 24.0625rem;
 }
 
 .text-capitalize {
-    text-transform: capitalize;
+  text-transform: capitalize;
 }
 
 .user-list-name:not(:hover) {
-    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
 }
 </style>
 
 <style lang="scss" scope>
 .user-pagination-select {
-    .v-field__input,
-    .v-field__append-inner {
-        padding-block-start: 0.3rem;
-    }
+  .v-field__input,
+  .v-field__append-inner {
+    padding-block-start: 0.3rem;
+  }
 }
 </style>

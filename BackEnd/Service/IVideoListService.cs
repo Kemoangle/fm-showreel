@@ -10,7 +10,9 @@ namespace Showreel.Service
         IEnumerable<VideoVideolist> GetVideoVideolist(int id);
         Videolist AddVideoList(Videolist videoList);
         void AddVideoVideoList(VideoVideolist videoVideolist);
-        void UpdateVideoList(Videolist videoList);
+        Videolist UpdateVideoList(Videolist videoList);
         void DeleteVideoList(int id);
+
+        void UpdateVideoVideoList(int videoListId,VideoVideolist[] videoVideolist);
     }
 }

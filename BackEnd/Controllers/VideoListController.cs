@@ -80,23 +80,28 @@ namespace Showreel.Controllers
             return Ok(item);
         }
 
-        [HttpPatch("{id}")]
-        public IActionResult CreateVideoList(int id, [FromBody] VideoVideolist[] videoVideolist)
+        [HttpPatch("UpdateVideoVideoList/{id}")]
+        public IActionResult UpdateVideoVideoList(int id, [FromBody] VideoVideolist[] videoVideolist)
         {
-            foreach (var video in videoVideolist)
-            {
-                var newVideo = new VideoVideolist
-                {
-                    VideoId = video.VideoId,
-                    LoopNum = video.LoopNum,
-                    VideoListId = id
-                };
-                videoListService.AddVideoVideoList(newVideo);
-            }
+            videoListService.UpdateVideoVideoList(id, videoVideolist);
 
             return Ok();
         }
 
+        [HttpPatch]
+        public IActionResult CreateVideoList([FromBody] Videolist videoList)
+        {
+            var videoListExist = videoListService.GetAllVideoList().Where(v => v.Id != videoList.Id).ToList();
+            if (videoListExist.Any(b => b.Title?.ToUpper() == videoList.Title?.ToUpper()))
+            {
+                ModelState.AddModelError("VideoList", "The video list already exists");
+                return BadRequest(ModelState);
+            }
+            videoList.CreatedTime = DateTime.Now;
+            videoList.LastUpdatedTime = DateTime.Now;
+            var response = videoListService.UpdateVideoList(videoList);
+            return Ok(response);
+        }
 
         [HttpGet("{id}")]
         public IActionResult GetAllVideoInList(int id)
@@ -112,8 +117,6 @@ namespace Showreel.Controllers
                              doNotPlay = ruleService.GetDoNotPlay((int)v.VideoId),
                              noBackToBack = ruleService.GetNoBackToback((int)v.VideoId)
                          }).ToList();
-
-
             return Ok(query);
         }
 
@@ -123,5 +126,19 @@ namespace Showreel.Controllers
             videoListService.DeleteVideoList(id);
             return Ok();
         }
+
+        [HttpGet("GetVideoListById/{id}")]
+        public IActionResult GetVideoListById(int id)
+        {
+            var videoList = videoListService.GetVideoListById(id);
+            var response = new {
+                id = videoList.Id,
+                title = videoList.Title,
+                videoVideoList = videoListService.GetVideoVideolist(videoList.Id)
+            };
+            return Ok(response);
+        }
+
+
     }
 }

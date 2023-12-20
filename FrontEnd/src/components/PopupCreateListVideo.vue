@@ -2,12 +2,14 @@
 import { Video } from '@/model/video';
 import { VideoList } from '@/model/videoList';
 import { VideoVideolist } from '@/model/videoVideolist';
+import axiosIns from '@/plugins/axios';
 import { useVideoStore } from '@/store/useVideoStore';
 import { requiredValidator } from '@validators';
 import type { VForm } from 'vuetify/components';
 
 interface IProps {
     isDialogVisible: boolean;
+    videoListId: number;
 }
 
 interface Emit {
@@ -32,6 +34,25 @@ const createVideos = () => {
 
 onMounted(() => {
     createVideos();
+});
+
+watch(props, async (oldId, newId) => {
+    createVideos();
+    refForm.value?.reset();
+    refForm.value?.resetValidation();
+    if (newId.videoListId) {
+        axiosIns.get('VideoList/GetVideoListById/' + newId.videoListId).then((response: any) => {
+            videoListData.value = response;
+            videoStore.video = videoStore.video?.map(x=>({
+                ...x,
+                isActive: (response.videoVideoList.find((v: any) => v.videoId==x.id)) ? true : false,
+                loop: response.videoVideoList.find((v: any) => v.videoId==x.id)?.loopNum
+            }))
+        })
+    } else {
+        videoListData.value.id = 0;
+        videoListData.value.title = '';
+    }
 });
 
 const handleSave = () => {
@@ -98,10 +119,10 @@ const getListVideo = (videos: Video[]) => {
                                     @click="video.loop = 1"
                                     :key="video.id"
                                     :label="video.title"
-                                    v-show="
-                                        video.title
+                                    v-show="video.title?
+                                        (video.title
                                             .toLocaleLowerCase()
-                                            .includes(searchVideo?.toLocaleLowerCase().trim())
+                                            .includes(searchVideo?.toLocaleLowerCase().trim())) :  true
                                     "
                                 />
                             </VCardText>

@@ -161,7 +161,7 @@ const removeSubCategory = (index: number) => {
                                 <VCol>
                                     <VBtn
                                         variant="tonal"
-                                        color="secondary"
+                                        color="info"
                                         prepend-icon="mdi-add"
                                         @click="addInput"
                                     >
@@ -184,6 +184,7 @@ const removeSubCategory = (index: number) => {
                                     <VBtn
                                         style="background-color: transparent;"
                                         variant="text"
+                                        class="ml-1"
                                         @click="removeSubCategory(index)"
                                     >
                                         <VIcon

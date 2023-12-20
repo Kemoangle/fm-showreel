@@ -1,8 +1,8 @@
 import { IVideoInList, VideoList } from '@/model/videoList';
 import { VideoVideolist } from '@/model/videoVideolist';
 import axiosIns from '@/plugins/axios';
-import { defineStore } from 'pinia';
 import _ from 'lodash';
+import { defineStore } from 'pinia';
 
 export const useVideoListStore = defineStore('videoList', {
     state: (): { data: any; allData: any; isLoading: boolean } => ({
@@ -47,11 +47,15 @@ export const useVideoListStore = defineStore('videoList', {
             return await axiosIns.post('VideoList/', videoList);
         },
 
+        async updateVideoList(videoList: VideoList): Promise<VideoList> {
+            return await axiosIns.patch('VideoList/', videoList);
+        },
+
         async addVideoVideoList(
             videoVideolist: VideoVideolist[] | undefined,
             id: number | undefined
         ) {
-            await axiosIns.patch('VideoList/' + id, videoVideolist);
+            await axiosIns.patch('VideoList/UpdateVideoVideoList/' + id, videoVideolist);
         },
 
         async getVideoByListId(id: number) {

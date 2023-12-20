@@ -18,6 +18,7 @@ const currentPage = ref(1);
 const totalPages = ref(1);
 const totalItems = ref();
 const { showSnackbar } = useSnackbar();
+const idUpdate = ref(0);
 
 const isDialogListVideoVisible = ref(false);
 
@@ -48,16 +49,27 @@ watch(pageSize, () => {
 
 const handleSubmit = async (videoListData: VideoList) => {
     const { videoVideoList, ...rest } = videoListData;
-    await videoListStore
-        .addVideoList(rest)
-        .then((response) => {
-            videoListStore.addVideoVideoList(videoVideoList, response.id);
-        })
-        .catch((error) => {
-            showSnackbar(error.data.VideoList[0], 'error');
-        });
+    if(videoListData.id && videoListData.id > 0){
+        await videoListStore
+            .updateVideoList(rest)
+            .then((response) => {
+                videoListStore.addVideoVideoList(videoVideoList, response.id);
+            })
+            .catch((error) => {
+                showSnackbar(error.data.VideoList[0], 'error');
+            });
+    }else{
+        await videoListStore
+            .addVideoList(rest)
+            .then((response) => {
+                videoListStore.addVideoVideoList(videoVideoList, response.id);
+            })
+            .catch((error) => {
+                showSnackbar(error.data.VideoList[0], 'error');
+            });
+    }
     getAll();
-};
+};  
 
 const viewListVideo = (id: number) => {
     videoListId.value = id;
@@ -86,6 +98,11 @@ const deleteList = async (id: number) => {
     });                                                                 
 };
 
+const openForm = (id: number) => {
+    idUpdate.value = id;
+    isDialogListVideoVisible.value = true;
+}
+
 </script>
 
 <template>
@@ -96,9 +113,9 @@ const deleteList = async (id: number) => {
                     <VCol cols="12" sm="4">
                         <VBtn
                             variant="tonal"
-                            color="secondary"
+                            color="info"
                             prepend-icon="mdi-plus-thick"
-                            @click="isDialogListVideoVisible = true"
+                            @click="openForm(0)"
                         >
                             Create List Video
                         </VBtn>
@@ -136,8 +153,17 @@ const deleteList = async (id: number) => {
                         </td>
 
                         <td>
-                            <div class="d-flex align-center">
-                                {{ item.title }}
+
+                            <div class="d-flex flex-column">
+                                <h6 class="text-sm font-weight-medium">
+                                    <a
+                                        @click="viewListVideo(item.id)"
+                                        class="font-weight-medium user-list-name"
+                                        style="cursor: pointer;"
+                                    >
+                                    {{ item.title }}
+                                    </a>
+                                </h6>
                             </div>
                         </td>
 
@@ -151,18 +177,17 @@ const deleteList = async (id: number) => {
 
                                 <VMenu activator="parent">
                                     <VList>
-                                        <VListItem @click="viewListVideo(item.id)">
+                                        <VListItem @click="openForm(item.id)">
                                             <template #prepend>
                                                 <VIcon
-                                                    icon="mdi-eye-outline"
+                                                    icon="mdi-pencil-outline"
                                                     :size="20"
                                                     class="me-3"
-                                                    color="info"
+                                                    color="warning"
                                                 />
                                             </template>
-                                            <VListItemTitle>View</VListItemTitle>
+                                            <VListItemTitle>Edit</VListItemTitle>
                                         </VListItem>
-
                                         <VListItem @click="deleteList(item.id)">
                                             <template #prepend>
                                                 <VIcon
@@ -220,6 +245,7 @@ const deleteList = async (id: number) => {
         <PopupCreateListVideo
             v-model:is-dialog-visible="isDialogListVideoVisible"
             @video-list-data="handleSubmit"
+            :video-list-id="idUpdate"
         />
         <ViewListVideo v-model:videoListId="videoListId" v-model:isDrawerOpen="isViewListVideo" />
     </section>

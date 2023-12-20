@@ -61,9 +61,35 @@ namespace Showreel.Service.impl
             return _context.VideoVideolists.Where(v => v.VideoListId == id).ToList();
         }
 
-        public void UpdateVideoList(Videolist videoList)
+        public Videolist UpdateVideoList(Videolist videoList)
         {
-            throw new NotImplementedException();
+            _context.Videolists.Update(videoList);
+            _context.SaveChanges();
+            return videoList;
+        }
+
+        public void UpdateVideoVideoList(int videoListId, VideoVideolist[] videoVideolist)
+        {
+            var existingVideoVideolist = _context.VideoVideolists
+                                            .Where(v => v.VideoListId == videoListId)
+                                            .ToList();
+            if (existingVideoVideolist.Any())
+            {
+                _context.VideoVideolists.RemoveRange(existingVideoVideolist);
+            }
+
+            foreach (var videolist in videoVideolist)
+            {
+                var newVideoVideolist = new VideoVideolist
+                {
+                    VideoId = videolist.VideoId,
+                    VideoListId = videoListId,
+                    LoopNum = videolist.LoopNum
+                };
+                _context.VideoVideolists.Add(newVideoVideolist);
+            }
+
+            _context.SaveChanges();
         }
     }
 }
