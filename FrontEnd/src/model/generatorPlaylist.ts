@@ -35,4 +35,5 @@ export interface IListPlaylist {
     buildingName: string;
     nameTimestamp: string;
     playlist: IPlaylist[];
+    isSave: boolean;
 }

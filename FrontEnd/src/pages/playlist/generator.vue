@@ -71,7 +71,7 @@ watch(selectedListVideo, async (value, oldvalue) => {
             if (data as IVideoInList[]) {
                 listVideoActive.value = data as IVideoInList[];
             }
-        }       
+        }
     }
 });
 
@@ -80,7 +80,11 @@ const convertValueListVideoSelect = (data: VideoList[]) => {
 };
 
 const convertValueListBuildingSelect = (data: Building[]) => {
-    return data.map((x) => ({ ...x, title: x.buildingName, value: x.id })) as IListBuildingSelect[];
+    return data.map((x) => ({
+        ...x,
+        title: x.buildingName,
+        value: x.id,
+    })) as IListBuildingSelect[];
 };
 
 onMounted(async () => {
@@ -128,20 +132,28 @@ const checkPlaylistInvalid = (playlist: IPlaylist[]) => {
     return true;
 };
 
-const handleSaveOnePlaylist = (playlist: IPlaylist[], name: string, nameTimestamp: string) => {
+const handleSaveOnePlaylist = (
+    playlist: IPlaylist[],
+    name: string,
+    nameTimestamp: string,
+    indexBuilding: number
+) => {
     if (checkPlaylistInvalid(playlist)) {
         const data: IPostPlaylistStore = {
             id: 0,
             jsonPlaylist: JSON.stringify(playlist),
             status: 'active',
             title: nameTimestamp,
-            duration: 'string',
+            duration: playlist.reduce((a, b) => a + (b?.durations || 0), 0),
             creator: 'string',
         };
         usePlaylist
             .addNewPlaylist(data)
             .then((data) => {
                 showSnackbar(`Save playlist ${name} Successfuly`, 'success');
+                if (listPlaylist.value && listPlaylist.value[indexBuilding]) {
+                    listPlaylist.value[indexBuilding].isSave = true;
+                }
             })
             .catch((err) => {
                 showSnackbar(`Something went wrong!`, 'error');
@@ -156,6 +168,7 @@ const convertListVideoRenderPlaylist = (listVideo: any[]) => {
         category: x.category,
         noBackToBack: x.noBackToBack,
         subCategory: x.subCategory,
+        doNotPlay: x.doNotPlay,
     }));
 };
 
@@ -215,15 +228,26 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
                 const genPlaylist = (
                     listVideo: Video[],
                     landLordAds: IVideos[],
-                    restriction: Restriction[] | undefined
+                    restriction: Restriction[] | undefined,
+                    building: Building
                 ) => {
-                    let listVideoBuilding = [...listVideoPlaylist.value];
+                    // check do not play building
+
+                    const newListVideoActive = listVideoActive.value.filter(
+                        (x) => !x.doNotPlay?.some((y) => y.id == building.id)
+                    );
+
+                    let listVideoBuilding = [
+                        ...listVideoPlaylist.value.filter(
+                            (x) => !x.doNotPlay?.some((d) => d.id == building.id)
+                        ),
+                    ];
 
                     // check restriction building
                     if (!_.isEmpty(restriction) && restriction) {
                         listVideoBuilding = exportPlaylist.handleRestrictionBuilding(
                             restriction,
-                            convertListVideoRenderPlaylist(listVideoActive.value)
+                            convertListVideoRenderPlaylist(newListVideoActive)
                         );
                     }
 
@@ -267,13 +291,15 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
                     const playlist = genPlaylist(
                         convertPlaylistToListVideo(playlistGeneric.value),
                         LandlordAds.find((x) => x.buildingId == building.id)?.videos,
-                        dataRestrictions.find((x) => x.buildingId == building.id)?.restriction
+                        dataRestrictions.find((x) => x.buildingId == building.id)?.restriction,
+                        building
                     );
                     newPlaylistBuilding.push({
                         id: index + 1,
                         buildingName: 'building ' + building.title,
                         nameTimestamp: 'building ' + building.title + ' - ' + timestamp,
                         playlist,
+                        isSave: false,
                     });
                 });
 
@@ -439,20 +465,26 @@ const handleViewPlaylistGeneric = () => {
 
         <VCard
             :title="`Playlist ${building.buildingName}`"
-            v-for="building in listPlaylist"
+            v-for="(building, indexBuilding) in listPlaylist"
             :key="building.buildingName"
             class="mb-6 position-relative"
             v-if="!isViewPlaylistGeneric"
         >
             <div class="position-absolute">
-                <VTextField class="input-name-building" v-model="building.nameTimestamp" />
+                <VTextField
+                    class="input-name-building"
+                    v-model="building.nameTimestamp"
+                    :disabled="building.isSave"
+                />
                 <VBtn
                     color="primary"
+                    v-if="!building.isSave"
                     @click="
                         handleSaveOnePlaylist(
                             building.playlist,
                             building.buildingName,
-                            building.nameTimestamp
+                            building.nameTimestamp,
+                            indexBuilding
                         )
                     "
                 >
@@ -474,7 +506,7 @@ const handleViewPlaylistGeneric = () => {
                 <VueDraggableNext
                     class="list-group"
                     tag="tbody"
-                    handle=".handle"
+                    :handle="building.isSave ? 'dont-drag' : '.handle'"
                     :list="building.playlist"
                     v-bind="dragOptions"
                     @start="isDragging = true"
@@ -537,69 +569,69 @@ const handleViewPlaylistGeneric = () => {
 
 <style lang="scss">
 .app-user-search-filter {
-  inline-size: 24.0625rem;
+    inline-size: 24.0625rem;
 }
 
 .text-capitalize {
-  text-transform: capitalize;
+    text-transform: capitalize;
 }
 
 .user-list-name:not(:hover) {
-  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
 }
 </style>
 
 <style lang="scss" scope>
 .m-0 {
-  margin: 0 !important;
+    margin: 0 !important;
 }
 
 .user-pagination-select {
-  .v-field__input,
-  .v-field__append-inner {
-    padding-block-start: 0.3rem;
-  }
+    .v-field__input,
+    .v-field__append-inner {
+        padding-block-start: 0.3rem;
+    }
 }
 
 .position-absolute {
-  display: flex;
-  gap: 10px;
-  inset-block-start: 20px;
-  inset-inline-end: 20px;
+    display: flex;
+    gap: 10px;
+    inset-block-start: 20px;
+    inset-inline-end: 20px;
 }
 
 .flip-list-move {
-  transition: transform 0.5s;
+    transition: transform 0.5s;
 }
 
 .no-move {
-  transition: transform 0s;
+    transition: transform 0s;
 }
 
 .ghost {
-  background: #c8ebfb;
-  opacity: 0.5;
+    background: #c8ebfb;
+    opacity: 0.5;
 }
 
 .list-group {
-  min-block-size: 20px;
+    min-block-size: 20px;
 }
 
 .list-group-item {
-  cursor: move;
+    cursor: move;
 }
 
 .list-group-item i {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 .input-remark {
-  input {
-    block-size: 35px !important;
-    min-block-size: unset;
-    padding-block: 0;
-    padding-inline: 20px;
-  }
+    input {
+        block-size: 35px !important;
+        min-block-size: unset;
+        padding-block: 0;
+        padding-inline: 20px;
+    }
 }
 
 .input-name-building {
@@ -613,17 +645,17 @@ const handleViewPlaylistGeneric = () => {
 // table
 
 .th--table {
-  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
-  font-size: 12px;
-  font-weight: bold;
+    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+    font-size: 12px;
+    font-weight: bold;
 }
 
 .tr--table {
-  border-block-start: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
+    border-block-start: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
 
 .td--table {
-  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
-  font-size: 14px;
+    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+    font-size: 14px;
 }
 </style>

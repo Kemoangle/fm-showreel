@@ -1,10 +1,11 @@
 <script lang="ts" setup>
-import { IPlaylist } from '@/model/generatorPlaylist';
+import { IPlaylist, IVideos } from '@/model/generatorPlaylist';
 import { IPostPlaylistStore } from '@/model/playlist';
 import { VueDraggableNext } from 'vue-draggable-next';
 import _ from 'lodash';
 import { usePlaylistStore } from '@/store/usePlayListStore';
 import { useSnackbar } from './Snackbar.vue';
+import { generatorPlaylist } from '@/utils/generatorPlaylist';
 
 interface IProps {
     isDrawerOpen: boolean;
@@ -35,6 +36,35 @@ watch(props, async (oldId, newId) => {
         playlist.value = JSON.parse(props.data.jsonPlaylist) as IPlaylist[];
     }
 });
+
+// const checkPlaylistInvalid = (playlist: IPlaylist[]) => {
+//     const exportPlaylist = new generatorPlaylist();
+
+//     const isCheckCategoriesCloselyTogether =
+//         exportPlaylist.checkCategoriesCloselyTogether(playlist);
+
+//     const listVideo: IVideos[] = playlist.map((x) => ({
+//         name: x.name,
+//         noBackToBack: listVideoActive.value.find((l) => x.key == l.video.keyNo)?.noBackToBack,
+//         key: x.key,
+//         loop: 1,
+//         subCategory: x.category || [],
+//         category: x.category || [],
+//         id: 1,
+//     }));
+
+//     const isCheckNoBackToBack = exportPlaylist.checkNoBackToBack(listVideo);
+//     if (isCheckCategoriesCloselyTogether) {
+//         showSnackbar('Category conflicts in playlists, please double-check?', 'error');
+//         return false;
+//     }
+
+//     if (isCheckNoBackToBack.status) {
+//         showSnackbar('Back to back conflicts in playlists, please double-check?', 'error');
+//         return false;
+//     }
+//     return true;
+// };
 
 const handleUpdate = () => {
     if (props.data) {

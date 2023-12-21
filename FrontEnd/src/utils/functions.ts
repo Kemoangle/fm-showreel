@@ -5,10 +5,10 @@ export const getTimestamp = () => {
     return (
         date.year() +
         '' +
-        date.month() +
+        +date.month() +
         1 +
         '' +
-        date.date() +
+        +date.date() +
         1 +
         '' +
         date.hour() +
