@@ -317,10 +317,13 @@ export class generatorPlaylist {
     };
 
     handleRestrictionBuilding = (restriction: Restriction[], videos: IVideos[]) => {
+        // console.log('generatorPlaylist  restriction:', restriction);
+        // console.log('generatorPlaylist  videos:', videos);
+
         let newVideos: IVideos[] = [];
         if (!_.isEmpty(restriction)) {
             newVideos = videos.filter((x) =>
-                restriction.some((r) => {
+                restriction.every((r) => {
                     if (r.type == 'Except') {
                         return !(
                             x.category?.some(
@@ -340,6 +343,9 @@ export class generatorPlaylist {
                             !r.arrCategory?.some((s) => x.subCategory.some((v) => v.name == s.name))
                         );
                     } else {
+                        // console.log('x: ', x.category);
+                        // console.log('r: ', r);
+
                         return x.category?.some(
                             (c) =>
                                 c.name?.toLocaleLowerCase().trim() !=
@@ -349,6 +355,7 @@ export class generatorPlaylist {
                 })
             );
         }
+        console.log('generatorPlaylist  newVideos:', newVideos);
 
         return this.createListVideo(newVideos);
     };

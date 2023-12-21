@@ -250,9 +250,10 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
                             convertListVideoRenderPlaylist(newListVideoActive)
                         );
                     }
+                    console.log('listVideoBuilding:', listVideoBuilding);
 
                     const playlist: IPlaylist[] = [];
-                    let newList = [...listVideo];
+                    let newList = [...listVideoBuilding];
                     if (!_.isEmpty(landLordAds)) {
                         newList = exportPlaylist.addLandLordAds(listVideoBuilding, landLordAds);
                         newList.forEach((l: IVideos, index: number) => {
@@ -268,14 +269,26 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
                             }
                         });
                     } else {
-                        newList.forEach((l: IPlaylist, index: number) => {
+                        // newList.forEach((l: IPlaylist, index: number) => {
+                        //     if (l) {
+                        //         playlist.push({
+                        //             category: l.category || [],
+                        //             durations: l.durations,
+                        //             key: l.key || '',
+                        //             remarks: '',
+                        //             name: l.name || '',
+                        //             order: index,
+                        //         });
+                        //     }
+                        // });
+                        newList.forEach((l: IVideos, index: number) => {
                             if (l) {
                                 playlist.push({
                                     category: l.category || [],
-                                    durations: l.durations,
-                                    key: l.key || '',
+                                    durations: l.duration,
+                                    key: l.keyNo || '',
                                     remarks: '',
-                                    name: l.name || '',
+                                    name: l.title || '',
                                     order: index,
                                 });
                             }
@@ -635,11 +648,11 @@ const handleViewPlaylistGeneric = () => {
 }
 
 .input-name-building {
-  input {
-    block-size: 35px !important;
-    inline-size: 400px !important;
-    min-block-size: unset;
-  }
+    input {
+        block-size: 35px !important;
+        inline-size: 400px !important;
+        min-block-size: unset;
+    }
 }
 
 // table
