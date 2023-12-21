@@ -62,12 +62,12 @@ namespace BackEnd.Service.impl
 
         public void UpdateNoBackToBack(int videoId, Category[] categories)
         {
-            var doNotPlayExist = _context.Rules
+            var noBackToBackExist = _context.Rules
                                             .Where(v => v.VideoId == videoId && v.NoBackToBack > 0)
                                             .ToList();
-            if (doNotPlayExist.Any())
+            if (noBackToBackExist.Any())
             {
-                _context.Rules.RemoveRange(doNotPlayExist);
+                _context.Rules.RemoveRange(noBackToBackExist);
             }
 
             foreach (var category in categories)

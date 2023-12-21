@@ -17,12 +17,13 @@ interface Emit {
 interface Props {
     isDrawerOpen: boolean;
     restrictionId?: number;
+    categoryExist: number[];
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emit>();
 const categoryStore = useCategoryStore();
-
+const categoriesData = ref<Category[]>([]);
 const isFormValid = ref(false);
 const refForm = ref<VForm>();
 const subCategories = ref<Category[]>([]);
@@ -36,6 +37,7 @@ const restrictionData = ref<Restriction>({
 });
 
 watch(props, async (oldId, newId) => {
+    createVideos();
     refForm.value?.reset();
     refForm.value?.resetValidation();
     if (newId.restrictionId) {
@@ -74,6 +76,9 @@ const getSubCategories = () => {
 
 const createVideos = () => {
     categoryStore.getAllCategory();
+    if(props.categoryExist.length > 0 && props.categoryExist[0] > 0){
+        categoriesData.value = categoryStore.data.filter((c: Category) => !props.categoryExist.includes(c.id));
+    }
 };
 
 onMounted(() => {
@@ -142,7 +147,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                 <VCol cols="12">
                                     <VAutocomplete
                                         v-model="restrictionData.category"
-                                        :items="categoryStore.data"
+                                        :items="categoriesData"
                                         item-title="name"
                                         label="Restriction"
                                         :menu-props="{ maxHeight: 250 }"

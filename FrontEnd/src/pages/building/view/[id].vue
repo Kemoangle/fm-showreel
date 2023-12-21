@@ -47,7 +47,7 @@
                                     color="info"
                                 />
                                 <span class="text-body-1 font-weight-medium">
-                                    {{ building.createTime }}
+                                    {{ moment(building.createTime).format('DD-MM-YYYY') }}
                                 </span>
                             </span>
                         </div>
@@ -73,6 +73,7 @@
 <script setup lang="ts">
 import { Building } from '@/model/building';
 import { LandlordAds } from '@/model/landlordAds';
+import moment from 'moment';
 import { useBuildingStore } from '../../../store/useBuildingStore';
 import Lanlord from './Lanlord.vue';
 import Restriction from './Restriction.vue';

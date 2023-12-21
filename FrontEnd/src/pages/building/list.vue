@@ -95,7 +95,7 @@ const deleteBuilding = (id: number) => {
                     <VCol cols="12" sm="4">
                         <VBtn
                             variant="tonal"
-                            color="secondary"
+                            color="info"
                             prepend-icon="mdi-plus-thick"
                             @click="handleUpdate(0)"
                         >
@@ -142,8 +142,18 @@ const deleteBuilding = (id: number) => {
                         </td>
 
                         <td>
-                            <div class="d-flex align-center">
-                                {{ building.buildingName }}
+                            <div class="d-flex flex-column">
+                                <h6 class="text-sm font-weight-medium">
+                                    <RouterLink
+                                    :to="{
+                                        name: 'building-view-id',
+                                        params: { id: building.id },
+                                    }"
+                                    class="font-weight-medium user-list-name"
+                                    >
+                                    {{ building.buildingName }}
+                                    </RouterLink>
+                                </h6>
                             </div>
                         </td>
 
@@ -170,23 +180,6 @@ const deleteBuilding = (id: number) => {
 
                                 <VMenu activator="parent">
                                     <VList>
-                                        <VListItem
-                                            :to="{
-                                                name: 'building-view-id',
-                                                params: { id: building.id },
-                                            }"
-                                        >
-                                            <template #prepend>
-                                                <VIcon
-                                                    icon="mdi-eye-outline"
-                                                    :size="20"
-                                                    class="me-3"
-                                                    color="info"
-                                                />
-                                            </template>
-                                            <VListItemTitle>View</VListItemTitle>
-                                        </VListItem>
-
                                         <VListItem @click="handleUpdate(building.id)">
                                             <template #prepend>
                                                 <VIcon

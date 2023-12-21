@@ -3,14 +3,14 @@ import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 
 export const useVideoStore = defineStore('video', {
-    state: (): { data: any, video: Video[] | any, isLoading: boolean} => ({
+    state: (): { data: any, video: Video[], isLoading: boolean} => ({
         data: [],
         video: [],
         isLoading: false
     }),
     actions: {
         async getAllVideos() {
-            await axiosIns.get<Video[]>('Video/GetAll').then((response) => {
+            await axiosIns.get<Video[]>('Video/GetAll').then((response: any) => {
                 this.video = response;
             });
         },

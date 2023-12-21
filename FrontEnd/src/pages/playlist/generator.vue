@@ -356,7 +356,7 @@ const handleViewPlaylistGeneric = () => {
                     <VCol cols="12" sm="3" v-if="_.isEmpty(playlistGeneric)">
                         <VBtn
                             variant="tonal"
-                            color="secondary"
+                            color="info"
                             @click="handleCreatePlaylistGeneric"
                             :disabled="!listVideoActive"
                         >
@@ -364,7 +364,7 @@ const handleViewPlaylistGeneric = () => {
                         </VBtn>
                     </VCol>
                     <VCol cols="12" sm="3" v-else>
-                        <VBtn variant="tonal" color="secondary" @click="handleViewPlaylistGeneric">
+                        <VBtn variant="tonal" color="warning" @click="handleViewPlaylistGeneric">
                             {{
                                 isViewPlaylistGeneric
                                     ? 'View All Playlist'
@@ -375,7 +375,7 @@ const handleViewPlaylistGeneric = () => {
                     <VCol cols="12" sm="3" v-if="!_.isEmpty(listVideoActive)">
                         <VBtn
                             variant="tonal"
-                            color="secondary"
+                            color="info"
                             prepend-icon="mdi-tray-arrow-down"
                             @click="handleClickShowListVideo"
                         >
@@ -635,11 +635,11 @@ const handleViewPlaylistGeneric = () => {
 }
 
 .input-name-building {
-    input {
-        width: 400px !important;
-        block-size: 35px !important;
-        min-block-size: unset;
-    }
+  input {
+    block-size: 35px !important;
+    inline-size: 400px !important;
+    min-block-size: unset;
+  }
 }
 
 // table

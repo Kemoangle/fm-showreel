@@ -126,7 +126,7 @@ const randomColor = () => {
                     <VCol cols="12" sm="4">
                         <VBtn
                             variant="tonal"
-                            color="secondary"
+                            color="info"
                             prepend-icon="mdi-plus-thick"
                             @click="handleUpdate(0)"
                         >

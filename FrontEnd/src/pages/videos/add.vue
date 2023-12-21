@@ -239,7 +239,6 @@ const getSubCategory = () => {
                                         :menu-props="{ maxHeight: 250 }"
                                         multiple
                                         return-object
-                                        :rules="[checkAutocomplete ? requiredValidator : true]"
                                     >
                                         <template #chip="{ props, item }">
                                             <VChip v-bind="props" :text="item.raw.name" />
@@ -318,12 +317,12 @@ const getSubCategory = () => {
 </template>
 <style lang="scss">
 .v-autocomplete {
-    .v-chip {
-        white-space: wrap;
-    }
+  .v-chip {
+    white-space: wrap;
+  }
 
-    .v-chip.v-chip--density-default {
-        block-size: unset !important;
-    }
+  .v-chip.v-chip--density-default {
+    block-size: unset !important;
+  }
 }
 </style>

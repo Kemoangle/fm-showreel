@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosIns = axios.create({
-    baseURL: 'https://fm-showreel-api.oanglelab.com/api/',
+    baseURL: 'http://localhost:5231/api/',
 });
 
 axiosIns.interceptors.request.use((config) => {
