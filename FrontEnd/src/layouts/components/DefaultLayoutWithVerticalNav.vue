@@ -47,6 +47,6 @@ const { width: windowWidth } = useWindowSize();
         </RouterView>
 
         <!-- 👉 Customizer -->
-        <!-- <TheCustomizer /> -->
+        <TheCustomizer />
     </VerticalNavLayout>
 </template>

@@ -6,7 +6,7 @@ export interface IPostPlaylistStore {
     startDate?: string;
     endDate?: string;
     title: string;
-    duration: string;
+    duration: number;
     jsonPlaylist: string;
     creator: string;
 }
