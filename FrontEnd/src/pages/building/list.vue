@@ -85,6 +85,8 @@ const deleteBuilding = (id: number) => {
         }
     });
 };
+
+
 </script>
 
 <template>
@@ -145,13 +147,20 @@ const deleteBuilding = (id: number) => {
                             <div class="d-flex flex-column">
                                 <h6 class="text-sm font-weight-medium">
                                     <RouterLink
-                                    :to="{
-                                        name: 'building-view-id',
-                                        params: { id: building.id },
-                                    }"
-                                    class="font-weight-medium user-list-name"
+                                        :to="{
+                                            name: 'building-view-id',
+                                            params: { id: building.id },
+                                        }"
+                                        class="font-weight-medium user-list-name"
                                     >
-                                    {{ building.buildingName }}
+                                        {{ building.buildingName }}
+                                        <VTooltip
+                                            location="top"
+                                            transition="scale-transition"
+                                            activator="parent"
+                                        >
+                                            <span>View {{ building.buildingName }}</span>
+                                        </VTooltip>
                                     </RouterLink>
                                 </h6>
                             </div>

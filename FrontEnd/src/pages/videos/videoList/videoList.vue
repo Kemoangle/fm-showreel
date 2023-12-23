@@ -162,6 +162,13 @@ const openForm = (id: number) => {
                                         style="cursor: pointer;"
                                     >
                                     {{ item.title }}
+                                    <VTooltip
+                                        location="top"
+                                        transition="scale-transition"
+                                        activator="parent"
+                                    >
+                                        <span>View {{ item.title }}</span>
+                                    </VTooltip>
                                     </a>
                                 </h6>
                             </div>

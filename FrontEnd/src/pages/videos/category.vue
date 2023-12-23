@@ -61,6 +61,9 @@ const randomColor = () => {
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
     return randomColor;
 };
+
+const selectedSubcategory = ref<[]>([]);
+const selectedCategory = ref<[]>([]);
 </script>
 
 <template>
@@ -193,6 +196,30 @@ const randomColor = () => {
         <!-- SECTION Pagination -->
 
         <!-- !SECTION -->
+        <VCard>
+            <!-- <VAutocomplete
+                v-model="selectedCategory"
+                :items="categoryStore.pageCategory.categories"
+                item-title="name"
+                label="Select a category"
+                multiple
+                item-children="subCategory"
+                chips
+                closable-chips
+            >
+                <template #item="{ props, item }">
+                    <VSelect
+                        v-bind="props"
+                        v-model="selectedSubcategory"
+                        :items="item?.raw?.subCategory"
+                        item-title="name"
+                        chips
+                        multiple
+                    ></VSelect>
+                </template>
+            </VAutocomplete> -->
+
+        </VCard>
     </section>
 </template>
 
