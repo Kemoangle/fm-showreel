@@ -3,38 +3,40 @@ import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 
 export const useVideoStore = defineStore('video', {
-    state: (): { data: any, video: Video[], isLoading: boolean} => ({
+    state: (): { data: any; video: Video[]; isLoading: boolean } => ({
         data: [],
         video: [],
-        isLoading: false
+        isLoading: false,
     }),
     actions: {
         async getAllVideos() {
-            await axiosIns.get<Video[]>('Video/GetAll').then((response: any) => {
-                this.video = response;
+            await axiosIns.get<Video[]>('Video/GetAll').then((response) => {
+                this.video = response.data;
             });
         },
         async getPageVideo(keySearch: string, page: number, pageSize: number) {
             this.isLoading = true;
-            await axiosIns.get<Video[]>('Video', {
-                params: {
-                    keySearch: keySearch,
-                    page: page,
-                    pageSize: pageSize
-                }
-            }).then((response) => {
-                this.data = response;
-                this.isLoading = false;
-            });
+            await axiosIns
+                .get<Video[]>('Video', {
+                    params: {
+                        keySearch: keySearch,
+                        page: page,
+                        pageSize: pageSize,
+                    },
+                })
+                .then((response) => {
+                    this.data = response.data;
+                    this.isLoading = false;
+                });
         },
 
         getVideoById(id: number) {
             var item = this.data.videos.find((d: any) => d.id == id);
             return item;
         },
-   
+
         async addVideo(video: any): Promise<Video> {
-            return await axiosIns.post('Video', video);
+            return (await axiosIns.post('Video', video)).data;
         },
         async deleteVideo(id: number) {
             return axiosIns.delete('Video/' + id).then((response) => {
@@ -48,14 +50,11 @@ export const useVideoStore = defineStore('video', {
         async updateVideo(video: any) {
             await axiosIns.patch('Video/' + video.id, video).then((response) => {
                 const index = this.data.videos.findIndex((v: any) => v.id === video.id);
-                
+
                 if (index !== -1) {
                     this.data.videos[index] = { ...this.data.videos[index], ...video };
                 }
-            });;
-
+            });
         },
-        
     },
 });
-

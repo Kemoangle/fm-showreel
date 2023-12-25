@@ -26,5 +26,5 @@ export interface IBuildingRestriction {
 
 export interface IDetailBuilding {
     lanlordAds: IBuildingLandlord[];
-    restriction: Restriction;
+    restriction: Restriction[];
 }

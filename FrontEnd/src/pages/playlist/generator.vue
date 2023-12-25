@@ -25,6 +25,11 @@ interface IListBuildingSelect extends Building {
     landlordAds: Video;
 }
 
+interface IListPlaylistSelect extends IPostPlaylistStore {
+    value: number;
+    title: string;
+}
+
 const { showSnackbar } = useSnackbar();
 
 const useStoreVideo = useVideoListStore();
@@ -32,11 +37,13 @@ const useBuilding = useBuildingStore();
 const usePlaylist = usePlaylistStore();
 
 const selectedBuilding = ref<number[]>([]);
+const selectedPlaylist = ref<number>();
 const selectedListVideo = ref<number>();
 
 const isDialogListVideoVisible = ref(false);
 const isDialogListVideoCurrent = ref(false);
 const isViewPlaylistGeneric = ref(false);
+const isLoading = ref(false);
 const playlistGeneric = ref<IPlaylist[]>([]);
 
 const listVideoActive = ref<IVideoInList[]>([]);
@@ -54,6 +61,7 @@ const dragOptions = () => {
 const isDragging = ref(false);
 
 const buildings = ref<IListBuildingSelect[]>([]);
+const listPlaylistGeneric = ref<IPostPlaylistStore[]>([]);
 
 const listVideos = ref<IListVideoSelect[]>([]);
 
@@ -64,6 +72,7 @@ const namePlaylistGeneric = ref<string>('playlist_generic_' + getTimestamp());
 
 watch(selectedListVideo, async (value, oldValue) => {
     if (value != oldValue) {
+        isLoading.value = true;
         listVideoActive.value = [];
         playlistGeneric.value = [];
         isViewPlaylistGeneric.value = false;
@@ -71,12 +80,27 @@ watch(selectedListVideo, async (value, oldValue) => {
             const data: unknown = await useStoreVideo.getVideoByListId(selectedListVideo.value);
             if (data as IVideoInList[]) {
                 listVideoActive.value = data as IVideoInList[];
+                isLoading.value = false;
+            } else {
+                isLoading.value = false;
             }
+        } else {
+            isLoading.value = false;
         }
     }
 });
 
+watch(selectedPlaylist, (value, oldValue) => {
+    selectedListVideo.value = undefined;
+});
+
+watch(selectedListVideo, (value, oldValue) => {
+    selectedPlaylist.value = undefined;
+});
+// --------------------------------------
+
 const convertValueListVideoSelect = (data: VideoList[]) => {
+    console.log('data:', data);
     return data.map((x) => ({ ...x, value: x.id })) as IListVideoSelect[];
 };
 
@@ -87,9 +111,19 @@ const convertValueListBuildingSelect = (data: Building[]) => {
         value: x.id,
     })) as IListBuildingSelect[];
 };
+const convertValueListPlaylistGenericSelect = (data: IPostPlaylistStore[]) => {
+    return data.map((x) => ({
+        ...x,
+        title: x.title,
+        value: x.id,
+    })) as IListPlaylistSelect[];
+};
 
 onMounted(async () => {
     // check all buildings
+    listPlaylistGeneric.value = convertValueListPlaylistGenericSelect(
+        await usePlaylist.getPlaylists('', 1, 50)
+    );
     listVideos.value = convertValueListVideoSelect(await useStoreVideo.getListVideoStore());
     buildings.value = convertValueListBuildingSelect(await useBuilding.getAllBuildingStore());
     buildings.value.forEach((building) => {
@@ -146,10 +180,10 @@ const handleSaveOnePlaylist = (
             status: 'active',
             title: nameTimestamp,
             creator: 'string',
-            parentId: 0,
+            parentId: selectedPlaylist.value || 0,
         };
         usePlaylist
-            .addNewPlaylist(data)
+            .addNewPlaylist([data])
             .then((data) => {
                 showSnackbar(`Save playlist ${name} Successfully`, 'success');
                 if (listPlaylist.value && listPlaylist.value[indexBuilding]) {
@@ -157,6 +191,43 @@ const handleSaveOnePlaylist = (
                 }
             })
             .catch((err) => {
+                showSnackbar(`Something went wrong!`, 'error');
+            });
+    }
+};
+
+const handleClickSaveAll = () => {
+    if (listPlaylist.value) {
+        isLoading.value = true;
+        for (let i = 0; i < listPlaylist.value.length; i++) {
+            const playlist = listPlaylist.value[i].playlist;
+            if (!checkPlaylistInvalid(playlist)) {
+                isLoading.value = false;
+                return;
+            }
+        }
+        const data: IPostPlaylistStore[] = listPlaylist.value.map((x) => ({
+            id: 0,
+            jsonPlaylist: JSON.stringify(x.playlist),
+            status: 'active',
+            title: x.nameTimestamp,
+            creator: 'string',
+            parentId: selectedPlaylist.value || 0,
+        }));
+
+        usePlaylist
+            .addNewPlaylist(data)
+            .then((data) => {
+                showSnackbar(`Save all playlist Successfully`, 'success');
+                if (listPlaylist.value) {
+                    for (let i = 0; i < listPlaylist.value.length; i++) {
+                        listPlaylist.value[i].isSave = true;
+                    }
+                }
+                isLoading.value = false;
+            })
+            .catch((err) => {
+                isLoading.value = false;
                 showSnackbar(`Something went wrong!`, 'error');
             });
     }
@@ -213,8 +284,16 @@ const convertPlaylistToListVideo = (playlist: IPlaylist[]) => {
     return newListVideo;
 };
 
-const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
+const getListVideoDoNoPlay = (listVideoActive: IVideoInList[], id: number) => {
+    return listVideoActive.filter((x) => !x.doNotPlay?.some((y) => y.id == id));
+};
+
+const handleGeneratorPlaylistBuildings = (
+    playlist: IPlaylist[],
+    listVideoGeneric?: IVideoInList[]
+) => {
     if (checkPlaylistInvalid(playlist)) {
+        isLoading.value = true;
         const exportPlaylist = new generatorPlaylist();
         const newPlaylistBuilding: IListPlaylist[] = [];
         const buildingActive = buildings.value.filter((b) =>
@@ -234,9 +313,11 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
                 ) => {
                     // check do not play building
 
-                    const newListVideoActive = listVideoActive.value.filter(
-                        (x) => !x.doNotPlay?.some((y) => y.id == building.id)
-                    );
+                    const newListVideoActive = listVideoGeneric
+                        ? getListVideoDoNoPlay(listVideoGeneric, building.id)
+                        : getListVideoDoNoPlay(listVideoActive.value, building.id);
+
+                    //
 
                     let listVideoBuilding = [
                         ...listVideoPlaylist.value.filter(
@@ -251,7 +332,6 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
                             convertListVideoRenderPlaylist(newListVideoActive)
                         );
                     }
-                    console.log('listVideoBuilding:', listVideoBuilding);
 
                     const playlist: IPlaylist[] = [];
                     let newList = [...listVideoBuilding];
@@ -306,6 +386,7 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
                 });
 
                 listPlaylist.value = newPlaylistBuilding;
+                isLoading.value = false;
             }
         );
     }
@@ -320,13 +401,14 @@ const savePlaylistGeneric = (playlist: IPlaylist[]) => {
         const data: IPostPlaylistStore = {
             id: 0,
             jsonPlaylist: JSON.stringify(playlist),
+            JsonListVideo: JSON.stringify(listVideoActive.value),
             status: 'active',
             title: namePlaylistGeneric.value,
             creator: 'string',
             parentId: 0,
         };
         usePlaylist
-            .addNewPlaylist(data)
+            .addNewPlaylist([data])
             .then((data) => {
                 showSnackbar(`Save ${namePlaylistGeneric.value} Successfully`, 'success');
             })
@@ -335,15 +417,32 @@ const savePlaylistGeneric = (playlist: IPlaylist[]) => {
             });
     }
 };
+
+const handleClickGenPlaylistBuilding = () => {
+    const value = usePlaylist.data.filter(
+        (x: IPostPlaylistStore) => x.id == selectedPlaylist.value
+    );
+    if (value) {
+        const playlist = JSON.parse(value[0].jsonPlaylist);
+        const listVideo = JSON.parse(value[0].jsonListVideo);
+        handleGeneratorPlaylistBuildings(playlist, listVideo);
+    }
+};
 </script>
 
 <template>
     <section>
         <VCard title="Filters" class="mb-6">
+            <VProgressCircular
+                color="primary"
+                class="position-absolute"
+                indeterminate
+                v-show="isLoading"
+            ></VProgressCircular>
             <VCardText>
                 <VRow>
                     <VCol cols="12" sm="4">
-                        <VSelect
+                        <VAutocomplete
                             v-model="selectedListVideo"
                             label="Select List Video"
                             :items="listVideos"
@@ -354,7 +453,7 @@ const savePlaylistGeneric = (playlist: IPlaylist[]) => {
                     </VCol>
 
                     <VCol cols="12" sm="4">
-                        <VSelect
+                        <VAutocomplete
                             v-model="selectedBuilding"
                             label="Select Buildings"
                             :items="buildings"
@@ -372,37 +471,65 @@ const savePlaylistGeneric = (playlist: IPlaylist[]) => {
                                     (+{{ selectedBuilding.length - 1 }} others)
                                 </span>
                             </template>
-                        </VSelect>
+                        </VAutocomplete>
+                    </VCol>
+                    <VCol cols="12" sm="4">
+                        <VAutocomplete
+                            v-model="selectedPlaylist"
+                            label="Select Playlist"
+                            :items="listPlaylistGeneric"
+                            clearable
+                            clear-icon="mdi-close"
+                            :loading="_.isEmpty(listPlaylistGeneric)"
+                            :menu-props="{ maxHeight: 500 }"
+                        />
                     </VCol>
                 </VRow>
                 <VRow>
-                    <VCol cols="12" sm="3" v-if="_.isEmpty(playlistGeneric)">
+                    <div class="d-flex mt-5 pl-3 gap-3">
+                        <div v-if="_.isEmpty(playlistGeneric)">
+                            <VBtn
+                                color="primary"
+                                @click="handleClickGenPlaylistBuilding"
+                                v-if="!!selectedPlaylist"
+                            >
+                                Generator Playlist Buildings
+                            </VBtn>
+
+                            <VBtn
+                                color="primary"
+                                v-else
+                                @click="handleCreatePlaylistGeneric"
+                                :disabled="_.isEmpty(listVideoActive)"
+                            >
+                                Generator Playlist Generic
+                            </VBtn>
+                        </div>
+                        <div v-else>
+                            <VBtn color="primary" @click="handleViewPlaylistGeneric">
+                                {{
+                                    isViewPlaylistGeneric
+                                        ? 'View All Playlist'
+                                        : 'View Playlist Generic'
+                                }}
+                            </VBtn>
+                        </div>
                         <VBtn
                             color="primary"
-                            @click="handleCreatePlaylistGeneric"
-                            :disabled="!listVideoActive"
-                        >
-                            Generator Playlist Generic
-                        </VBtn>
-                    </VCol>
-                    <VCol cols="12" sm="3" v-else>
-                        <VBtn color="primary" @click="handleViewPlaylistGeneric">
-                            {{
-                                isViewPlaylistGeneric
-                                    ? 'View All Playlist'
-                                    : 'View Playlist Generic'
-                            }}
-                        </VBtn>
-                    </VCol>
-                    <VCol cols="12" sm="3" v-if="!_.isEmpty(listVideoActive)">
-                        <VBtn
-                            color="primary"
-                            prepend-icon="mdi-tray-arrow-down"
                             @click="handleClickShowListVideo"
+                            v-if="!_.isEmpty(listVideoActive) && selectedListVideo"
                         >
                             View List Video
                         </VBtn>
-                    </VCol>
+                        <VBtn
+                            color="primary"
+                            prepend-icon="mdi-tray-arrow-down"
+                            @click="handleClickSaveAll"
+                            v-if="listPlaylist"
+                        >
+                            Save All
+                        </VBtn>
+                    </div>
                 </VRow>
             </VCardText>
         </VCard>
@@ -414,9 +541,9 @@ const savePlaylistGeneric = (playlist: IPlaylist[]) => {
         >
             <div class="position-absolute">
                 <VTextField class="input-name-building" v-model="namePlaylistGeneric" />
-                <VBtn color="primary" @click="handleGeneratorPlaylistBuildings(playlistGeneric)">
+                <!-- <VBtn color="primary" @click="handleGeneratorPlaylistBuildings(playlistGeneric)">
                     Generator PlayList Buildings
-                </VBtn>
+                </VBtn> -->
                 <VBtn color="primary" @click="savePlaylistGeneric(playlistGeneric)"> Save </VBtn>
             </div>
             <VTable class="text-no-wrap">

@@ -7,6 +7,7 @@ export interface IPostPlaylistStore {
     endDate?: string;
     title: string;
     jsonPlaylist: string;
+    JsonListVideo?: string;
     creator: string;
     parentId: number;
 }

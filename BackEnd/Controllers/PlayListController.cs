@@ -50,7 +50,7 @@ namespace BackEnd.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreatePlayList([FromBody] Playlist playlist)
+        public IActionResult CreatePlayList([FromBody] Playlist[] playlist)
         {
             var item = playlistService.AddPlayList(playlist);
             return Ok(item);
@@ -97,7 +97,7 @@ namespace BackEnd.Controllers
         }
 
         [HttpGet("GetPlayListByParent/{id}")]
-        public ActionResult<Playlist> GetPlayListByParent(int id , string? keySearch = null, int page = 1, int pageSize = 10)
+        public ActionResult<Playlist> GetPlayListByParent(int id, string? keySearch = null, int page = 1, int pageSize = 10)
         {
             var query = playlistService.GetPlayListByParent(keySearch: keySearch, parentId: id);
             int startIndex = (page - 1) * pageSize;

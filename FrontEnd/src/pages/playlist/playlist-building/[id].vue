@@ -9,6 +9,7 @@ import { onMounted, ref } from 'vue';
 
 const playlistStore = usePlaylistStore();
 const router = useRouter()
+const {params:{id}} = useRoute();
 
 const keySearch = ref('');
 const keySearchDebounce = useDebounce(keySearch, 1000)
@@ -23,13 +24,14 @@ const playlistActive = ref<IPostPlaylistStore>()
 const { showSnackbar } = useSnackbar();
 
 const getAll = () => {
-    playlistStore.getPlaylists(keySearchDebounce.value.trim(), currentPage.value, pageSize.value);
+    if(id){
+        playlistStore.getPlaylistChildren(+id,keySearchDebounce.value.trim(), currentPage.value, pageSize.value);
+    }
 };
 
-
 watchEffect(() => {
-    totalPages.value = playlistStore.infoPage.totalPages;
-    totalItems.value = playlistStore.infoPage.totalItems;
+    totalPages.value = playlistStore.data.totalPages;
+    totalItems.value = playlistStore.data.totalItems;
     if (currentPage.value > totalPages.value) currentPage.value = totalPages.value;
 });
 
@@ -59,10 +61,6 @@ const viewPlaylist = (playlist:IPostPlaylistStore)=>{
     playlistActive.value = playlist
 }
 
-const viewPlaylistBuilding = (playlist:IPostPlaylistStore)=>{
-    router.push({name:'playlist-playlist-building-id', params:{ id: playlist.id }})
-}
-
 const deleteBuilding = (id: number) => {
     Swal.fire({
         title: "Are you sure?",
@@ -84,6 +82,9 @@ const deleteBuilding = (id: number) => {
         }
     });
 };
+const handleBack =()=>{
+    router.back();
+}
 
 </script>
 
@@ -94,12 +95,11 @@ const deleteBuilding = (id: number) => {
                 <VRow>
                     <VCol cols="12" sm="4">
                         <VBtn
-                            :to="{
-                                name: 'playlist-generator',
-                            }"
+                            @click="handleBack"
                             color="primary"
+                            prepend-icon="mdi-chevron-left"
                         >
-                            Generator playlist
+                        Back
                         </VBtn>
                     </VCol>
                     <VCol cols="12" sm="8" class="display">
@@ -131,7 +131,7 @@ const deleteBuilding = (id: number) => {
 
                 <!-- 👉 table body -->
                 <tbody>
-                    <tr class="handle" v-for="(playlist, index) in playlistStore.data" :key="index">
+                    <tr class="handle" v-for="(playlist, index) in playlistStore.playlistBuilding" :key="index">
                         <td>
                             {{ index + 1 }}
                         </td>
@@ -159,17 +159,7 @@ const deleteBuilding = (id: number) => {
                                             </template>
                                             <VListItemTitle>View</VListItemTitle>
                                         </VListItem>
-                                        <VListItem @click="viewPlaylistBuilding(playlist)">
-                                            <template #prepend>
-                                                <VIcon
-                                                    icon="mdi-file-document-outline"
-                                                    :size="20"
-                                                    class="me-3"
-                                                    color="info"
-                                                />
-                                            </template>
-                                            <VListItemTitle>Playlist Buildings</VListItemTitle>
-                                        </VListItem>
+
                                         <VListItem @click="deleteBuilding(playlist.id)">
                                             <template #prepend>
                                                 <VIcon
@@ -223,7 +213,7 @@ const deleteBuilding = (id: number) => {
                     <VPagination
                         v-model="currentPage"
                         :length="totalPages"
-                        :total-visible="5"
+                        :total-visible="1"
                         rounded="circle"
                         @input="changePage"
                     />
@@ -231,7 +221,6 @@ const deleteBuilding = (id: number) => {
             </VCardText>
             <!-- !SECTION -->
         </VCard>
-
         <PopupViewPlaylist
             :data="playlistActive"
             v-model:is-drawer-open="isViewPlaylist"
