@@ -28,7 +28,7 @@ namespace Showreel.Service.impl
 
         public IEnumerable<Playlist> GetPagePlayList(string keySearch = "")
         {
-            var query = _context.Playlists.AsQueryable();
+            var query = _context.Playlists.Where(q => q.ParentId == 0 || q.ParentId == null).AsQueryable();
             if (!string.IsNullOrEmpty(keySearch))
             {
                 query = query.Where(b => b.Title.Contains(keySearch));
@@ -86,11 +86,20 @@ namespace Showreel.Service.impl
                     VideoId = video.Id,
                     PlaylistId = playListId
                 };
-
                 _context.Playlistvideos.Add(newPlayList);
             }
-
             _context.SaveChanges();
+        }
+
+        public IEnumerable<Playlist> GetPlayListByParent(string keySearch = "", int parentId = 0)
+        {
+            var query = _context.Playlists.Where(p => p.ParentId == parentId).AsQueryable();
+            if (!string.IsNullOrEmpty(keySearch))
+            {
+                query = query.Where(b => b.Title.Contains(keySearch));
+            }
+            query = query.OrderByDescending(b => b.Id);
+            return query.ToList();
         }
     }
 }

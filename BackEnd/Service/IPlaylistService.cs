@@ -12,6 +12,6 @@ namespace Showreel.Service
         IEnumerable<Video> GetVideoPlayList(int playListId);
         Playlist UpdatePlayList(Playlist playlist);
         void UpdateVideoPlayList(Video[] videos, int playListId);
-
+        IEnumerable<Playlist> GetPlayListByParent(string keySearch = "", int parentId = 0);
     }
 }

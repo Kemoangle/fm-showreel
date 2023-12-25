@@ -151,6 +151,13 @@ const deleteBuilding = (id: number) => {
                                         class="font-weight-medium user-list-name"
                                     >
                                         {{ building.buildingName }}
+                                        <VTooltip
+                                            location="top"
+                                            transition="scale-transition"
+                                            activator="parent"
+                                        >
+                                            <span>View {{ building.buildingName }}</span>
+                                        </VTooltip>
                                     </RouterLink>
                                 </h6>
                             </div>
