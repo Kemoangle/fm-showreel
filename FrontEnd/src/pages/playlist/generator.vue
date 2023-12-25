@@ -58,11 +58,12 @@ const buildings = ref<IListBuildingSelect[]>([]);
 const listVideos = ref<IListVideoSelect[]>([]);
 
 const namePlaylist = ref<string[]>();
+const namePlaylistGeneric = ref<string>('playlist_generic_' + getTimestamp());
 
 // --------------- watch --------------
 
-watch(selectedListVideo, async (value, oldvalue) => {
-    if (value != oldvalue) {
+watch(selectedListVideo, async (value, oldValue) => {
+    if (value != oldValue) {
         listVideoActive.value = [];
         playlistGeneric.value = [];
         isViewPlaylistGeneric.value = false;
@@ -144,13 +145,13 @@ const handleSaveOnePlaylist = (
             jsonPlaylist: JSON.stringify(playlist),
             status: 'active',
             title: nameTimestamp,
-            duration: playlist.reduce((a, b) => a + (b?.durations || 0), 0),
             creator: 'string',
+            parentId: 0,
         };
         usePlaylist
             .addNewPlaylist(data)
             .then((data) => {
-                showSnackbar(`Save playlist ${name} Successfuly`, 'success');
+                showSnackbar(`Save playlist ${name} Successfully`, 'success');
                 if (listPlaylist.value && listPlaylist.value[indexBuilding]) {
                     listPlaylist.value[indexBuilding].isSave = true;
                 }
@@ -269,18 +270,6 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
                             }
                         });
                     } else {
-                        // newList.forEach((l: IPlaylist, index: number) => {
-                        //     if (l) {
-                        //         playlist.push({
-                        //             category: l.category || [],
-                        //             durations: l.durations,
-                        //             key: l.key || '',
-                        //             remarks: '',
-                        //             name: l.name || '',
-                        //             order: index,
-                        //         });
-                        //     }
-                        // });
                         newList.forEach((l: IVideos, index: number) => {
                             if (l) {
                                 playlist.push({
@@ -325,6 +314,27 @@ const handleGeneratorPlaylistBuildings = (playlist: IPlaylist[]) => {
 const handleViewPlaylistGeneric = () => {
     isViewPlaylistGeneric.value = !isViewPlaylistGeneric.value;
 };
+
+const savePlaylistGeneric = (playlist: IPlaylist[]) => {
+    if (checkPlaylistInvalid(playlist)) {
+        const data: IPostPlaylistStore = {
+            id: 0,
+            jsonPlaylist: JSON.stringify(playlist),
+            status: 'active',
+            title: namePlaylistGeneric.value,
+            creator: 'string',
+            parentId: 0,
+        };
+        usePlaylist
+            .addNewPlaylist(data)
+            .then((data) => {
+                showSnackbar(`Save ${namePlaylistGeneric.value} Successfully`, 'success');
+            })
+            .catch((err) => {
+                showSnackbar(`Something went wrong!`, 'error');
+            });
+    }
+};
 </script>
 
 <template>
@@ -368,8 +378,7 @@ const handleViewPlaylistGeneric = () => {
                 <VRow>
                     <VCol cols="12" sm="3" v-if="_.isEmpty(playlistGeneric)">
                         <VBtn
-                            variant="tonal"
-                            color="info"
+                            color="primary"
                             @click="handleCreatePlaylistGeneric"
                             :disabled="!listVideoActive"
                         >
@@ -377,7 +386,7 @@ const handleViewPlaylistGeneric = () => {
                         </VBtn>
                     </VCol>
                     <VCol cols="12" sm="3" v-else>
-                        <VBtn variant="tonal" color="warning" @click="handleViewPlaylistGeneric">
+                        <VBtn color="primary" @click="handleViewPlaylistGeneric">
                             {{
                                 isViewPlaylistGeneric
                                     ? 'View All Playlist'
@@ -387,8 +396,7 @@ const handleViewPlaylistGeneric = () => {
                     </VCol>
                     <VCol cols="12" sm="3" v-if="!_.isEmpty(listVideoActive)">
                         <VBtn
-                            variant="tonal"
-                            color="info"
+                            color="primary"
                             prepend-icon="mdi-tray-arrow-down"
                             @click="handleClickShowListVideo"
                         >
@@ -405,9 +413,11 @@ const handleViewPlaylistGeneric = () => {
             v-if="!_.isEmpty(playlistGeneric) && isViewPlaylistGeneric"
         >
             <div class="position-absolute">
+                <VTextField class="input-name-building" v-model="namePlaylistGeneric" />
                 <VBtn color="primary" @click="handleGeneratorPlaylistBuildings(playlistGeneric)">
                     Generator PlayList Buildings
                 </VBtn>
+                <VBtn color="primary" @click="savePlaylistGeneric(playlistGeneric)"> Save </VBtn>
             </div>
             <VTable class="text-no-wrap">
                 <thead>
@@ -519,7 +529,7 @@ const handleViewPlaylistGeneric = () => {
                 <VueDraggableNext
                     class="list-group"
                     tag="tbody"
-                    :handle="building.isSave ? 'dont-drag' : '.handle'"
+                    :handle="building.isSave ? 'don\'t-drag' : '.handle'"
                     :list="building.playlist"
                     v-bind="dragOptions"
                     @start="isDragging = true"

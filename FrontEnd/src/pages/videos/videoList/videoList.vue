@@ -49,7 +49,7 @@ watch(pageSize, () => {
 
 const handleSubmit = async (videoListData: VideoList) => {
     const { videoVideoList, ...rest } = videoListData;
-    if(videoListData.id && videoListData.id > 0){
+    if (videoListData.id && videoListData.id > 0) {
         await videoListStore
             .updateVideoList(rest)
             .then((response) => {
@@ -58,7 +58,7 @@ const handleSubmit = async (videoListData: VideoList) => {
             .catch((error) => {
                 showSnackbar(error.data.VideoList[0], 'error');
             });
-    }else{
+    } else {
         await videoListStore
             .addVideoList(rest)
             .then((response) => {
@@ -69,7 +69,7 @@ const handleSubmit = async (videoListData: VideoList) => {
             });
     }
     getAll();
-};  
+};
 
 const viewListVideo = (id: number) => {
     videoListId.value = id;
@@ -78,31 +78,30 @@ const viewListVideo = (id: number) => {
 
 const deleteList = async (id: number) => {
     await Swal.fire({
-        title: "Are you sure?",
+        title: 'Are you sure?',
         text: "You won't be able to revert this!",
-        icon: "warning",
+        icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, delete it!"
-        }).then((result) => {
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+    }).then((result) => {
         if (result.isConfirmed) {
             videoListStore.deleteList(id).then((response) => {
                 getAll();
                 Swal.fire({
-                    title: "Deleted!",
-                    icon: "success"
-                }); 
-            }); 
-        } 
-    });                                                                 
+                    title: 'Deleted!',
+                    icon: 'success',
+                });
+            });
+        }
+    });
 };
 
 const openForm = (id: number) => {
     idUpdate.value = id;
     isDialogListVideoVisible.value = true;
-}
-
+};
 </script>
 
 <template>
@@ -111,12 +110,7 @@ const openForm = (id: number) => {
             <VCardText>
                 <VRow>
                     <VCol cols="12" sm="4">
-                        <VBtn
-                            variant="tonal"
-                            color="info"
-                            prepend-icon="mdi-plus-thick"
-                            @click="openForm(0)"
-                        >
+                        <VBtn color="primary" prepend-icon="mdi-plus-thick" @click="openForm(0)">
                             Create List Video
                         </VBtn>
                     </VCol>
@@ -153,22 +147,21 @@ const openForm = (id: number) => {
                         </td>
 
                         <td>
-
                             <div class="d-flex flex-column">
                                 <h6 class="text-sm font-weight-medium">
                                     <a
                                         @click="viewListVideo(item.id)"
                                         class="font-weight-medium user-list-name"
-                                        style="cursor: pointer;"
+                                        style="cursor: pointer"
                                     >
-                                    {{ item.title }}
-                                    <VTooltip
-                                        location="top"
-                                        transition="scale-transition"
-                                        activator="parent"
-                                    >
-                                        <span>View {{ item.title }}</span>
-                                    </VTooltip>
+                                        {{ item.title }}
+                                        <VTooltip
+                                            location="top"
+                                            transition="scale-transition"
+                                            activator="parent"
+                                        >
+                                            <span>View {{ item.title }}</span>
+                                        </VTooltip>
                                     </a>
                                 </h6>
                             </div>
@@ -224,7 +217,7 @@ const openForm = (id: number) => {
             <!-- SECTION Pagination -->
             <VCardText class="d-flex flex-wrap justify-end gap-4 pa-2">
                 <!-- 👉 Rows per page -->
-                <div class="d-flex align-center me-3" style="width: 171px;">
+                <div class="d-flex align-center me-3" style="width: 171px">
                     <span class="text-no-wrap me-3">Rows per page:</span>
 
                     <VSelect
@@ -260,23 +253,23 @@ const openForm = (id: number) => {
 
 <style lang="scss">
 .app-user-search-filter {
-  inline-size: 24.0625rem;
+    inline-size: 24.0625rem;
 }
 
 .text-capitalize {
-  text-transform: capitalize;
+    text-transform: capitalize;
 }
 
 .user-list-name:not(:hover) {
-  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
 }
 </style>
 
 <style lang="scss" scope>
 .user-pagination-select {
-  .v-field__input,
-  .v-field__append-inner {
-    padding-block-start: 0.3rem;
-  }
+    .v-field__input,
+    .v-field__append-inner {
+        padding-block-start: 0.3rem;
+    }
 }
 </style>

@@ -355,7 +355,7 @@ export class generatorPlaylist {
                 })
             );
         }
-        console.log('generatorPlaylist  newVideos:', newVideos);
+        // console.log('generatorPlaylist  newVideos:', newVideos);
 
         return this.createListVideo(newVideos);
     };

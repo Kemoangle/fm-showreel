@@ -107,11 +107,10 @@ const deleteBuilding = (id: number) => {
                 <VRow>
                     <VCol cols="12" sm="4">
                         <VBtn
-                            variant="tonal"
                             :to="{
                                 name: 'playlist-generator',
                             }"
-                            color="info"
+                            color="primary"
                         >
                             Generator playlist
                         </VBtn>
