@@ -186,9 +186,7 @@ public partial class ShowreelContext : DbContext
             entity.Property(e => e.Creator)
                 .HasMaxLength(255)
                 .HasColumnName("creator");
-            entity.Property(e => e.Duration)
-                .HasMaxLength(255)
-                .HasColumnName("duration");
+
             entity.Property(e => e.EndDate)
                 .HasMaxLength(6)
                 .HasColumnName("end_date");

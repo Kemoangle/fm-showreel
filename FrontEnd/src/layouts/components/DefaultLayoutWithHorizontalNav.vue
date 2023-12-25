@@ -38,6 +38,6 @@ const { appRouteTransition } = useThemeConfig();
         </RouterView>
 
         <!-- 👉 Customizer -->
-        <!-- <TheCustomizer /> -->
+        <TheCustomizer />
     </HorizontalNavLayout>
 </template>

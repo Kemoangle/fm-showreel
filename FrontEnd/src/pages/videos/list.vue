@@ -79,18 +79,18 @@ const deleteVideo = (id: number) => {
 };
 
 const addNewVideo = async (videoData: Video) => {
-    const { subCategory,category,doNotPlay,noBackToBack, ...rest } = videoData;
+    const { subCategory, category, doNotPlay, noBackToBack, ...rest } = videoData;
     const allCategories = [...subCategory, ...(category || [])];
     console.log(allCategories);
-    
+
     showSnackbar('Processing...', 'warning');
     if (videoData.id && videoData.id > 0) {
         await videoStore
             .updateVideo(rest)
             .then((response) => {
                 categoryStore.updateVideoCategory(videoData.id, allCategories);
-                ruleStore.UpdateDoNotPlay(doNotPlay,videoData.id);
-                ruleStore.UpdateNoBackToBack(noBackToBack,videoData.id);
+                ruleStore.UpdateDoNotPlay(doNotPlay, videoData.id);
+                ruleStore.UpdateNoBackToBack(noBackToBack, videoData.id);
             })
             .catch((error) => {
                 showSnackbar(error.data.Video[0], 'error');
@@ -100,8 +100,8 @@ const addNewVideo = async (videoData: Video) => {
             .addVideo(rest)
             .then((response) => {
                 categoryStore.updateVideoCategory(response.id, allCategories);
-                ruleStore.UpdateDoNotPlay(doNotPlay,response.id);
-                ruleStore.UpdateNoBackToBack(noBackToBack,response.id);
+                ruleStore.UpdateDoNotPlay(doNotPlay, response.id);
+                ruleStore.UpdateNoBackToBack(noBackToBack, response.id);
             })
             .catch((error) => {
                 showSnackbar(error.data.Video[0], 'error');
@@ -125,15 +125,14 @@ const randomColor = () => {
                 <VRow>
                     <VCol cols="12" sm="4">
                         <VBtn
-                            variant="tonal"
-                            color="info"
+                            color="primary"
                             prepend-icon="mdi-plus-thick"
                             @click="handleUpdate(0)"
                         >
                             Create New Video
                         </VBtn>
                     </VCol>
-                   
+
                     <VCol cols="12" sm="6" class="display">
                         <VTextField
                             placeholder="Search"
@@ -193,14 +192,24 @@ const randomColor = () => {
                             {{ video.keyNo }}
                         </td>
 
-                        <td style="color: rgb(236, 114, 114);">
-                            <p v-if="video.doNotPlay.length">Do pot play on
-                                (<span v-for="(item, idx) in video.doNotPlay" :key="item.id">{{item.buildingName}}<span v-if="idx < video.doNotPlay.length - 1">/ </span>
-                                </span>)
+                        <td style="color: rgb(236, 114, 114)">
+                            <p v-if="video.doNotPlay.length">
+                                Do pot play on (<span
+                                    v-for="(item, idx) in video.doNotPlay"
+                                    :key="item.id"
+                                    >{{ item.buildingName
+                                    }}<span v-if="idx < video.doNotPlay.length - 1">/ </span> </span
+                                >)
                             </p>
-                            <p v-if="video.noBackToBack.length">No back to back with
-                                (<span v-for="(item, idx) in video.noBackToBack" :key="item.id">{{item.name}}<span v-if="idx < video.noBackToBack.length - 1">/ </span>
-                                </span>)
+                            <p v-if="video.noBackToBack.length">
+                                No back to back with (<span
+                                    v-for="(item, idx) in video.noBackToBack"
+                                    :key="item.id"
+                                    >{{ item.name
+                                    }}<span v-if="idx < video.noBackToBack.length - 1"
+                                        >/
+                                    </span> </span
+                                >)
                             </p>
                         </td>
 
@@ -281,7 +290,7 @@ const randomColor = () => {
             <!-- SECTION Pagination -->
             <VCardText class="d-flex flex-wrap justify-end gap-4 pa-2">
                 <!-- 👉 Rows per page -->
-                <div class="d-flex align-center me-3" style="width: 171px;">
+                <div class="d-flex align-center me-3" style="width: 171px">
                     <span class="text-no-wrap me-3">Rows per page:</span>
 
                     <VSelect
@@ -316,23 +325,23 @@ const randomColor = () => {
 
 <style lang="scss">
 .app-user-search-filter {
-  inline-size: 24.0625rem;
+    inline-size: 24.0625rem;
 }
 
 .text-capitalize {
-  text-transform: capitalize;
+    text-transform: capitalize;
 }
 
 .user-list-name:not(:hover) {
-  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
 }
 </style>
 
 <style lang="scss" scope>
 .user-pagination-select {
-  .v-field__input,
-  .v-field__append-inner {
-    padding-block-start: 0.3rem;
-  }
+    .v-field__input,
+    .v-field__append-inner {
+        padding-block-start: 0.3rem;
+    }
 }
 </style>

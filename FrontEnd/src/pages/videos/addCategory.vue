@@ -159,12 +159,7 @@ const removeSubCategory = (index: number) => {
                                     />
                                 </VCol>
                                 <VCol>
-                                    <VBtn
-                                        variant="tonal"
-                                        color="info"
-                                        prepend-icon="mdi-add"
-                                        @click="addInput"
-                                    >
+                                    <VBtn color="primary" prepend-icon="mdi-add" @click="addInput">
                                         Add Sub Category
                                     </VBtn>
                                 </VCol>
@@ -174,15 +169,15 @@ const removeSubCategory = (index: number) => {
                                     v-for="(item, index) in categoryData.subCategory"
                                     :key="index"
                                     class="d-flex align-center"
-                                >   
+                                >
                                     <VTextField
                                         v-model="item.name"
                                         label=" Sub Category Name"
                                         :rules="[requiredValidator]"
                                     />
-                                   
+
                                     <VBtn
-                                        style="background-color: transparent;"
+                                        style="background-color: transparent"
                                         variant="text"
                                         class="ml-1"
                                         @click="removeSubCategory(index)"
@@ -191,7 +186,7 @@ const removeSubCategory = (index: number) => {
                                             icon="mdi-close-outline"
                                             color="error"
                                             :size="20"
-                                            style="height: auto;"
+                                            style="height: auto"
                                         />
                                     </VBtn>
                                 </VCol>
