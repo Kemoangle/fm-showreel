@@ -66,19 +66,21 @@ const menu = ref(false);
 
 <style lang="scss" scoped>
 .father {
+  display: flex;
+  align-items: center;
+  padding-inline-start: 10px;
+}
+
+p {
+  padding: 0;
+  margin: 0;
+}
+
+.children {
+  &-item {
     display: flex;
     align-items: center;
-    padding-left: 10px;
-}
-p {
-    padding: 0;
-    margin: 0;
-}
-.children {
-    &-item {
-        padding-left: 40px;
-        display: flex;
-        align-items: center;
-    }
+    padding-inline-start: 40px;
+  }
 }
 </style>

@@ -23,13 +23,21 @@ namespace Showreel.Controllers
         public IActionResult GetSubCategoriess([FromQuery] int[] categories)
         {
             var response = _categoryService.GetCategoryByParent(arrParentId: categories);
+            
             return Ok(response);
         }
 
         [HttpGet("GetParent")]
         public IActionResult GetParentCategoriess()
         {
-            var response = _categoryService.GetAllParentCategory();
+            var query = _categoryService.GetAllParentCategory();
+            var response = (from c in query
+                            select new {
+                                c.Id,
+                                c.Name,
+                                c.Parent,
+                                subCategory = _categoryService.GetCategoryByParent(parentId: c.Id)
+                            }).ToList();                
             return Ok(response);
         }
 

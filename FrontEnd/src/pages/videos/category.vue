@@ -64,6 +64,8 @@ const randomColor = () => {
 
 const selectedSubcategory = ref<[]>([]);
 const selectedCategory = ref<[]>([]);
+const menu = ref(false);
+
 </script>
 
 <template>
@@ -196,28 +198,25 @@ const selectedCategory = ref<[]>([]);
 
         <!-- !SECTION -->
         <VCard>
-            <!-- <VAutocomplete
-                v-model="selectedCategory"
-                :items="categoryStore.pageCategory.categories"
-                item-title="name"
-                label="Select a category"
-                multiple
-                item-children="subCategory"
-                chips
-                closable-chips
-            >
-                <template #item="{ props, item }">
-                    <VSelect
-                        v-bind="props"
-                        v-model="selectedSubcategory"
-                        :items="item?.raw?.subCategory"
-                        item-title="name"
-                        chips
-                        multiple
-                    ></VSelect>
+            <v-menu v-model="menu" :close-on-content-click="false" location="bottom">
+                <template v-slot:activator="{ props }">
+                    <v-btn color="indigo" v-bind="props"> Menu as Popover </v-btn>
                 </template>
-            </VAutocomplete> -->
-
+                    <VList>
+                        <div v-for="category in categoryStore.pageCategory.categories">
+                            <div class="father">
+                                <VCheckbox v-model="category.active" />
+                                <label>{{ category.name }}</label>
+                            </div>
+                            <div class="children" v-if="category.active">
+                                <div class="children-item" v-for="children in category.subCategory">
+                                    <VCheckbox v-model="children.active"/>
+                                    <label>{{ children.name }}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </VList>
+            </v-menu>
         </VCard>
     </section>
 </template>
@@ -242,5 +241,24 @@ const selectedCategory = ref<[]>([]);
     .v-field__append-inner {
         padding-block-start: 0.3rem;
     }
+}
+
+.father {
+  display: flex;
+  align-items: center;
+  padding-inline-start: 10px;
+}
+
+p {
+  padding: 0;
+  margin: 0;
+}
+
+.children {
+  &-item {
+    display: flex;
+    align-items: center;
+    padding-inline-start: 40px;
+  }
 }
 </style>
