@@ -4,9 +4,10 @@ import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 
 export const useCategoryStore = defineStore('category', {
-    state: (): { data: any; pageCategory: any } => ({
+    state: (): { data: any; pageCategory: any; isLoading: boolean  } => ({
         data: [],
         pageCategory: [],
+        isLoading: false,
     }),
     actions: {
         async getAllCategory() {
@@ -24,6 +25,7 @@ export const useCategoryStore = defineStore('category', {
         },
 
         async getPageCategory(keySearch: string, page: number, pageSize: number) {
+            this.isLoading = true;
             await axiosIns
                 .get<Video[]>('Category/GetPageCategory', {
                     params: {
@@ -34,6 +36,7 @@ export const useCategoryStore = defineStore('category', {
                 })
                 .then((response) => {
                     this.pageCategory = response.data;
+                    this.isLoading = false;
                 });
         },
 

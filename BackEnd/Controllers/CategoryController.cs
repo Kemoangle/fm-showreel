@@ -154,9 +154,9 @@ namespace Showreel.Controllers
         }
 
         [HttpGet("GetAllCategory")]
-        public IActionResult GetAllCategory()
+        public IActionResult GetAllCategory(string? keySearch = null)
         {
-            var categories = _categoryService.GetPageCategory();
+            var categories = _categoryService.GetPageCategory(keySearch);
             var query = from c in categories
                         select new
                         {
@@ -164,7 +164,7 @@ namespace Showreel.Controllers
                             c.Name,
                             subCategory = _categoryService.GetCategoryByParent(c.Id)
                         };
-            return Ok(query);
+            return Ok(query.ToList());
         }
     }
 }
