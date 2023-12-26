@@ -152,5 +152,19 @@ namespace Showreel.Controllers
             _categoryService.UpdateSubCategory(categories, id);
             return Ok();
         }
+
+        [HttpGet("GetAllCategory")]
+        public IActionResult GetAllCategory()
+        {
+            var categories = _categoryService.GetPageCategory();
+            var query = from c in categories
+                        select new
+                        {
+                            c.Id,
+                            c.Name,
+                            subCategory = _categoryService.GetCategoryByParent(c.Id)
+                        };
+            return Ok(query);
+        }
     }
 }
