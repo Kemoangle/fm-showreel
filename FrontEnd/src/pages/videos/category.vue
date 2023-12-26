@@ -62,10 +62,6 @@ const randomColor = () => {
     return randomColor;
 };
 
-const selectedSubcategory = ref<[]>([]);
-const selectedCategory = ref<[]>([]);
-const menu = ref(false);
-
 </script>
 
 <template>

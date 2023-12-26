@@ -10,9 +10,9 @@ import axiosIns from '@/plugins/axios';
 import { requiredValidator } from '@validators';
 
 const listCategory = ref<any[]>([]);
-const categories = ref();
-const subCategories = ref();
-const buildings = ref();
+const categories = ref<Category[]>([]);
+const subCategories = ref<Category[]>([]);
+const buildings = ref<Building[]>([]);
 
 interface Emit {
     (e: 'update:isDrawerOpen', value: boolean): void;
@@ -55,10 +55,10 @@ watch(props, async (oldId, newId) => {
     await axiosIns.get<Category[]>('Category/GetAllCategory').then((response: any) => {
         listCategory.value = response;
     });
-    await axiosIns.get<Category[]>('Category/GetParent').then((response) => {
+    await axiosIns.get<Category[]>('Category/GetParent').then((response: any) => {
         categories.value = response;
     });
-    await axiosIns.get<Building[]>('Building/getBuilding').then((response) => {
+    await axiosIns.get<Building[]>('Building/getBuilding').then((response: any) => {
         buildings.value = response;
     });
     if (newId.videoId) {
@@ -70,7 +70,7 @@ watch(props, async (oldId, newId) => {
                         categories: response.category.map((cat: Category) => cat.id),
                     },
                 })
-                .then((data) => {
+                .then((data: any) => {
                     subCategories.value = data;
                     videoData.value.subCategory = activateAutocomplete(
                         response.subCategory,
@@ -122,7 +122,6 @@ const onSubmit = () => {
         .filter((subCategory: any) => subCategory && subCategory.active);
     videoData.value.subCategory = activeSubCategories;
     checkCategory();
-    console.log(isRequiredCategory.value);
 
     refForm.value?.validate().then(({ valid }) => {
         if (valid && !isRequiredCategory.value) {

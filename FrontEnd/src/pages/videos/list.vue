@@ -25,7 +25,6 @@ const { showSnackbar } = useSnackbar();
 
 const getAll = async () => {
     await videoStore.getPageVideo(keySearch.value, currentPage.value, pageSize.value);
-    console.log(videoStore.data.videos);
 };
 watchEffect(() => {
     totalPages.value = videoStore.data.totalPages;
