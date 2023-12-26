@@ -91,16 +91,19 @@ watch(selectedListVideo, async (value, oldValue) => {
 });
 
 watch(selectedPlaylist, (value, oldValue) => {
-    selectedListVideo.value = undefined;
+    if (value) {
+        selectedListVideo.value = undefined;
+    }
 });
 
 watch(selectedListVideo, (value, oldValue) => {
-    selectedPlaylist.value = undefined;
+    if (value) {
+        selectedPlaylist.value = undefined;
+    }
 });
 // --------------------------------------
 
 const convertValueListVideoSelect = (data: VideoList[]) => {
-    console.log('data:', data);
     return data.map((x) => ({ ...x, value: x.id })) as IListVideoSelect[];
 };
 
@@ -111,6 +114,7 @@ const convertValueListBuildingSelect = (data: Building[]) => {
         value: x.id,
     })) as IListBuildingSelect[];
 };
+
 const convertValueListPlaylistGenericSelect = (data: IPostPlaylistStore[]) => {
     return data.map((x) => ({
         ...x,
@@ -449,6 +453,7 @@ const handleClickGenPlaylistBuilding = () => {
                             :loading="_.isEmpty(listVideos)"
                             clearable
                             clear-icon="mdi-close"
+                            :menu-props="{ maxHeight: 500 }"
                         />
                     </VCol>
 
@@ -461,6 +466,7 @@ const handleClickGenPlaylistBuilding = () => {
                             clear-icon="mdi-close"
                             multiple
                             :loading="_.isEmpty(buildings)"
+                            :menu-props="{ maxHeight: 500 }"
                         >
                             <template v-slot:selection="{ item, index }">
                                 <span>{{ index === 0 ? item.title : '' }}</span>
