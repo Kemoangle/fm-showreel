@@ -44,11 +44,11 @@ watch(props, async (oldId, newId) => {
         axiosIns
             .get('Restriction/GetBuildingRestrictionById/' + newId.restrictionId)
             .then((response: any) => {
-                categoryStore.getSubCategory(response.category.id).then((data: any) => {
-                    subCategories.value = data;
-                    restrictionData.value = response;
+                categoryStore.getSubCategory(response.data.category.id).then((data: any) => {
+                    subCategories.value = data.data;
+                    restrictionData.value = response.data;
                     restrictionData.value.arrCategory = activateCategories(
-                        response.arrCategory,
+                        response.data.arrCategory,
                         subCategories.value
                     );
                 });

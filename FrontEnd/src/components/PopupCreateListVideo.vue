@@ -42,11 +42,11 @@ watch(props, async (oldId, newId) => {
     refForm.value?.resetValidation();
     if (newId.videoListId) {
         axiosIns.get('VideoList/GetVideoListById/' + newId.videoListId).then((response: any) => {
-            videoListData.value = response;
+            videoListData.value = response.data;
             videoStore.video = videoStore.video?.map(x=>({
                 ...x,
-                isActive: (response.videoVideoList.find((v: any) => v.videoId==x.id)) ? true : false,
-                loop: response.videoVideoList.find((v: any) => v.videoId==x.id)?.loopNum
+                isActive: (response.data.videoVideoList.find((v: any) => v.videoId==x.id)) ? true : false,
+                loop: response.data.videoVideoList.find((v: any) => v.videoId==x.id)?.loopNum
             }))
         })
     } else {

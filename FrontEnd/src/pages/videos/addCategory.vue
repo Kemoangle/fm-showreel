@@ -39,7 +39,7 @@ watch(props, async (oldId, newId) => {
     refForm.value?.resetValidation();
     if (newId.categoryId > 0) {
         axiosIns.get<Category>('Category/' + newId.categoryId).then((reponse: any) => {
-            categoryData.value = reponse;
+            categoryData.value = reponse.data;
         });
     } else {
         categoryData.value.id = 0;
@@ -177,7 +177,7 @@ const removeSubCategory = (index: number) => {
                                     />
 
                                     <VBtn
-                                        style="background-color: transparent"
+                                        style="background-color: transparent;"
                                         variant="text"
                                         class="ml-1"
                                         @click="removeSubCategory(index)"
@@ -186,7 +186,7 @@ const removeSubCategory = (index: number) => {
                                             icon="mdi-close-outline"
                                             color="error"
                                             :size="20"
-                                            style="height: auto"
+                                            style="height: auto;"
                                         />
                                     </VBtn>
                                 </VCol>

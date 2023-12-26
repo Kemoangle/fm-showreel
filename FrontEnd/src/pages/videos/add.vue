@@ -53,36 +53,36 @@ watch(props, async (oldId, newId) => {
     checkAutocomplete.value = false;
     isRequiredCategory.value = false;
     await axiosIns.get<Category[]>('Category/GetAllCategory').then((response: any) => {
-        listCategory.value = response;
+        listCategory.value = response.data;
     });
     await axiosIns.get<Category[]>('Category/GetParent').then((response: any) => {
-        categories.value = response;
+        categories.value = response.data;
     });
     await axiosIns.get<Building[]>('Building/getBuilding').then((response: any) => {
-        buildings.value = response;
+        buildings.value = response.data;
     });
     if (newId.videoId) {
         axiosIns.get('Video/' + newId.videoId).then((response: any) => {
-            videoData.value = response;
+            videoData.value = response.data;
             axiosIns
                 .get<Category[]>('Category/GetSub', {
                     params: {
-                        categories: response.category.map((cat: Category) => cat.id),
+                        categories: response.data.category.map((cat: Category) => cat.id),
                     },
                 })
                 .then((data: any) => {
-                    subCategories.value = data;
+                    subCategories.value = data.data;
                     videoData.value.subCategory = activateAutocomplete(
-                        response.subCategory,
+                        response.data.subCategory,
                         subCategories.value
                     );
                 });
-            videoData.value.category = activateAutocomplete(response.category, categories.value);
+            videoData.value.category = activateAutocomplete(response.data.category, categories.value);
             videoData.value.noBackToBack = activateAutocomplete(
-                response.noBackToBack,
+                response.data.noBackToBack,
                 categories.value
             );
-            videoData.value.doNotPlay = activateAutocomplete(response.doNotPlay, buildings.value);
+            videoData.value.doNotPlay = activateAutocomplete(response.data.doNotPlay, buildings.value);
             fetchCategory(videoData.value.category);
             fetchSubCategories(videoData.value.subCategory)
 
