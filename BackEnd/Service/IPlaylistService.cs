@@ -5,7 +5,7 @@ namespace Showreel.Service
     public interface IPlaylistService
     {
         IEnumerable<Playlist> GetPagePlayList(string keySearch = "");
-        Playlist AddPlayList(Playlist playlist);
+        Playlist[] AddPlayList(Playlist[] playlist);
         Buildingplaylist AddBuildingPlayList(Buildingplaylist buildingplaylist);
         Playlist GetPlayListById(int id);
         void DeletePlaylist(int id);

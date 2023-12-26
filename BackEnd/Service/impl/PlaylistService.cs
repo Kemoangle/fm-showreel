@@ -18,9 +18,9 @@ namespace Showreel.Service.impl
             return buildingplaylist;
         }
 
-        public Playlist AddPlayList(Playlist playlist)
+        public Playlist[] AddPlayList(Playlist[] playlist)
         {
-            _context.Playlists.Add(playlist);
+            _context.Playlists.AddRange(playlist);
             _context.SaveChanges();
             return playlist;
         }
@@ -31,7 +31,7 @@ namespace Showreel.Service.impl
             var query = _context.Playlists.Where(q => q.ParentId == 0 || q.ParentId == null).AsQueryable();
             if (!string.IsNullOrEmpty(keySearch))
             {
-                query = query.Where(b => b.Title.Contains(keySearch));
+                query = query.Where(b => b.Title.Contains(keySearch) && (b.ParentId == 0 || b.ParentId != null));
             }
             query = query.OrderByDescending(b => b.Id);
             return query.ToList();
@@ -40,9 +40,9 @@ namespace Showreel.Service.impl
         public Playlist GetPlayListById(int id)
         {
             var query = _context.Playlists.FirstOrDefault(p => p.Id == id);
-            if(query == null)
+            if (query == null)
                 throw new KeyNotFoundException("Playlist not found");
-            return query;    
+            return query;
         }
         public IEnumerable<Video> GetVideoPlayList(int playListId)
         {

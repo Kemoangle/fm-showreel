@@ -3,35 +3,37 @@ import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 
 export const useVideoTypeStore = defineStore('videoType', {
-    state: (): { data: VideoType[] | any, videoTypes: VideoType[] | any} => ({
+    state: (): { data: VideoType[] | any; videoTypes: VideoType[] | any } => ({
         data: [],
-        videoTypes: []
+        videoTypes: [],
     }),
     actions: {
         async getAllVideoType() {
             await axiosIns.get<VideoType[]>('VideoType').then((response) => {
-                this.videoTypes = response;
+                this.videoTypes = response.data;
             });
         },
 
         async getPageVideoType(keySearch: string, page: number, pageSize: number) {
-            await axiosIns.get<VideoType[]>('VideoType/GetPageVideotype', {
-                params: {
-                    keySearch: keySearch,
-                    page: page,
-                    pageSize: pageSize
-                }
-            }).then((response) => {
-                this.data = response;
-            });
+            await axiosIns
+                .get<VideoType[]>('VideoType/GetPageVideotype', {
+                    params: {
+                        keySearch: keySearch,
+                        page: page,
+                        pageSize: pageSize,
+                    },
+                })
+                .then((response) => {
+                    this.data = response.data;
+                });
         },
 
         async addVideoType(videoType: VideoType) {
-            return await axiosIns.post('VideoType', videoType);
+            return (await axiosIns.post('VideoType', videoType)).data;
         },
-        
+
         async updateVideoType(videoType: VideoType) {
-            return await axiosIns.patch('VideoType/' + videoType.id, videoType);
+            return (await axiosIns.patch('VideoType/' + videoType.id, videoType)).data;
         },
     },
 });

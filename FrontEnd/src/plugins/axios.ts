@@ -16,7 +16,7 @@ axiosIns.interceptors.request.use((config) => {
 
 axiosIns.interceptors.response.use(
     (originalResponse) => {
-        return originalResponse.data;
+        return originalResponse;
     },
     async (error) => {
         console.log(error);

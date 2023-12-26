@@ -17,10 +17,10 @@ export const useVideoListStore = defineStore('videoList', {
                 .get<VideoList[]>('VideoList/getAll')
                 .then((response) => {
                     if (response) {
-                        this.allData = response;
+                        this.allData = response.data;
                     }
                     this.isLoading = false;
-                    return response;
+                    return response.data;
                 })
                 .catch((err) => {
                     this.isLoading = true;
@@ -39,31 +39,31 @@ export const useVideoListStore = defineStore('videoList', {
                     },
                 })
                 .then((response) => {
-                    this.data = response;
+                    this.data = response.data;
                 });
         },
 
         async addVideoList(videoList: VideoList): Promise<VideoList> {
-            return await axiosIns.post('VideoList/', videoList);
+            return (await axiosIns.post('VideoList/', videoList)).data;
         },
 
         async updateVideoList(videoList: VideoList): Promise<VideoList> {
-            return await axiosIns.patch('VideoList/', videoList);
+            return (await axiosIns.patch('VideoList/', videoList)).data;
         },
 
         async addVideoVideoList(
             videoVideolist: VideoVideolist[] | undefined,
             id: number | undefined
         ) {
-            await axiosIns.patch('VideoList/UpdateVideoVideoList/' + id, videoVideolist);
+            (await axiosIns.patch('VideoList/UpdateVideoVideoList/' + id, videoVideolist)).data;
         },
 
         async getVideoByListId(id: number) {
-            return await axiosIns.get<IVideoInList[]>('VideoList/' + id);
+            return (await axiosIns.get<IVideoInList[]>('VideoList/' + id)).data;
         },
 
         async deleteList(id: number) {
-            await axiosIns.delete('VideoList/' + id);
+            (await axiosIns.delete('VideoList/' + id)).data;
         },
 
         async getListVideoStore() {

@@ -53,13 +53,13 @@ export const useBuildingStore = defineStore('building', {
                     },
                 })
                 .then((response) => {
-                    this.data = response;
+                    this.data = response.data;
                 });
         },
 
         async getAllBuilding() {
             await axiosIns.get<Building[]>('Building/getAll').then((response) => {
-                this.data.buildings = response;
+                this.data.buildings = response.data;
             });
         },
 
@@ -70,39 +70,35 @@ export const useBuildingStore = defineStore('building', {
         },
 
         async addBuilding(building: Building) {
-            return await axiosIns.post('Building', building);
+            return (await axiosIns.post('Building', building)).data;
         },
 
         async deleteBuilding(id: number) {
-            return await axiosIns.delete('Building/' + id);
+            return (await axiosIns.delete('Building/' + id)).data;
         },
 
         async updateBuilding(building: Building) {
-            return await axiosIns.patch('Building/' + building.id, building);
+            return (await axiosIns.patch('Building/' + building.id, building)).data;
         },
 
         async getAllBuildingStore() {
             if (!_.isEmpty(this.allBuilding)) {
                 return this.allBuilding;
             } else {
-                return (await axiosIns
-                    .get<Building[]>('Building/getAll')
-                    .then((response: Building[] | any) => {
-                        this.allBuilding = response;
-                        return response;
-                    })) as Building[];
+                return (await axiosIns.get<Building[]>('Building/getAll').then((response) => {
+                    this.allBuilding = response.data;
+                    return response.data;
+                })) as Building[];
             }
         },
 
         async getDetailBuilding(id: number) {
-            const data: IDetailBuilding = await await axiosIns.get<IDetailBuilding>(
-                'Building/detail/' + id
-            );
-            return data;
+            const data = await axiosIns.get<IDetailBuilding>('Building/detail/' + id);
+            return data.data as IDetailBuilding;
         },
 
         async getLandlordBuilding(id: number) {
-            return await axiosIns.get<LandlordAds[]>('LandlordAds/building/' + id);
+            return (await axiosIns.get<LandlordAds[]>('LandlordAds/building/' + id)).data;
         },
 
         async setListBuildingActive(
@@ -127,7 +123,7 @@ export const useBuildingStore = defineStore('building', {
                     });
                     arrLandLordAds.push({
                         buildingId: id,
-                        videos: convertVideoLandlordToVideo(landlordAds),
+                        videos: convertVideoLandlordToVideo(landlordAds as LandlordAds[]),
                     });
                     if (arrLandLordAds.length == ids.length) {
                         resolve('');

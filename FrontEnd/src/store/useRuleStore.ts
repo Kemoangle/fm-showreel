@@ -4,16 +4,16 @@ import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 
 export const useRuleStore = defineStore('rules', {
-    state: (): { dataDoNotPlay: Building[],dataNoBackToBack: Category[] } => ({
+    state: (): { dataDoNotPlay: Building[]; dataNoBackToBack: Category[] } => ({
         dataDoNotPlay: [],
-        dataNoBackToBack: []
+        dataNoBackToBack: [],
     }),
     actions: {
         async UpdateDoNotPlay(buildings: Building[] | undefined, videoId: number | undefined) {
-            return await axiosIns.patch('Rules/UpdateDoNotPlay/' + videoId, buildings);
+            return (await axiosIns.patch('Rules/UpdateDoNotPlay/' + videoId, buildings)).data;
         },
         async UpdateNoBackToBack(categories: Category[] | undefined, videoId: number | undefined) {
-            return await axiosIns.patch('Rules/UpdateNoBackToBack/' + videoId, categories);
+            return (await axiosIns.patch('Rules/UpdateNoBackToBack/' + videoId, categories)).data;
         },
     },
 });

@@ -3,18 +3,18 @@ import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 
 export const useRestrictionStore = defineStore('restriction', {
-    state: (): { data: Restriction[] | any} => ({
-        data: []
+    state: (): { data: Restriction[] | any } => ({
+        data: [],
     }),
     actions: {
         async getRestrictionByBuildingId(id: number) {
             await axiosIns.get<Restriction[]>('Restriction/' + id).then((response) => {
-                this.data = response;
+                this.data = response.data;
             });
         },
 
         async addBuildingRestriction(buildingRestriction: Restriction) {
-            return await axiosIns.post('Restriction', buildingRestriction);
+            return (await axiosIns.post('Restriction', buildingRestriction)).data;
         },
 
         async deleteRestriction(id: number) {
@@ -27,7 +27,9 @@ export const useRestrictionStore = defineStore('restriction', {
         },
 
         async updateBuildingRestriction(buildingRestriction: Restriction) {
-            return await axiosIns.patch('Restriction/UpdateBuildingRestriction', buildingRestriction);
+            return (
+                await axiosIns.patch('Restriction/UpdateBuildingRestriction', buildingRestriction)
+            ).data;
         },
     },
 });

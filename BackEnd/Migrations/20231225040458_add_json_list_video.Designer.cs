@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Showreel.Models;
 
@@ -10,9 +11,11 @@ using Showreel.Models;
 namespace Showreel.Migrations
 {
     [DbContext(typeof(ShowreelContext))]
-    partial class ShowreelContextModelSnapshot : ModelSnapshot
+    [Migration("20231225040458_add_json_list_video")]
+    partial class add_json_list_video
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

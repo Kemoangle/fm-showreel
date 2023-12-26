@@ -4,53 +4,54 @@ import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
 
 export const useCategoryStore = defineStore('category', {
-    state: (): { data: any, pageCategory: any} => ({
+    state: (): { data: any; pageCategory: any } => ({
         data: [],
-        pageCategory: []
+        pageCategory: [],
     }),
     actions: {
         async getAllCategory() {
             await axiosIns.get<Category[]>('Category/GetParent').then((response) => {
-                this.data = response;
+                this.data = response.data;
             });
         },
         async getCategoryByVideo(id: number) {
             await axiosIns.get<Category[]>('Category/GetCategoryByVideo/' + id).then((response) => {
-                this.data = response;
+                this.data = response.data;
             });
         },
         async updateVideoCategory(videoId: number | undefined, categories: Category[] | undefined) {
-            await axiosIns.patch('Category/' + videoId, categories).then((response) => {
-            });
+            await axiosIns.patch('Category/' + videoId, categories).then((response) => {});
         },
 
         async getPageCategory(keySearch: string, page: number, pageSize: number) {
-            await axiosIns.get<Video[]>('Category/GetPageCategory', {
-                params: {
-                    keySearch: keySearch,
-                    page: page,
-                    pageSize: pageSize
-                }
-            }).then((response) => {
-                this.pageCategory = response;
-            });
+            await axiosIns
+                .get<Video[]>('Category/GetPageCategory', {
+                    params: {
+                        keySearch: keySearch,
+                        page: page,
+                        pageSize: pageSize,
+                    },
+                })
+                .then((response) => {
+                    this.pageCategory = response.data;
+                });
         },
 
         async addCategory(category: Category): Promise<Category> {
-            return await axiosIns.post('Category', category);
+            return (await axiosIns.post('Category', category)).data;
         },
-        
-        async updateCategory(category: Category): Promise<Category>  {
-            return await axiosIns.patch('Category/UpdateCategory/' + category.id, category);
+
+        async updateCategory(category: Category): Promise<Category> {
+            return (await axiosIns.patch('Category/UpdateCategory/' + category.id, category)).data;
         },
 
         async getSubCategory(parentId: number) {
-            return await axiosIns.get<Category[]>('Category/GetCategoryByParent/' + parentId);
+            return (await axiosIns.get<Category[]>('Category/GetCategoryByParent/' + parentId))
+                .data;
         },
 
         async updateSubCategory(categories: Category[] | undefined, id: number) {
-            return await axiosIns.patch('Category/UpdateSubCategory/' + id, categories);
+            return (await axiosIns.patch('Category/UpdateSubCategory/' + id, categories)).data;
         },
     },
 });
-
