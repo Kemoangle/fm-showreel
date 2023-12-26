@@ -17,7 +17,6 @@ const emit = defineEmits<Emit>();
 
 const handleClose = () => {
     emit('update:isDrawerOpen', false);
-
 };
 
 const videoListStore = useVideoListStore();
@@ -72,14 +71,26 @@ watch(props, async (oldId, newId) => {
                             <td>
                                 <span class="">{{ video.video?.keyNo }}</span>
                             </td>
-                            <td style="color: rgb(236, 114, 114);">
-                                <p v-if="video.doNotPlay.length">Do pot play on
-                                    (<span v-for="(item, idx) in video.doNotPlay" :key="item.id">{{item.buildingName}}<span v-if="idx < video.doNotPlay.length - 1">/ </span>
-                                    </span>)
+                            <td style="color: rgb(236, 114, 114)">
+                                <p v-if="video.doNotPlay.length">
+                                    Do pot play on (<span
+                                        v-for="(item, idx) in video.doNotPlay"
+                                        :key="item.id"
+                                        >{{ item.buildingName
+                                        }}<span v-if="idx < video.doNotPlay.length - 1"
+                                            >/
+                                        </span> </span
+                                    >)
                                 </p>
-                                <p v-if="video.noBackToBack.length">No back to back with
-                                    (<span v-for="(item, idx) in video.noBackToBack" :key="item.id">{{item.name}}<span v-if="idx < video.noBackToBack.length - 1">/ </span>
-                                    </span>)
+                                <p v-if="video.noBackToBack.length">
+                                    No back to back with (<span
+                                        v-for="(item, idx) in video.noBackToBack"
+                                        :key="item.id"
+                                        >{{ item.name
+                                        }}<span v-if="idx < video.noBackToBack.length - 1"
+                                            >/
+                                        </span> </span
+                                    >)
                                 </p>
                             </td>
                         </tr>
@@ -101,15 +112,15 @@ watch(props, async (oldId, newId) => {
 
 <style lang="scss" scoped>
 .max-height-500 {
-  position: relative;
-  max-block-size: 500px;
-  overflow-y: auto;
+    position: relative;
+    max-block-size: 500px;
+    overflow-y: auto;
 }
 
 .sticky {
-  position: sticky;
-  z-index: 1;
-  background-color: white;
-  inset-block-start: 0;
+    position: sticky;
+    z-index: 1;
+    background-color: white;
+    inset-block-start: 0;
 }
 </style>
