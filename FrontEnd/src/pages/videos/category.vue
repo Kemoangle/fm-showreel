@@ -197,27 +197,6 @@ const menu = ref(false);
         <!-- SECTION Pagination -->
 
         <!-- !SECTION -->
-        <VCard>
-            <v-menu v-model="menu" :close-on-content-click="false" location="bottom" height="300px">
-                <template v-slot:activator="{ props }">
-                    <v-btn color="indigo" v-bind="props"> Categories </v-btn>
-                </template>
-                    <VList>
-                        <div v-for="category in categoryStore.pageCategory.categories">
-                            <div class="father">
-                                <VCheckbox v-model="category.active" />
-                                <label>{{ category.name }}</label>
-                            </div>
-                            <div class="children" v-if="category.active">
-                                <div class="children-item" v-for="children in category.subCategory">
-                                    <VCheckbox v-model="children.active"/>
-                                    <label>{{ children.name }}</label>
-                                </div>
-                            </div>
-                        </div>
-                    </VList>
-            </v-menu>
-        </VCard>
     </section>
 </template>
 
