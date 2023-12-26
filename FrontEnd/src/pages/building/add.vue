@@ -38,7 +38,7 @@ watch(props, async (oldId, newId) => {
     refForm.value?.resetValidation();
     if (newId.buildingId && newId.buildingId > 0) {
         axiosIns.get<Building>('Building/' + newId.buildingId).then((reponse) => {
-            buildingData.value = reponse;
+            buildingData.value = reponse.data;
         });
     } else {
         buildingData.value.id = 0;

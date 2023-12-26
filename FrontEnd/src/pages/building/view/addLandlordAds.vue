@@ -44,7 +44,7 @@ watch(props, async (oldId, newId) => {
     refForm.value?.resetValidation();
     if (newId.landlordAdsId && newId.landlordAdsId > 0 ) {
         axiosIns.get('LandlordAds/GetLandlordAdsById/' + newId.landlordAdsId).then((response: any) => {
-            landlordData.value = response;
+            landlordData.value = response.data;
         });
     }
     else{

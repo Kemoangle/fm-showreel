@@ -25,7 +25,6 @@ const { showSnackbar } = useSnackbar();
 
 const getAll = async () => {
     await videoStore.getPageVideo(keySearch.value, currentPage.value, pageSize.value);
-    console.log(videoStore.data.videos);
 };
 watchEffect(() => {
     totalPages.value = videoStore.data.totalPages;
@@ -81,7 +80,6 @@ const deleteVideo = (id: number) => {
 const addNewVideo = async (videoData: Video) => {
     const { subCategory, category, doNotPlay, noBackToBack, ...rest } = videoData;
     const allCategories = [...subCategory, ...(category || [])];
-    console.log(allCategories);
 
     showSnackbar('Processing...', 'warning');
     if (videoData.id && videoData.id > 0) {
@@ -192,7 +190,7 @@ const randomColor = () => {
                             {{ video.keyNo }}
                         </td>
 
-                        <td style="color: rgb(236, 114, 114)">
+                        <td style="color: rgb(236, 114, 114);">
                             <p v-if="video.doNotPlay.length">
                                 Do pot play on (<span
                                     v-for="(item, idx) in video.doNotPlay"
@@ -290,7 +288,7 @@ const randomColor = () => {
             <!-- SECTION Pagination -->
             <VCardText class="d-flex flex-wrap justify-end gap-4 pa-2">
                 <!-- 👉 Rows per page -->
-                <div class="d-flex align-center me-3" style="width: 171px">
+                <div class="d-flex align-center me-3" style="width: 171px;">
                     <span class="text-no-wrap me-3">Rows per page:</span>
 
                     <VSelect
@@ -325,23 +323,23 @@ const randomColor = () => {
 
 <style lang="scss">
 .app-user-search-filter {
-    inline-size: 24.0625rem;
+  inline-size: 24.0625rem;
 }
 
 .text-capitalize {
-    text-transform: capitalize;
+  text-transform: capitalize;
 }
 
 .user-list-name:not(:hover) {
-    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
 }
 </style>
 
 <style lang="scss" scope>
 .user-pagination-select {
-    .v-field__input,
-    .v-field__append-inner {
-        padding-block-start: 0.3rem;
-    }
+  .v-field__input,
+  .v-field__append-inner {
+    padding-block-start: 0.3rem;
+  }
 }
 </style>

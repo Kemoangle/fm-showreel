@@ -7,12 +7,12 @@ import { Building } from '@/model/building';
 import { Category } from '@/model/category';
 import { Video } from '@/model/video';
 import axiosIns from '@/plugins/axios';
-import { useVideoTypeStore } from '@/store/useVideoTypeStore';
 import { requiredValidator } from '@validators';
 
-const categories = ref();
-const subCategories = ref();
-const buildings = ref();
+const listCategory = ref<any[]>([]);
+const categories = ref<Category[]>([]);
+const subCategories = ref<Category[]>([]);
+const buildings = ref<Building[]>([]);
 
 interface Emit {
     (e: 'update:isDrawerOpen', value: boolean): void;
@@ -29,9 +29,11 @@ const emit = defineEmits<Emit>();
 
 const isFormValid = ref(false);
 const refForm = ref<VForm>();
+const menu = ref(false);
 
 const checkAutocomplete = ref(false);
-const videoTypeStore = useVideoTypeStore();
+const isRequiredCategory = ref(false);
+
 const videoData = ref<Video | any>({
     id: 0,
     title: '',
@@ -49,35 +51,41 @@ watch(props, async (oldId, newId) => {
     refForm.value?.reset();
     refForm.value?.resetValidation();
     checkAutocomplete.value = false;
-
-    await axiosIns.get<Category[]>('Category/GetParent').then((response) => {
-        categories.value = response;
+    isRequiredCategory.value = false;
+    await axiosIns.get<Category[]>('Category/GetAllCategory').then((response: any) => {
+        listCategory.value = response.data;
     });
-    await axiosIns.get<Building[]>('Building/getBuilding').then((response) => {
-        buildings.value = response;
+    await axiosIns.get<Category[]>('Category/GetParent').then((response: any) => {
+        categories.value = response.data;
+    });
+    await axiosIns.get<Building[]>('Building/getBuilding').then((response: any) => {
+        buildings.value = response.data;
     });
     if (newId.videoId) {
         axiosIns.get('Video/' + newId.videoId).then((response: any) => {
-            videoData.value = response;
+            videoData.value = response.data;
             axiosIns
                 .get<Category[]>('Category/GetSub', {
                     params: {
-                        categories: response.category.map((cat: Category) => cat.id),
+                        categories: response.data.category.map((cat: Category) => cat.id),
                     },
                 })
-                .then((data) => {
-                    subCategories.value = data;
+                .then((data: any) => {
+                    subCategories.value = data.data;
                     videoData.value.subCategory = activateAutocomplete(
-                        response.subCategory,
+                        response.data.subCategory,
                         subCategories.value
                     );
                 });
-            videoData.value.category = activateAutocomplete(response.category, categories.value);
+            videoData.value.category = activateAutocomplete(response.data.category, categories.value);
             videoData.value.noBackToBack = activateAutocomplete(
-                response.noBackToBack,
+                response.data.noBackToBack,
                 categories.value
             );
-            videoData.value.doNotPlay = activateAutocomplete(response.doNotPlay, buildings.value);
+            videoData.value.doNotPlay = activateAutocomplete(response.data.doNotPlay, buildings.value);
+            fetchCategory(videoData.value.category);
+            fetchSubCategories(videoData.value.subCategory)
+
         });
     } else {
         videoData.value.id = 0;
@@ -104,8 +112,19 @@ const closeNavigationDrawer = () => {
 
 const onSubmit = () => {
     checkAutocomplete.value = true;
+    
+    const activeCategories = listCategory.value.filter((category: any) => category.active);
+    videoData.value.category = activeCategories;
+    delete(videoData.value.category.subCategory);
+    const activeSubCategories = activeCategories
+        .map((category: any) => category.subCategory)
+        .flat()
+        .filter((subCategory: any) => subCategory && subCategory.active);
+    videoData.value.subCategory = activeSubCategories;
+    checkCategory();
+
     refForm.value?.validate().then(({ valid }) => {
-        if (valid) {
+        if (valid && !isRequiredCategory.value) {
             emit('videoData', videoData.value);
             emit('update:isDrawerOpen', false);
             nextTick(() => {
@@ -120,30 +139,50 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
     emit('update:isDrawerOpen', val);
 };
 
-const getSubCategory = () => {
-    if (videoData.value.category) {
-        videoData.value.subCategory = [];
-        const categoryIds = videoData.value.category.map((cat: Category) => cat.id);
+const fetchCategory = async (category: any[]) => {
+    if (listCategory.value) {
+        listCategory.value=listCategory.value.map((x:any)=>({...x, active:false}));
 
-        if (categoryIds) {
-            axiosIns
-                .get<Category[]>('Category/GetSub', {
-                    params: {
-                        categories: categoryIds,
-                    },
-                })
-                .then((response: any) => {
-                    subCategories.value = response;
-                })
-                .catch((error: any) => {
-                    console.error('Error fetching subcategories:', error);
-                });
-        }
-    } else {
-        subCategories.value = [];
+        listCategory.value.forEach((element: any) => {
+            if (category.some(category => category.id === element.id)) {
+                    element.active = true;
+            }
+        });
     }
-    refForm.value?.resetValidation();
-};
+}
+const fetchSubCategories = async (subCategories: any[]) => {
+    if (listCategory.value) {
+        listCategory.value.forEach((element: any) => {
+            if (element.subCategory && Array.isArray(element.subCategory)) {
+                element.subCategory.forEach((e: any) => {
+                    e.active = false;
+                    if (subCategories.some(subCategory => subCategory.id === e.id)) {
+                        e.active = true;
+                    }
+                });
+            }
+        });
+    }
+}
+
+const checkCategory = () =>{
+    isRequiredCategory.value = false;
+    if(videoData.value.category.length < 1){
+        isRequiredCategory.value = true;
+    }
+}
+
+const handleClickCategory = () => {
+    if (listCategory.value) {
+        listCategory.value.forEach((element: any) => {
+            if (element.subCategory && Array.isArray(element.subCategory) && element.active == false) {
+                element.subCategory.forEach((e: any) => {
+                    e.active = false;
+                });
+            }
+        });
+    }
+}
 </script>
 
 <template>
@@ -205,51 +244,32 @@ const getSubCategory = () => {
                                 </VCol>
 
                                 <VCol cols="12">
-                                    <VAutocomplete
-                                        v-model="videoData.category"
-                                        chips
-                                        closable-chips
-                                        :items="categories"
-                                        item-title="name"
-                                        label="Category"
-                                        :menu-props="{ maxHeight: 250 }"
-                                        multiple
-                                        return-object
-                                        @update:model-value="getSubCategory"
-                                        :rules="[checkAutocomplete ? requiredValidator : true]"
+                                    <v-menu v-model="menu" :close-on-content-click="false" 
+                                        location="bottom" 
+                                        height="300px" 
+                                        width="300px"
                                     >
-                                        <template #chip="{ props, item }">
-                                            <VChip v-bind="props" :text="item.raw.name" />
+                                        <template v-slot:activator="{ props }">
+                                            <VBtn color="info" v-bind="props" append-icon="mdi-menu-down"> Categories </VBtn>  
                                         </template>
-
-                                        <template #item="{ props, item }">
-                                            <VListItem v-bind="props" :title="item?.raw?.name" />
-                                        </template>
-                                    </VAutocomplete>
+                                            <VList>
+                                                <div v-for="category in listCategory">
+                                                    <div class="father">
+                                                        <VCheckbox v-model="category.active" @click="handleClickCategory"/>
+                                                        <label>{{ category.name }}</label>
+                                                    </div>
+                                                    <div class="children" v-if="category.active">
+                                                        <div class="children-item" v-for="children in category.subCategory">
+                                                            <VCheckbox v-model="children.active"/>
+                                                            <label>{{ children.name }}</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </VList>
+                                    </v-menu>
+                                    <span class="ml-3" style="color: rgb(235, 98, 98);" v-if="isRequiredCategory">This field is required</span>
                                 </VCol>
-
-                                <VCol cols="12" v-if="videoData.category.length > 0">
-                                    <VAutocomplete
-                                        v-model="videoData.subCategory"
-                                        chips
-                                        closable-chips
-                                        :items="subCategories"
-                                        item-title="name"
-                                        label="Sub Category"
-                                        :menu-props="{ maxHeight: 250 }"
-                                        multiple
-                                        return-object
-                                    >
-                                        <template #chip="{ props, item }">
-                                            <VChip v-bind="props" :text="item.raw.name" />
-                                        </template>
-
-                                        <template #item="{ props, item }">
-                                            <VListItem v-bind="props" :title="item?.raw?.name" />
-                                        </template>
-                                    </VAutocomplete>
-                                </VCol>
-
+                                
                                 <VCol cols="12">
                                     <VAutocomplete
                                         v-model="videoData.noBackToBack"
@@ -295,6 +315,7 @@ const getSubCategory = () => {
                                         </template>
                                     </VAutocomplete>
                                 </VCol>
+                                
                                 <!-- 👉 Submit and Cancel -->
                                 <VCol cols="12">
                                     <VBtn type="submit" class="me-3"> Submit </VBtn>
@@ -323,6 +344,25 @@ const getSubCategory = () => {
 
   .v-chip.v-chip--density-default {
     block-size: unset !important;
+  }
+}
+
+.father {
+  display: flex;
+  align-items: center;
+  padding-inline-start: 10px;
+}
+
+p {
+  padding: 0;
+  margin: 0;
+}
+
+.children {
+  &-item {
+    display: flex;
+    align-items: center;
+    padding-inline-start: 40px;
   }
 }
 </style>

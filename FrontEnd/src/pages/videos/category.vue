@@ -62,10 +62,6 @@ const randomColor = () => {
     return randomColor;
 };
 
-const selectedSubcategory = ref<[]>([]);
-const selectedCategory = ref<[]>([]);
-const menu = ref(false);
-
 </script>
 
 <template>
@@ -163,7 +159,7 @@ const menu = ref(false);
                     </VTable>
                     <VCardText class="d-flex flex-wrap justify-end gap-4 pa-2">
                         <!-- 👉 Rows per page -->
-                        <div class="d-flex align-center me-3" style="width: 171px">
+                        <div class="d-flex align-center me-3" style="width: 171px;">
                             <span class="text-no-wrap me-3">Rows per page:</span>
 
                             <VSelect
@@ -197,50 +193,29 @@ const menu = ref(false);
         <!-- SECTION Pagination -->
 
         <!-- !SECTION -->
-        <VCard>
-            <v-menu v-model="menu" :close-on-content-click="false" location="bottom">
-                <template v-slot:activator="{ props }">
-                    <v-btn color="indigo" v-bind="props"> Menu as Popover </v-btn>
-                </template>
-                    <VList>
-                        <div v-for="category in categoryStore.pageCategory.categories">
-                            <div class="father">
-                                <VCheckbox v-model="category.active" />
-                                <label>{{ category.name }}</label>
-                            </div>
-                            <div class="children" v-if="category.active">
-                                <div class="children-item" v-for="children in category.subCategory">
-                                    <VCheckbox v-model="children.active"/>
-                                    <label>{{ children.name }}</label>
-                                </div>
-                            </div>
-                        </div>
-                    </VList>
-            </v-menu>
-        </VCard>
     </section>
 </template>
 
 <style lang="scss">
 .app-user-search-filter {
-    inline-size: 24.0625rem;
+  inline-size: 24.0625rem;
 }
 
 .text-capitalize {
-    text-transform: capitalize;
+  text-transform: capitalize;
 }
 
 .user-list-name:not(:hover) {
-    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
 }
 </style>
 
 <style lang="scss" scope>
 .user-pagination-select {
-    .v-field__input,
-    .v-field__append-inner {
-        padding-block-start: 0.3rem;
-    }
+  .v-field__input,
+  .v-field__append-inner {
+    padding-block-start: 0.3rem;
+  }
 }
 
 .father {
