@@ -25,7 +25,11 @@ const listCategory = ref([
         ],
     },
 ]);
+const tags = ref(['Tag1', 'Tag2', 'Tag3']); // Your initial list of tags
 
+const tagsDisplay = computed(() => {
+  return tags.value.join(', '); // Concatenate tags with a comma and space
+});
 const menu = ref(false);
 </script>
 
@@ -60,6 +64,13 @@ const menu = ref(false);
                 dragée chupa chups jujubes. Macaroon liquorice cookie wafer tart marzipan bonbon.
                 Gingerbread jelly-o dragée chocolate.
             </VCardText>
+            <VTextField
+                v-model="tagsDisplay"
+                label="Selected Tags"
+                outlined
+                readonly
+                dense
+            ></VTextField>
         </VCard>
     </div>
 </template>

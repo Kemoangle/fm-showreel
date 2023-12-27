@@ -96,7 +96,7 @@ const dataTransmission = (): number[] =>{
                 </template>
                 <VBtn
                     variant="tonal"
-                    color="info"
+                    color="primary"
                     prepend-icon="mdi-plus-thick"
                     style="float: inline-end;"
                     @click="handleUpdate(0)"

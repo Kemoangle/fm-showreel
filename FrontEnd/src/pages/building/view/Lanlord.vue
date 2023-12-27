@@ -82,7 +82,7 @@ const dataTransmission = (): number[] =>{
                 <template #prepend>
                     <VIcon icon="mdi-home-add" color="success" />
                 </template>
-                <VBtn variant="tonal" color="info" 
+                <VBtn variant="tonal" color="primary" 
                     prepend-icon="mdi-plus-thick"
                     style="float: inline-end;" 
                     @click="handleUpdate(0)">

@@ -51,8 +51,6 @@ const videoData = ref<Video | any>({
 });
 
 watch(props, async (oldId, newId) => {
-    refForm.value?.reset();
-    refForm.value?.resetValidation();
     getCategory();
     checkAutocomplete.value = false;
     isRequiredCategory.value = false;
@@ -93,6 +91,11 @@ watch(props, async (oldId, newId) => {
         videoData.value.id = 0;
         videoData.value.category = [];
         videoData.value.subCategory = [];
+        tagsDisplay;
+        fetchCategory(videoData.value.category);
+        fetchSubCategories(videoData.value.subCategory);
+        refForm.value?.reset();
+        refForm.value?.resetValidation();
     }
 });
 
@@ -116,17 +119,7 @@ const closeNavigationDrawer = () => {
 
 const onSubmit = () => {
     checkAutocomplete.value = true;
-    
-    const activeCategories = listCategory.value.filter((category: any) => category.active);
-    videoData.value.category = activeCategories;
     delete(videoData.value.category.subCategory);
-    const activeSubCategories = activeCategories
-        .map((category: any) => category.subCategory)
-        .flat()
-        .filter((subCategory: any) => subCategory && subCategory.active);
-    videoData.value.subCategory = activeSubCategories;
-    checkCategory();
-
     refForm.value?.validate().then(({ valid }) => {
         if (valid && !isRequiredCategory.value) {
             emit('videoData', videoData.value);
@@ -169,18 +162,13 @@ const fetchSubCategories = async (subCategories: any[]) => {
     }
 }
 
-const checkCategory = () =>{
-    isRequiredCategory.value = false;
-    if(videoData.value.category.length < 1){
-        isRequiredCategory.value = true;
-    }
-}
-
 const handleClickCategory = (category: any) => {
     if (category.subCategory && Array.isArray(category.subCategory) && !category.active) {
-      category.subCategory.forEach((subCategory: any) => {
-        subCategory.active = false;
-      });
+        videoData.value.category = videoData.value.category.filter((item: any) => item.id != category.id);
+        category.subCategory.forEach((subCategory: any) => {
+            subCategory.active = false;
+            videoData.value.subCategory = videoData.value.subCategory.filter((item: any) => item.id != subCategory.id);
+        });
     }
     if (category.active) {
       const isIdInArray = videoData.value.category.some((existingCategory: any) => existingCategory.id === category.id);
@@ -196,6 +184,8 @@ const handleClickSubCategory = (category: any) => {
       if (!isIdInArray) {
         videoData.value.subCategory.push(category);
       }
+    }else{
+        videoData.value.subCategory = videoData.value.subCategory.filter((item: any) => item.id != category.id);
     }
 }
 
@@ -208,6 +198,10 @@ const getCategory = async() =>{
         fetchSubCategories(videoData.value.subCategory);
     });
 }
+const tagsDisplay = computed(() => {
+  return videoData.value.category.map((c: any) => c.name).filter(Boolean).join(', '); 
+});
+
 </script>
 
 <template>
@@ -275,9 +269,17 @@ const getCategory = async() =>{
                                         width="300px"
                                     >
                                         <template v-slot:activator="{ props }">
-                                            <VBtn color="info" v-bind="props" append-icon="mdi-menu-down"> Categories </VBtn>  
+                                            <!-- <VBtn color="info" v-bind="props" append-icon="mdi-menu-down"> Categories </VBtn>   -->
+                                            <VTextField
+                                                v-model="tagsDisplay"
+                                                label="Category"
+                                                outlined
+                                                readonly
+                                                dense
+                                                v-bind="props"
+                                                :rules="[checkAutocomplete? requiredValidator: true]"
+                                            ></VTextField>
                                         </template>
-                                        
                                             <VList>
                                                 <VTextField
                                                     placeholder="Search"
@@ -306,7 +308,6 @@ const getCategory = async() =>{
                                                 </div>
                                             </VList>
                                     </v-menu>
-                                    <span class="ml-3" style="color: rgb(235, 98, 98);" v-if="isRequiredCategory">This field is required</span>
                                 </VCol>
                                 
                                 <VCol cols="12">
