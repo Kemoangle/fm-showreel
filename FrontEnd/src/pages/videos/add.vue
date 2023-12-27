@@ -54,7 +54,7 @@ watch(props, async (oldId, newId) => {
     getCategory();
     checkAutocomplete.value = false;
     isRequiredCategory.value = false;
-
+    keySearchCategory.value = '';
     await axiosIns.get<Category[]>('Category/GetParent').then((response: any) => {
         categories.value = response.data;
     });
