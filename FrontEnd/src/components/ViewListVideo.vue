@@ -49,7 +49,7 @@ watch(props, async (oldId, newId) => {
                             <th scope="col">DURATION</th>
                             <th scope="col">Loop</th>
                             <th scope="col">KEY NO</th>
-                            <th scope="col">REMASK</th>
+                            <th scope="col">REMARK</th>
                         </tr>
                     </thead>
 
@@ -71,7 +71,7 @@ watch(props, async (oldId, newId) => {
                             <td>
                                 <span class="">{{ video.video?.keyNo }}</span>
                             </td>
-                            <td style="color: rgb(236, 114, 114)">
+                            <td style="color: rgb(236, 114, 114);">
                                 <p v-if="video.doNotPlay.length">
                                     Do pot play on (<span
                                         v-for="(item, idx) in video.doNotPlay"
@@ -112,15 +112,15 @@ watch(props, async (oldId, newId) => {
 
 <style lang="scss" scoped>
 .max-height-500 {
-    position: relative;
-    max-block-size: 500px;
-    overflow-y: auto;
+  position: relative;
+  max-block-size: 500px;
+  overflow-y: auto;
 }
 
 .sticky {
-    position: sticky;
-    z-index: 1;
-    background-color: white;
-    inset-block-start: 0;
+  position: sticky;
+  z-index: 1;
+  background-color: white;
+  inset-block-start: 0;
 }
 </style>

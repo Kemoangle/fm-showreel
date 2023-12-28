@@ -725,93 +725,93 @@ const handleClickGenPlaylistBuilding = () => {
 
 <style lang="scss">
 .app-user-search-filter {
-    inline-size: 24.0625rem;
+  inline-size: 24.0625rem;
 }
 
 .text-capitalize {
-    text-transform: capitalize;
+  text-transform: capitalize;
 }
 
 .user-list-name:not(:hover) {
-    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
 }
 </style>
 
 <style lang="scss" scope>
 .m-0 {
-    margin: 0 !important;
+  margin: 0 !important;
 }
 
 .user-pagination-select {
-    .v-field__input,
-    .v-field__append-inner {
-        padding-block-start: 0.3rem;
-    }
+  .v-field__input,
+  .v-field__append-inner {
+    padding-block-start: 0.3rem;
+  }
 }
 
 .position-absolute {
-    display: flex;
-    gap: 10px;
-    inset-block-start: 20px;
-    inset-inline-end: 20px;
+  display: flex;
+  gap: 10px;
+  inset-block-start: 20px;
+  inset-inline-end: 20px;
 }
 
 .flip-list-move {
-    transition: transform 0.5s;
+  transition: transform 0.5s;
 }
 
 .no-move {
-    transition: transform 0s;
+  transition: transform 0s;
 }
 
 .ghost {
-    background: #c8ebfb;
-    opacity: 0.5;
+  background: #c8ebfb;
+  opacity: 0.5;
 }
 
 .list-group {
-    min-block-size: 20px;
+  min-block-size: 20px;
 }
 
 .list-group-item {
-    cursor: move;
+  cursor: move;
 }
 
 .list-group-item i {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .input-remark {
-    input {
-        block-size: 35px !important;
-        min-block-size: unset;
-        padding-block: 0;
-        padding-inline: 20px;
-    }
+  input {
+    block-size: 35px !important;
+    min-block-size: unset;
+    padding-block: 0;
+    padding-inline: 20px;
+  }
 }
 
 .input-name-building {
-    input {
-        block-size: 35px !important;
-        inline-size: 400px !important;
-        min-block-size: unset;
-    }
+  input {
+    block-size: 35px !important;
+    inline-size: 400px !important;
+    min-block-size: unset;
+  }
 }
 
 // table
 
 .th--table {
-    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
-    font-size: 12px;
-    font-weight: bold;
+  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+  font-size: 12px;
+  font-weight: bold;
 }
 
 .tr--table {
-    border-block-start: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-block-start: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
 
 .td--table {
-    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
-    font-size: 14px;
+  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+  font-size: 14px;
 }
 </style>

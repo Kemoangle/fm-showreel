@@ -58,7 +58,7 @@ const handleClose = () => {
                             <th scope="col">DURATION</th>
                             <th scope="col">Loop</th>
                             <th scope="col">KEY NO</th>
-                            <th scope="col">REMASK</th>
+                            <th scope="col">REMARK</th>
                         </tr>
                     </thead>
 
