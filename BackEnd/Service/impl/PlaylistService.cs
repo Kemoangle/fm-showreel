@@ -62,16 +62,13 @@ namespace Showreel.Service.impl
         public void DeletePlaylist(int id)
         {
             var playlistDelete = _context.Playlists.Find(id);
-            var transaction = _context.Database.BeginTransaction();
             if (playlistDelete != null)
             {
                 _context.Playlists.Remove(playlistDelete);
                 _context.SaveChanges();
                 var subPlaylistDelete = _context.Playlists.Where(p => p.ParentId == id);
-                if(subPlaylistDelete.Any()){
-                    _context.Playlists.RemoveRange(subPlaylistDelete);
-                    _context.SaveChanges();
-                }
+                _context.Playlists.RemoveRange(subPlaylistDelete);
+                _context.SaveChanges();
             }
         }
 
