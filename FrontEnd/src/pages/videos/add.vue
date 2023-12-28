@@ -77,15 +77,20 @@ watch(props, async (oldId, newId) => {
                         subCategories.value
                     );
                 });
-            videoData.value.category = activateAutocomplete(response.data.category, categories.value);
+            videoData.value.category = activateAutocomplete(
+                response.data.category,
+                categories.value
+            );
             videoData.value.noBackToBack = activateAutocomplete(
                 response.data.noBackToBack,
                 categories.value
             );
-            videoData.value.doNotPlay = activateAutocomplete(response.data.doNotPlay, buildings.value);
+            videoData.value.doNotPlay = activateAutocomplete(
+                response.data.doNotPlay,
+                buildings.value
+            );
             fetchCategory(videoData.value.category);
             fetchSubCategories(videoData.value.subCategory);
-
         });
     } else {
         videoData.value.id = 0;
@@ -119,7 +124,7 @@ const closeNavigationDrawer = () => {
 
 const onSubmit = () => {
     checkAutocomplete.value = true;
-    delete(videoData.value.category.subCategory);
+    delete videoData.value.category.subCategory;
     refForm.value?.validate().then(({ valid }) => {
         if (valid && !isRequiredCategory.value) {
             emit('videoData', videoData.value);
@@ -138,70 +143,84 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
 
 const fetchCategory = async (category: any[]) => {
     if (listCategory.value) {
-        listCategory.value=listCategory.value.map((x:any)=>({...x, active:false}));
+        listCategory.value = listCategory.value.map((x: any) => ({ ...x, active: false }));
 
         listCategory.value.forEach((element: any) => {
-            if (category.some(category => category.id === element.id)) {
-                    element.active = true;
+            if (category.some((category) => category.id === element.id)) {
+                element.active = true;
             }
         });
     }
-}
+};
 const fetchSubCategories = async (subCategories: any[]) => {
     if (listCategory.value) {
         listCategory.value.forEach((element: any) => {
             if (element.subCategory && Array.isArray(element.subCategory)) {
                 element.subCategory.forEach((e: any) => {
                     e.active = false;
-                    if (subCategories.some(subCategory => subCategory.id === e.id)) {
+                    if (subCategories.some((subCategory) => subCategory.id === e.id)) {
                         e.active = true;
                     }
                 });
             }
         });
     }
-}
+};
 
 const handleClickCategory = (category: any) => {
     if (category.subCategory && Array.isArray(category.subCategory) && !category.active) {
-        videoData.value.category = videoData.value.category.filter((item: any) => item.id != category.id);
+        videoData.value.category = videoData.value.category.filter(
+            (item: any) => item.id != category.id
+        );
         category.subCategory.forEach((subCategory: any) => {
             subCategory.active = false;
-            videoData.value.subCategory = videoData.value.subCategory.filter((item: any) => item.id != subCategory.id);
+            videoData.value.subCategory = videoData.value.subCategory.filter(
+                (item: any) => item.id != subCategory.id
+            );
         });
     }
     if (category.active) {
-      const isIdInArray = videoData.value.category.some((existingCategory: any) => existingCategory.id === category.id);
-      if (!isIdInArray) {
-        videoData.value.category.push(category);
-      }
+        const isIdInArray = videoData.value.category.some(
+            (existingCategory: any) => existingCategory.id === category.id
+        );
+        if (!isIdInArray) {
+            videoData.value.category.push(category);
+        }
     }
-}
+};
 
 const handleClickSubCategory = (category: any) => {
     if (category.active) {
-      const isIdInArray = videoData.value.subCategory.some((existingCategory: any) => existingCategory.id === category.id);
-      if (!isIdInArray) {
-        videoData.value.subCategory.push(category);
-      }
-    }else{
-        videoData.value.subCategory = videoData.value.subCategory.filter((item: any) => item.id != category.id);
+        const isIdInArray = videoData.value.subCategory.some(
+            (existingCategory: any) => existingCategory.id === category.id
+        );
+        if (!isIdInArray) {
+            videoData.value.subCategory.push(category);
+        }
+    } else {
+        videoData.value.subCategory = videoData.value.subCategory.filter(
+            (item: any) => item.id != category.id
+        );
     }
-}
+};
 
-const getCategory = async() =>{
-    await axiosIns.get<Category[]>('Category/GetAllCategory', {
-        params: {keySearch: keySearchCategory.value}
-    }).then((response: any) => {
-        listCategory.value = response.data;
-        fetchCategory(videoData.value.category);
-        fetchSubCategories(videoData.value.subCategory);
-    });
-}
+const getCategory = async () => {
+    await axiosIns
+        .get<Category[]>('Category/GetAllCategory', {
+            params: { keySearch: keySearchCategory.value },
+        })
+        .then((response: any) => {
+            listCategory.value = response.data;
+            fetchCategory(videoData.value.category);
+            fetchSubCategories(videoData.value.subCategory);
+        });
+};
 const tagsDisplay = computed(() => {
-  return videoData.value.category.map((c: any) => c.name).filter(Boolean).join(', '); 
+    return videoData.value.category
+        .map((c: any) => c.name)
+        .filter(Boolean)
+        .join(', ');
 });
-
 </script>
 
 <template>
@@ -263,9 +282,11 @@ const tagsDisplay = computed(() => {
                                 </VCol>
 
                                 <VCol cols="12">
-                                    <v-menu v-model="menu" :close-on-content-click="false" 
-                                        location="bottom" 
-                                        height="300px" 
+                                    <v-menu
+                                        v-model="menu"
+                                        :close-on-content-click="false"
+                                        location="bottom"
+                                        height="300px"
                                         width="300px"
                                     >
                                         <template v-slot:activator="{ props }">
@@ -277,39 +298,66 @@ const tagsDisplay = computed(() => {
                                                 readonly
                                                 dense
                                                 v-bind="props"
-                                                :rules="[checkAutocomplete? requiredValidator: true]"
-                                            ></VTextField>
+                                                :rules="[
+                                                    checkAutocomplete ? requiredValidator : true,
+                                                ]"
+                                            >
+                                            </VTextField>
                                         </template>
-                                            <VList>
-                                                <VTextField
-                                                    placeholder="Search"
-                                                    density="compact"
-                                                    @input="getCategory"
-                                                    v-model="keySearchCategory"
-                                                />
-                                                <div v-if="!categoryStore.isLoading" v-for="category in listCategory">
-                                                    <div class="father">
-                                                        <VCheckbox :id="category.name" v-model="category.active" @change="handleClickCategory(category)"/>
-                                                        <label style="cursor: pointer;" :for="category.name">{{ category.name }}</label>
-                                                        <VIcon
-                                                            icon="mdi-menu-down"
-                                                            :size="20"
-                                                            class="me-3"
-                                                            color="primary"
+                                        <VList>
+                                            <VTextField
+                                                placeholder="Search"
+                                                density="compact"
+                                                @input="getCategory"
+                                                v-model="keySearchCategory"
+                                            />
+                                            <div
+                                                v-if="!categoryStore.isLoading"
+                                                v-for="category in listCategory"
+                                            >
+                                                <div class="father">
+                                                    <VCheckbox
+                                                        :id="category.name"
+                                                        v-model="category.active"
+                                                        @change="handleClickCategory(category)"
+                                                    />
+                                                    <label
+                                                        style="cursor: pointer;"
+                                                        :for="category.name"
+                                                        >{{ category.name }}</label
+                                                    >
+                                                    <VIcon
+                                                        icon="mdi-menu-down"
+                                                        :size="20"
+                                                        class="me-3"
+                                                        color="primary"
+                                                    >
+                                                    </VIcon>
+                                                </div>
+                                                <div class="children" v-if="category.active">
+                                                    <div
+                                                        class="children-item"
+                                                        v-for="children in category.subCategory"
+                                                    >
+                                                        <VCheckbox
+                                                            :id="children.name"
+                                                            v-model="children.active"
+                                                            @change="
+                                                                handleClickSubCategory(children)
+                                                            "
+                                                        />
+                                                        <label
+                                                            style="cursor: pointer;"
+                                                            :for="children.name"
+                                                            >{{ children.name }}</label
                                                         >
-                                                        </VIcon>
-                                                    </div>
-                                                    <div class="children" v-if="category.active">
-                                                        <div class="children-item" v-for="children in category.subCategory">
-                                                            <VCheckbox :id="children.name" v-model="children.active" @change="handleClickSubCategory(children)"/>
-                                                            <label style="cursor: pointer;" :for="children.name">{{ children.name }}</label>
-                                                        </div>
                                                     </div>
                                                 </div>
-                                            </VList>
+                                            </div>
+                                        </VList>
                                     </v-menu>
                                 </VCol>
-                                
+
                                 <VCol cols="12">
                                     <VAutocomplete
                                         v-model="videoData.noBackToBack"
@@ -355,7 +403,7 @@ const tagsDisplay = computed(() => {
                                         </template>
                                     </VAutocomplete>
                                 </VCol>
-                                
+
                                 <!-- 👉 Submit and Cancel -->
                                 <VCol cols="12">
                                     <VBtn type="submit" class="me-3"> Submit </VBtn>

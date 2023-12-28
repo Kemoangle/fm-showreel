@@ -66,6 +66,9 @@ namespace Showreel.Service.impl
             {
                 _context.Playlists.Remove(playlistDelete);
                 _context.SaveChanges();
+                var subPlaylistDelete = _context.Playlists.Where(p => p.ParentId == id);
+                _context.Playlists.RemoveRange(subPlaylistDelete);
+                _context.SaveChanges();
             }
         }
 
