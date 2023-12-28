@@ -1,4 +1,5 @@
 import moment from 'moment';
+import _ from 'lodash';
 
 export const getTimestamp = () => {
     const date = moment();
@@ -10,4 +11,15 @@ export const getTimestamp = () => {
     const seconds = date.second().toString().padStart(2, '0');
 
     return years + '' + +months + '' + days + '' + hours + '' + minutes + '' + seconds;
+};
+
+export const mergeBuildings = (data: any) => {
+    const buildings = _.values(_.groupBy(data, (item) => JSON.stringify(_.omit(item, 'id')))).map(
+        (group) => {
+            const ids = _.map(group, 'id');
+            return _.assign(_.omit(group[0], 'id'), { id: ids });
+        }
+    );
+
+    return buildings;
 };

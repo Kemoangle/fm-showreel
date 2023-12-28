@@ -11,6 +11,7 @@ import { LandlordAds } from '@/model/landlordAds';
 import { IVideos } from '@/model/generatorPlaylist';
 import { defineStore } from 'pinia';
 import { Restriction } from '@/model/restriction';
+import { mergeBuildings } from '@/utils/functions';
 
 interface IState {
     data: any;
@@ -117,6 +118,8 @@ export const useBuildingStore = defineStore('building', {
             let arrLandLordAds: IBuildingLandlord[] = [];
             let restriction: IBuildingRestriction[] = [];
             const details = await this.getDetailBuilding(ids);
+            const ok = mergeBuildings(details);
+            console.log('ok:', ok);
             details.forEach((detail) => {
                 const landlordAds = detail.lanlordAds;
                 restriction.push({

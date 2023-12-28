@@ -7,11 +7,6 @@ export default [
         icon: { icon: 'mdi-home-outline' },
     },
     {
-        title: 'Second page',
-        to: { name: 'second-page' },
-        icon: { icon: 'mdi-file-document-outline' },
-    },
-    {
         title: 'Building page',
         to: { name: 'building-list' },
         icon: { icon: 'mdi-office-building-settings' },
