@@ -53,34 +53,50 @@ namespace Showreel.Controllers
 
             return Ok(response);
         }
-
-        [HttpGet("detail/{id}")]
-        public ActionResult<Building> GetAllBuildings(int id)
+        class buildingLR
         {
+            public int? id { get; set; }
+            public Object? lanlordAds { get; set; }
+            public Object? restriction { get; set; }
+        };
 
-            var lanlordAds = from l in _lanlordAdsService.GetLandlordAdsBuilding(id)
-                             select new
-                             {
-                                 id = l.Id,
-                                 loop = l.Loop,
-                                 startDate = l.StartDate,
-                                 endDate = l.EndDate,
-                                 video = _videoService.GetVideoById((int)l.VideoId)
-                             };
-            var restriction = from br in _restrictionService.GetBuildingRestriction(id)
-                              select new
-                              {
-                                  id = br.Id,
-                                  buildingId = br.BuildingId,
-                                  type = br.Type,
-                                  category = _categoryService.GetCategoryById((int)br.CategoryId),
-                                  arrCategory = _restrictionService.GetRestrictionExcepts(br.Id)
-                              };
-            return Ok(new
+        [HttpGet("detail")]
+        public ActionResult<Building> GetAllBuildings(string listId)
+        {
+            string[] ids = listId.Split(",");
+
+            List<buildingLR> listBuildings = new List<buildingLR>();
+            foreach (var id in ids)
             {
-                lanlordAds,
-                restriction
-            });
+                var lanlordAds = from l in _lanlordAdsService.GetLandlordAdsBuilding(Int32.Parse(id))
+                                 select new
+                                 {
+                                     id = l.Id,
+                                     loop = l.Loop,
+                                     startDate = l.StartDate,
+                                     endDate = l.EndDate,
+                                     video = _videoService.GetVideoById((int)l.VideoId)
+                                 };
+                var restriction = from br in _restrictionService.GetBuildingRestriction(Int32.Parse(id))
+                                  select new
+                                  {
+                                      id = br.Id,
+                                      buildingId = br.BuildingId,
+                                      type = br.Type,
+                                      category = _categoryService.GetCategoryById((int)br.CategoryId),
+                                      arrCategory = _restrictionService.GetRestrictionExcepts(br.Id)
+                                  };
+
+                listBuildings.Add(new buildingLR
+                {
+                    id = Int32.Parse(id),
+                    lanlordAds = lanlordAds,
+                    restriction = restriction
+                });
+
+            }
+            return Ok(listBuildings);
+
         }
 
         [HttpGet("getAll")]
