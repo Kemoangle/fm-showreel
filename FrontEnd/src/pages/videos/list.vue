@@ -177,8 +177,23 @@ const randomColor = () => {
                         </td>
 
                         <td>
-                            <div class="d-flex align-center">
-                                {{ video.title }}
+                            <div class="d-flex flex-column">
+                                <h6 class="text-sm font-weight-medium">
+                                    <a
+                                        @click="handleUpdate(video.id)"
+                                        class="font-weight-medium user-list-name"
+                                        style="cursor: pointer;"
+                                    >
+                                        {{ video.title }}
+                                        <VTooltip
+                                            location="top"
+                                            transition="scale-transition"
+                                            activator="parent"
+                                        >
+                                            <span>Edit {{ video.title }}</span>
+                                        </VTooltip>
+                                    </a>
+                                </h6>
                             </div>
                         </td>
 
@@ -236,36 +251,20 @@ const randomColor = () => {
                         </td>
 
                         <td class="text-center">
-                            <VBtn size="x-small" color="default" variant="plain" icon>
-                                <VIcon size="24" icon="mdi-dots-vertical" />
-
-                                <VMenu activator="parent">
-                                    <VList>
-                                        <VListItem @click="handleUpdate(video.id)">
-                                            <template #prepend>
-                                                <VIcon
-                                                    icon="mdi-pencil-outline"
-                                                    :size="20"
-                                                    class="me-3"
-                                                    color="warning"
-                                                />
-                                            </template>
-                                            <VListItemTitle>Edit</VListItemTitle>
-                                        </VListItem>
-
-                                        <VListItem @click="deleteVideo(video.id)">
-                                            <template #prepend>
-                                                <VIcon
-                                                    icon="mdi-delete-outline"
-                                                    :size="20"
-                                                    class="me-3"
-                                                    color="error"
-                                                />
-                                            </template>
-                                            <VListItemTitle>Delete</VListItemTitle>
-                                        </VListItem>
-                                    </VList>
-                                </VMenu>
+                            <VBtn color="default" @click="deleteVideo(video.id)">
+                                <VIcon
+                                    icon="mdi-delete-outline"
+                                    :size="20"
+                                    class="me-3"
+                                    color="error"
+                                />
+                                <VTooltip
+                                            location="top"
+                                            transition="scale-transition"
+                                            activator="parent"
+                                        >
+                                            <span>Delete {{ video.title }}</span>
+                                        </VTooltip>
                             </VBtn>
                         </td>
                     </tr>
