@@ -45,7 +45,7 @@ watch(props, async (oldId, newId) => {
             .get('Restriction/GetBuildingRestrictionById/' + newId.restrictionId)
             .then((response: any) => {
                 categoryStore.getSubCategory(response.data.category.id).then((data: any) => {
-                    subCategories.value = data.data;
+                    subCategories.value = data;
                     restrictionData.value = response.data;
                     restrictionData.value.arrCategory = activateCategories(
                         response.data.arrCategory,

@@ -23,6 +23,7 @@ const handleUpdate = (id: number) => {
 
 const handleSubmit = async (landlordData: LandlordAds) => {
     landlordData.buildingId = props.buildingId;
+    landlordData.videoId = landlordData.video?.id;
     delete(landlordData.video);
     if (landlordData.id && landlordData.id > 0) {
         await lanlordAdsStore.updateLandlordAds(landlordData)

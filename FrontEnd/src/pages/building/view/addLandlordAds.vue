@@ -43,7 +43,7 @@ watch(props, async (oldId, newId) => {
     refForm.value?.reset();
     refForm.value?.resetValidation();
     if (newId.landlordAdsId && newId.landlordAdsId > 0 ) {
-        axiosIns.get('LandlordAds/GetLandlordAdsById/' + newId.landlordAdsId).then((response: any) => {
+        await axiosIns.get('LandlordAds/GetLandlordAdsById/' + newId.landlordAdsId).then((response: any) => {
             landlordData.value = response.data;
         });
     }
@@ -130,12 +130,12 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                             <!-- 👉 buildingName -->
                             <VCol cols="12">
                                 <VAutocomplete
-                                    v-model="landlordData.videoId"
+                                    v-model="landlordData.video"
                                     :items="videoData"
                                     item-title="title"
-                                    item-value="id"
                                     label="Video"
                                     :menu-props="{ maxHeight: 250 }"
+                                    return-object
                                     :rules="[requiredValidator]"
                                 />
                             </VCol>

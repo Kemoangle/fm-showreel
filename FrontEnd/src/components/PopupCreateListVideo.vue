@@ -37,13 +37,12 @@ onMounted(() => {
 });
 
 watch(props, async (oldId, newId) => {
-    createVideos();
     refForm.value?.reset();
     refForm.value?.resetValidation();
     if (newId.videoListId) {
         axiosIns.get('VideoList/GetVideoListById/' + newId.videoListId).then((response: any) => {
             videoListData.value = response.data;
-            videoStore.video = videoStore.video?.map(x=>({
+            videoStore.video = videoStore.video?.map((x: any)=>({
                 ...x,
                 isActive: (response.data.videoVideoList.find((v: any) => v.videoId==x.id)) ? true : false,
                 loop: response.data.videoVideoList.find((v: any) => v.videoId==x.id)?.loopNum
@@ -52,6 +51,7 @@ watch(props, async (oldId, newId) => {
     } else {
         videoListData.value.id = 0;
         videoListData.value.title = '';
+        createVideos();
     }
 });
 
