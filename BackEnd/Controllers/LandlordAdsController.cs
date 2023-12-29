@@ -94,6 +94,7 @@ namespace Showreel.Controllers
                 buildingId = landlordads.BuildingId,
                 startDate = landlordads.StartDate,
                 endDate = landlordads.EndDate,
+                video  = videoService.GetVideoById((int)landlordads.VideoId)
             };
             return Ok(response);
         }
