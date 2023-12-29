@@ -6,11 +6,7 @@ export default [
         to: { name: 'index' },
         icon: { icon: 'mdi-home-outline' },
     },
-    {
-        title: 'Second page',
-        to: { name: 'second-page' },
-        icon: { icon: 'mdi-file-document-outline' },
-    },
+
     {
         title: 'Building page',
         to: { name: 'building-list' },

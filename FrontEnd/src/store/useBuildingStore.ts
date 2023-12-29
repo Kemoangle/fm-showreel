@@ -11,6 +11,7 @@ import { LandlordAds } from '@/model/landlordAds';
 import { IVideos } from '@/model/generatorPlaylist';
 import { defineStore } from 'pinia';
 import { Restriction } from '@/model/restriction';
+import { mergeBuildings } from '@/utils/functions';
 
 interface IState {
     data: any;
@@ -92,9 +93,13 @@ export const useBuildingStore = defineStore('building', {
             }
         },
 
-        async getDetailBuilding(id: number) {
-            const data = await axiosIns.get<IDetailBuilding>('Building/detail/' + id);
-            return data.data as IDetailBuilding;
+        async getDetailBuilding(ids: number[]) {
+            const data = await axiosIns.get<IDetailBuilding[]>('Building/detail', {
+                params: {
+                    listId: ids.join(','),
+                },
+            });
+            return data.data as IDetailBuilding[];
         },
 
         async getLandlordBuilding(id: number) {
@@ -112,28 +117,22 @@ export const useBuildingStore = defineStore('building', {
 
             let arrLandLordAds: IBuildingLandlord[] = [];
             let restriction: IBuildingRestriction[] = [];
-
-            const promise = new Promise(async (resolve, reject) => {
-                ids.forEach(async (id) => {
-                    const detail = await this.getDetailBuilding(id);
-                    const landlordAds = detail.lanlordAds;
-                    restriction.push({
-                        buildingId: id,
-                        restriction: detail.restriction,
-                    });
-                    arrLandLordAds.push({
-                        buildingId: id,
-                        videos: convertVideoLandlordToVideo(landlordAds as LandlordAds[]),
-                    });
-                    if (arrLandLordAds.length == ids.length) {
-                        resolve('');
-                    }
+            const details = await this.getDetailBuilding(ids);
+            const ok = mergeBuildings(details);
+            console.log('ok:', ok);
+            details.forEach((detail) => {
+                const landlordAds = detail.lanlordAds;
+                restriction.push({
+                    buildingId: detail.id,
+                    restriction: detail.restriction,
+                });
+                arrLandLordAds.push({
+                    buildingId: detail.id,
+                    videos: convertVideoLandlordToVideo(landlordAds as LandlordAds[]),
                 });
             });
 
-            promise.then((data) => {
-                callBack(arrLandLordAds, restriction);
-            });
+            callBack(arrLandLordAds, restriction);
         },
     },
 });

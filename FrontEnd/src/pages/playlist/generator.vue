@@ -130,7 +130,7 @@ onMounted(async () => {
     );
     listVideos.value = convertValueListVideoSelect(await useStoreVideo.getListVideoStore());
     buildings.value = convertValueListBuildingSelect(await useBuilding.getAllBuildingStore());
-    buildings.value.forEach((building) => {
+    buildings.value.forEach((building, index) => {
         selectedBuilding.value.push(building.value);
     });
 });
@@ -267,6 +267,7 @@ const handleCreatePlaylistGeneric = () => {
     playlist.forEach((l, index) => {
         if (l) {
             playlistGeneric.value.push({
+                ...l,
                 category: l.category || [],
                 durations: l.duration,
                 key: l.keyNo || '',
@@ -310,10 +311,10 @@ const handleGeneratorPlaylistBuildings = (
                 isViewPlaylistGeneric.value = false;
 
                 const genPlaylist = (
-                    listVideo: Video[],
                     landLordAds: IVideos[],
                     restriction: Restriction[] | undefined,
-                    building: Building
+                    building: Building,
+                    playlistGeneric: any[]
                 ) => {
                     // check do not play building
 
@@ -321,13 +322,17 @@ const handleGeneratorPlaylistBuildings = (
                         ? getListVideoDoNoPlay(listVideoGeneric, building.id)
                         : getListVideoDoNoPlay(listVideoActive.value, building.id);
 
-                    //
-
-                    let listVideoBuilding = [
-                        ...listVideoPlaylist.value.filter(
-                            (x) => !x.doNotPlay?.some((d) => d.id == building.id)
-                        ),
-                    ];
+                    let listVideoBuilding = listVideoGeneric
+                        ? [
+                              ...playlistGeneric.filter(
+                                  (x) => !x?.doNotPlay?.some((d: any) => d.id == building.id)
+                              ),
+                          ]
+                        : [
+                              ...listVideoPlaylist.value.filter(
+                                  (x) => !x.doNotPlay?.some((d) => d.id == building.id)
+                              ),
+                          ];
 
                     // check restriction building
                     if (!_.isEmpty(restriction) && restriction) {
@@ -374,17 +379,17 @@ const handleGeneratorPlaylistBuildings = (
                 const timestamp = getTimestamp();
 
                 buildingActive.forEach((building, index) => {
-                    const playlist = genPlaylist(
-                        convertPlaylistToListVideo(playlistGeneric.value),
+                    const pl = genPlaylist(
                         LandlordAds.find((x) => x.buildingId == building.id)?.videos,
                         dataRestrictions.find((x) => x.buildingId == building.id)?.restriction,
-                        building
+                        building,
+                        playlist
                     );
                     newPlaylistBuilding.push({
                         id: index + 1,
                         buildingName: 'building ' + building.title,
                         nameTimestamp: 'building ' + building.title + ' - ' + timestamp,
-                        playlist,
+                        playlist: pl,
                         isSave: false,
                     });
                 });
@@ -547,9 +552,9 @@ const handleClickGenPlaylistBuilding = () => {
         >
             <div class="position-absolute">
                 <VTextField class="input-name-building" v-model="namePlaylistGeneric" />
-                <!-- <VBtn color="primary" @click="handleGeneratorPlaylistBuildings(playlistGeneric)">
+                <VBtn color="primary" @click="handleGeneratorPlaylistBuildings(playlistGeneric)">
                     Generator PlayList Buildings
-                </VBtn> -->
+                </VBtn>
                 <VBtn color="primary" @click="savePlaylistGeneric(playlistGeneric)"> Save </VBtn>
             </div>
             <VTable class="text-no-wrap">
@@ -618,7 +623,6 @@ const handleClickGenPlaylistBuilding = () => {
                 </tfoot>
             </VTable>
         </VCard>
-
         <VCard
             :title="`Playlist ${building.buildingName}`"
             v-for="(building, indexBuilding) in listPlaylist"
