@@ -41,7 +41,7 @@ watch(props, async (oldId, newId) => {
     refForm.value?.reset();
     refForm.value?.resetValidation();
     if (newId.restrictionId) {
-        axiosIns
+        await axiosIns
             .get('Restriction/GetBuildingRestrictionById/' + newId.restrictionId)
             .then((response: any) => {
                 categoryStore.getSubCategory(response.data.category.id).then((data: any) => {
