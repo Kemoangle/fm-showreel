@@ -30,8 +30,8 @@ const getAll = () => {
 };
 
 watchEffect(() => {
-    totalPages.value = playlistStore.data.totalPages;
-    totalItems.value = playlistStore.data.totalItems;
+    totalPages.value = playlistStore.playlistBuilding.totalPages;
+    totalItems.value = playlistStore.playlistBuilding.totalItems;
     if (currentPage.value > totalPages.value) currentPage.value = totalPages.value;
 });
 
@@ -131,7 +131,7 @@ const handleBack =()=>{
 
                 <!-- 👉 table body -->
                 <tbody>
-                    <tr class="handle" v-for="(playlist, index) in playlistStore.playlistBuilding" :key="index">
+                    <tr class="handle" v-for="(playlist, index) in playlistStore.playlistBuilding.playlist" :key="index">
                         <td>
                             {{ index + 1 }}
                         </td>

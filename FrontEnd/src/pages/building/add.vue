@@ -93,7 +93,6 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                 <h6 class="text-h6">Building</h6>
 
                 <VSpacer />
-
                 <VBtn
                     size="small"
                     color="secondary"
@@ -140,14 +139,12 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                 <VCol cols="12">
                                     <VTextField
                                         v-model="buildingData.remark"
-                                        :rules="[requiredValidator]"
                                         label="Remark"
                                     />
                                 </VCol>
                                 <VCol cols="12">
                                     <VTextField
                                         v-model="buildingData.postalCode"
-                                        :rules="[requiredValidator]"
                                         label="Postal Code"
                                     />
                                 </VCol>

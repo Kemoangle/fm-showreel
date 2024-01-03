@@ -56,6 +56,7 @@ watch(props, async (oldId, newId) => {
 
 const createVideos = () => {
     videoStore.getAllVideos();
+    videoData.value = videoStore.video;
     if(props.videoExist.length > 0 && props.videoExist[0] > 0){
         videoData.value = videoStore.video.filter(v => !props.videoExist.includes(v.id));
     }
