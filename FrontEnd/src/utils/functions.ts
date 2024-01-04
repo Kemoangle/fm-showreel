@@ -14,12 +14,32 @@ export const getTimestamp = () => {
 };
 
 export const mergeBuildings = (data: any) => {
-    const buildings = _.values(_.groupBy(data, (item) => JSON.stringify(_.omit(item, 'id')))).map(
-        (group) => {
-            const ids = _.map(group, 'id');
-            return _.assign(_.omit(group[0], 'id'), { id: ids });
-        }
-    );
+    const buildings = _.values(
+        _.groupBy(ConvertObjRemoveId(data), (item) => JSON.stringify(_.omit(item, 'id')))
+    ).map((group) => {
+        const ids = _.map(group, 'id');
+        return _.assign(_.omit(group[0], 'id'), { id: ids });
+    });
 
     return buildings;
+};
+
+function handleRemoveId(obj: any, index: number = 0) {
+    if (obj && typeof obj === 'object') {
+        for (let key in obj) {
+            if (key === 'id' && index != 0) {
+                obj[key] = null;
+            } else {
+                handleRemoveId(obj[key], index + 1);
+            }
+        }
+    }
+}
+
+export const ConvertObjRemoveId = (arr: any) => {
+    return arr.map((item: any, index: number) => {
+        const newItem = { ...item };
+        handleRemoveId(newItem);
+        return newItem;
+    });
 };

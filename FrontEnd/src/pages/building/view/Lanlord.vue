@@ -71,7 +71,6 @@ const deleteLandlordAds = async (id: number) => {
 
 const dataTransmission = (): number[] =>{
     const videoIds: number[] = lanlordAdsStore.data.map((ad) => ad.video?.id || 0);  
-    console.log(videoIds);
     return videoIds;
 }
 </script>

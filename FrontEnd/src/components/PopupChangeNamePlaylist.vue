@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { requiredValidator } from '@/@core/utils/validators';
 import { IListPlaylist } from '@/model/generatorPlaylist';
 
 interface Props {
@@ -18,10 +19,14 @@ const props = withDefaults(defineProps<Props>(), {
     title: 'Change name building',
 });
 
+const listName = ref<string[]>();
+
 watch(
     props,
     (value) => {
-        console.log('hel;l;o');
+        if (value) {
+            listName.value = value.playlist?.nameTimestamp;
+        }
     },
     { deep: true }
 );
@@ -45,12 +50,20 @@ const handleConfirm = () => {
     >
         <!-- Dialog Content -->
         <VCard :title="title">
-            <VCardText> building </VCardText>
+            <VCardText>
+                <div v-for="(building, index) in listName" v-if="listName">
+                    <VTextField
+                        v-model="listName[index]"
+                        :rules="[requiredValidator]"
+                        :label="`building ${playlist?.buildingName[index]}`"
+                        class="mt-4"
+                    />
+                </div>
+            </VCardText>
 
             <VCardActions>
                 <VSpacer />
-                <VBtn color="error" @click="dialogVisibleUpdate(false)"> Cancel </VBtn>
-                <VBtn color="success" @click="handleConfirm()"> Agree </VBtn>
+                <VBtn color="primary" variant="elevated" @click="handleConfirm()"> Okay </VBtn>
             </VCardActions>
         </VCard>
     </VDialog>

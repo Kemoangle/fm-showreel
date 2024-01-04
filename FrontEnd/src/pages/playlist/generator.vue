@@ -103,12 +103,14 @@ watch(selectedListVideo, async (value, oldValue) => {
 watch(selectedPlaylist, (value, oldValue) => {
     if (value) {
         selectedListVideo.value = undefined;
+        listPlaylist.value = undefined;
     }
 });
 
 watch(selectedListVideo, (value, oldValue) => {
     if (value) {
         selectedPlaylist.value = undefined;
+        listPlaylist.value = undefined;
     }
 });
 // --------------------------------------
@@ -152,7 +154,7 @@ const handleClickShowListVideo = () => {
     isDialogListVideoCurrent.value = !isDialogListVideoCurrent.value;
 };
 
-const checkPlaylistInvalid = (playlist: IPlaylist[]) => {
+const checkPlaylistInvalid = (playlist: IPlaylist[], nameBuilding?: string) => {
     const exportPlaylist = new generatorPlaylist();
 
     const isCheckCategoriesCloselyTogether =
@@ -170,12 +172,18 @@ const checkPlaylistInvalid = (playlist: IPlaylist[]) => {
 
     const isCheckNoBackToBack = exportPlaylist.checkNoBackToBack(listVideo);
     if (isCheckCategoriesCloselyTogether) {
-        showSnackbar('Category conflicts in playlists, please double-check?', 'error');
+        showSnackbar(
+            `Category conflicts in playlists ${nameBuilding}, please double-check?`,
+            'error'
+        );
         return false;
     }
 
     if (isCheckNoBackToBack.status) {
-        showSnackbar('Back to back conflicts in playlists, please double-check?', 'error');
+        showSnackbar(
+            `Back to back conflicts in playlists ${nameBuilding}, please double-check?`,
+            'error'
+        );
         return false;
     }
     return true;
@@ -184,20 +192,20 @@ const checkPlaylistInvalid = (playlist: IPlaylist[]) => {
 const handleSaveOnePlaylist = (
     playlist: IPlaylist[],
     name: string,
-    nameTimestamp: string,
+    nameTimestamp: string[],
     indexBuilding: number
 ) => {
     if (checkPlaylistInvalid(playlist)) {
-        const data: IPostPlaylistStore = {
+        const data: IPostPlaylistStore[] = nameTimestamp.map((x) => ({
             id: 0,
             jsonPlaylist: JSON.stringify(playlist),
             status: 'active',
-            title: nameTimestamp,
+            title: x,
             creator: 'string',
             parentId: selectedPlaylist.value || 0,
-        };
+        }));
         usePlaylist
-            .addNewPlaylist([data])
+            .addNewPlaylist(data)
             .then((data) => {
                 showSnackbar(`Save playlist ${name} Successfully`, 'success');
                 if (listPlaylist.value && listPlaylist.value[indexBuilding]) {
@@ -215,19 +223,28 @@ const handleClickSaveAll = () => {
         isLoading.value = true;
         for (let i = 0; i < listPlaylist.value.length; i++) {
             const playlist = listPlaylist.value[i].playlist;
-            if (!checkPlaylistInvalid(playlist)) {
+            if (!checkPlaylistInvalid(playlist, listPlaylist.value[i].buildingName.join(', '))) {
                 isLoading.value = false;
                 return;
             }
         }
-        const data: IPostPlaylistStore[] = listPlaylist.value.map((x) => ({
-            id: 0,
-            jsonPlaylist: JSON.stringify(x.playlist),
-            status: 'active',
-            title: x.nameTimestamp[0],
-            creator: 'string',
-            parentId: selectedPlaylist.value || 0,
-        }));
+        const getObjPlaylist = (child: IListPlaylist): IPostPlaylistStore[] => {
+            return !child.isSave
+                ? child.nameTimestamp.map((x) => ({
+                      id: 0,
+                      jsonPlaylist: JSON.stringify(child.playlist),
+                      status: 'active',
+                      title: x,
+                      creator: 'string',
+                      parentId: selectedPlaylist.value || 0,
+                  }))
+                : [];
+        };
+
+        const data: IPostPlaylistStore[] = [];
+        listPlaylist.value.forEach((child) => {
+            data.push(...getObjPlaylist(child));
+        });
 
         usePlaylist
             .addNewPlaylist(data)
@@ -314,6 +331,9 @@ const handleGeneratorPlaylistBuildings = (
         const buildingActive = buildings.value.filter((b) =>
             selectedBuilding.value.includes(b.value)
         );
+        const namePlaylistGeneric = listPlaylistGeneric.value.find(
+            (x) => x.id == selectedPlaylist.value
+        )?.title;
 
         useBuilding.setListBuildingActive(
             buildingActive.map((x) => x.id),
@@ -322,10 +342,6 @@ const handleGeneratorPlaylistBuildings = (
                 dataRestrictions: IBuildingRestrictionGroup[]
             ) {
                 isViewPlaylistGeneric.value = false;
-
-                console.log('dataRestrictions:', dataRestrictions);
-                console.log('LandlordAds:', LandlordAds);
-                console.log('buildingActive:', buildingActive);
 
                 const genPlaylist = (
                     landLordAds: IVideos[],
@@ -408,19 +424,18 @@ const handleGeneratorPlaylistBuildings = (
 
                     const nameBuilding = buildingActive
                         .filter((x) => group.buildingId.some((v) => v === x.id))
-                        .map((x) => x.buildingName);
+                        .map((x) => x.buildingName || '');
 
                     newPlaylistBuilding.push({
                         id: index + 1,
                         listBuilding: group.buildingId,
-                        buildingName: 'building ' + nameBuilding.join(', '),
-                        nameTimestamp: nameBuilding.map((x) => x + '-' + timestamp),
+                        buildingName: nameBuilding,
+                        nameTimestamp: nameBuilding.map((x) => x + '-' + namePlaylistGeneric),
                         playlist: pl,
                         isSave: false,
                     });
                 });
 
-                console.log('newPlaylistBuilding:', newPlaylistBuilding);
                 listPlaylist.value = newPlaylistBuilding;
                 isLoading.value = false;
             }
@@ -591,9 +606,9 @@ const handleClickEditNameGroupPlaylist = (playlistId: number) => {
         >
             <div class="position-absolute">
                 <VTextField class="input-name-building" v-model="namePlaylistGeneric" />
-                <VBtn color="primary" @click="handleGeneratorPlaylistBuildings(playlistGeneric)">
+                <!-- <VBtn color="primary" @click="handleGeneratorPlaylistBuildings(playlistGeneric)">
                     Generator PlayList Buildings
-                </VBtn>
+                </VBtn> -->
                 <VBtn color="primary" @click="savePlaylistGeneric(playlistGeneric)"> Save </VBtn>
             </div>
             <VTable class="text-no-wrap">
@@ -663,9 +678,9 @@ const handleClickEditNameGroupPlaylist = (playlistId: number) => {
             </VTable>
         </VCard>
         <VCard
-            :title="`Playlist ${pl.buildingName}`"
+            :title="`Playlist ${pl.buildingName.join(', ')}`"
             v-for="(pl, indexBuilding) in listPlaylist"
-            :key="pl.buildingName"
+            :key="indexBuilding"
             class="mb-6 position-relative"
             v-if="!isViewPlaylistGeneric"
         >
@@ -679,17 +694,19 @@ const handleClickEditNameGroupPlaylist = (playlistId: number) => {
                 <VBtn v-else @click="handleClickEditNameGroupPlaylist(pl.id)">Edit Name</VBtn>
                 <VBtn
                     color="primary"
+                    size="40"
                     v-if="!pl.isSave"
                     @click="
                         handleSaveOnePlaylist(
                             pl.playlist,
-                            pl.buildingName,
-                            pl.nameTimestamp[0],
+                            pl.buildingName.join(', '),
+                            pl.nameTimestamp,
                             indexBuilding
                         )
                     "
+                    icon="mdi-content-save-all"
+                    variant="text"
                 >
-                    Save
                 </VBtn>
             </div>
             <VTable class="text-no-wrap">

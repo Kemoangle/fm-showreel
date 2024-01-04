@@ -82,7 +82,6 @@ const handleSubmit = async (restrictionData: any) => {
 
 const dataTransmission = (): number[] =>{
     const categoryIds: number[] = restrictionStore.data.map((r: Restriction) => r.category?.id || 0);  
-    console.log(categoryIds);
     return categoryIds;
 }
 </script>

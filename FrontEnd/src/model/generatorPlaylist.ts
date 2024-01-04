@@ -33,7 +33,7 @@ export interface IPlaylist {
 export interface IListPlaylist {
     id: number;
     listBuilding: number[];
-    buildingName: string;
+    buildingName: string[];
     nameTimestamp: string[];
     playlist: IPlaylist[];
     isSave: boolean;

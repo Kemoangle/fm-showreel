@@ -1,7 +1,6 @@
+import { IPostPlaylistStore } from '@/model/playlist';
 import axiosIns from '@/plugins/axios';
 import { defineStore } from 'pinia';
-import { IPostPlaylistStore } from '@/model/playlist';
-import _ from 'lodash';
 
 interface IPagination {
     currentPage: number;
@@ -64,7 +63,7 @@ export const usePlaylistStore = defineStore('playlist', {
         async getPlaylistChildren(
             id: number,
             keySearch: string,
-            currentPage: number,
+            page: number,
             pageSize: number
         ) {
             this.isLoading = true;
@@ -72,14 +71,14 @@ export const usePlaylistStore = defineStore('playlist', {
                 .get<IGetPlaylist>('PlayList/GetPlayListByParent/' + id, {
                     params: {
                         keySearch,
-                        currentPage,
+                        page,
                         pageSize,
                     },
                 })
                 .then((res) => {
                     this.isLoading = false;
 
-                    this.playlistBuilding = res.data.playlist;
+                    this.playlistBuilding = res.data;
                 })
                 .catch((err) => {
                     this.isLoading = true;

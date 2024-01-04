@@ -41,7 +41,7 @@ watch(props, async (oldId, newId) => {
     refForm.value?.reset();
     refForm.value?.resetValidation();
     if (newId.restrictionId) {
-        axiosIns
+        await axiosIns
             .get('Restriction/GetBuildingRestrictionById/' + newId.restrictionId)
             .then((response: any) => {
                 categoryStore.getSubCategory(response.data.category.id).then((data: any) => {
@@ -76,6 +76,7 @@ const getSubCategories = () => {
 
 const createVideos = () => {
     categoryStore.getAllCategory();
+    categoriesData.value = categoryStore.data;
     if(props.categoryExist.length > 0 && props.categoryExist[0] > 0){
         categoriesData.value = categoryStore.data.filter((c: Category) => !props.categoryExist.includes(c.id));
     }
@@ -90,7 +91,6 @@ onMounted(() => {
 // 👉 drawer close
 const closeNavigationDrawer = () => {
     emit('update:isDrawerOpen', false);
-
     nextTick(() => {
         refForm.value?.reset();
         refForm.value?.resetValidation();
@@ -113,10 +113,16 @@ const onSubmit = () => {
 const handleDrawerModelValueUpdate = (val: boolean) => {
     emit('update:isDrawerOpen', val);
 };
+
+const getExcept = () =>{
+    if(restrictionData.value.arrCategory && restrictionData.value.arrCategory.length == 0){
+        restrictionData.value.type = undefined;
+    }
+}
 </script>
 
 <template>
-    <section>
+    <section>   
         <VNavigationDrawer
             temporary
             :width="400"
@@ -193,6 +199,7 @@ const handleDrawerModelValueUpdate = (val: boolean) => {
                                                 ? requiredValidator
                                                 : true,
                                         ]"
+                                        @update:model-value="getExcept"
                                     >
                                         <template #chip="{ props, item }">
                                             <VChip v-bind="props" :text="item.raw.name" />
