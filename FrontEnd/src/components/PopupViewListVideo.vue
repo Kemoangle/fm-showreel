@@ -85,13 +85,6 @@ const handleClose = () => {
                             </td>
                         </tr>
                     </tbody>
-
-                    <!-- 👉 table footer  -->
-                    <!-- <tfoot v-show="!buildingStore.data.buildings">
-                    <tr>
-                        <td colspan="7" class="text-center">No data available</td>
-                    </tr>
-                </tfoot> -->
                 </VTable>
             </VCardText>
 
@@ -106,15 +99,15 @@ const handleClose = () => {
 
 <style lang="scss" scoped>
 .max-height-500 {
-  position: relative;
-  max-block-size: 500px;
-  overflow-y: auto;
+    position: relative;
+    max-block-size: 500px;
+    overflow-y: auto;
 }
 
 .sticky {
-  position: sticky;
-  z-index: 1;
-  background-color: white;
-  inset-block-start: 0;
+    position: sticky;
+    z-index: 1;
+    background-color: white;
+    inset-block-start: 0;
 }
 </style>

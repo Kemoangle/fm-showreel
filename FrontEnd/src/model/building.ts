@@ -19,13 +19,29 @@ export interface IBuildingLandlord {
     videos: Video[] | any;
 }
 
+export interface IBuildingLandlordGroup {
+    buildingId: number[];
+    videos: Video[] | any;
+}
+
 export interface IBuildingRestriction {
     buildingId: number;
     restriction: Restriction[];
 }
 
+export interface IBuildingRestrictionGroup {
+    buildingId: number[];
+    restriction: Restriction[];
+}
+
 export interface IDetailBuilding {
     id: number;
+    lanlordAds: IBuildingLandlord[];
+    restriction: Restriction[];
+}
+
+export interface IDetailBuildingGroup {
+    id: number[];
     lanlordAds: IBuildingLandlord[];
     restriction: Restriction[];
 }

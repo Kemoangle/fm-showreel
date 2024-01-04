@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { useSnackbar } from '@/components/Snackbar.vue';
 import ViewListVideo from '@/components/ViewListVideo.vue';
-import { Building, IBuildingLandlord, IBuildingRestriction } from '@/model/building';
+import PopupChangeNamePlaylist from '@/components/PopupChangeNamePlaylist.vue';
+import {
+    Building,
+    IBuildingLandlord,
+    IBuildingLandlordGroup,
+    IBuildingRestriction,
+    IBuildingRestrictionGroup,
+} from '@/model/building';
 import { IListPlaylist, IPlaylist, IVideos } from '@/model/generatorPlaylist';
 import { IPostPlaylistStore } from '@/model/playlist';
 import { Restriction } from '@/model/restriction';
@@ -45,6 +52,9 @@ const isDialogListVideoCurrent = ref(false);
 const isViewPlaylistGeneric = ref(false);
 const isLoading = ref(false);
 const playlistGeneric = ref<IPlaylist[]>([]);
+
+const isDialogChangeNamePlaylist = ref(false);
+const playlistActive = ref<IListPlaylist>();
 
 const listVideoActive = ref<IVideoInList[]>([]);
 const listVideoPlaylist = ref<IVideos[]>([]);
@@ -214,7 +224,7 @@ const handleClickSaveAll = () => {
             id: 0,
             jsonPlaylist: JSON.stringify(x.playlist),
             status: 'active',
-            title: x.nameTimestamp,
+            title: x.nameTimestamp[0],
             creator: 'string',
             parentId: selectedPlaylist.value || 0,
         }));
@@ -307,8 +317,15 @@ const handleGeneratorPlaylistBuildings = (
 
         useBuilding.setListBuildingActive(
             buildingActive.map((x) => x.id),
-            function (LandlordAds: IBuildingLandlord[], dataRestrictions: IBuildingRestriction[]) {
+            function (
+                LandlordAds: IBuildingLandlordGroup[],
+                dataRestrictions: IBuildingRestrictionGroup[]
+            ) {
                 isViewPlaylistGeneric.value = false;
+
+                console.log('dataRestrictions:', dataRestrictions);
+                console.log('LandlordAds:', LandlordAds);
+                console.log('buildingActive:', buildingActive);
 
                 const genPlaylist = (
                     landLordAds: IVideos[],
@@ -378,22 +395,32 @@ const handleGeneratorPlaylistBuildings = (
 
                 const timestamp = getTimestamp();
 
-                buildingActive.forEach((building, index) => {
+                LandlordAds.forEach((group, index) => {
                     const pl = genPlaylist(
-                        LandlordAds.find((x) => x.buildingId == building.id)?.videos,
-                        dataRestrictions.find((x) => x.buildingId == building.id)?.restriction,
-                        building,
+                        group?.videos,
+                        dataRestrictions.find((x) =>
+                            group.buildingId.some((b) => x.buildingId.some((v) => v == b))
+                        )?.restriction,
+                        buildingActive.find((x) => group.buildingId.some((v) => v == x.id)) ||
+                            buildingActive[0],
                         playlist
                     );
+
+                    const nameBuilding = buildingActive
+                        .filter((x) => group.buildingId.some((v) => v === x.id))
+                        .map((x) => x.buildingName);
+
                     newPlaylistBuilding.push({
                         id: index + 1,
-                        buildingName: 'building ' + building.title,
-                        nameTimestamp: 'building ' + building.title + ' - ' + timestamp,
+                        listBuilding: group.buildingId,
+                        buildingName: 'building ' + nameBuilding.join(', '),
+                        nameTimestamp: nameBuilding.map((x) => x + '-' + timestamp),
                         playlist: pl,
                         isSave: false,
                     });
                 });
 
+                console.log('newPlaylistBuilding:', newPlaylistBuilding);
                 listPlaylist.value = newPlaylistBuilding;
                 isLoading.value = false;
             }
@@ -437,10 +464,22 @@ const handleClickGenPlaylistBuilding = () => {
         handleGeneratorPlaylistBuildings(playlist, listVideo);
     }
 };
+
+const handleClickEditNameGroupPlaylist = (playlistId: number) => {
+    isDialogChangeNamePlaylist.value = true;
+    const plActive = listPlaylist.value?.find((x) => x.id == playlistId);
+    if (plActive) {
+        playlistActive.value = plActive;
+    }
+};
 </script>
 
 <template>
     <section>
+        <PopupChangeNamePlaylist
+            :playlist="playlistActive"
+            v-model:is-dialog-visible="isDialogChangeNamePlaylist"
+        />
         <VCard title="Filters" class="mb-6">
             <VProgressCircular
                 color="primary"
@@ -624,26 +663,28 @@ const handleClickGenPlaylistBuilding = () => {
             </VTable>
         </VCard>
         <VCard
-            :title="`Playlist ${building.buildingName}`"
-            v-for="(building, indexBuilding) in listPlaylist"
-            :key="building.buildingName"
+            :title="`Playlist ${pl.buildingName}`"
+            v-for="(pl, indexBuilding) in listPlaylist"
+            :key="pl.buildingName"
             class="mb-6 position-relative"
             v-if="!isViewPlaylistGeneric"
         >
             <div class="position-absolute">
                 <VTextField
+                    v-if="pl.listBuilding.length == 1"
                     class="input-name-building"
-                    v-model="building.nameTimestamp"
-                    :disabled="building.isSave"
+                    v-model="pl.nameTimestamp"
+                    :disabled="pl.isSave"
                 />
+                <VBtn v-else @click="handleClickEditNameGroupPlaylist(pl.id)">Edit Name</VBtn>
                 <VBtn
                     color="primary"
-                    v-if="!building.isSave"
+                    v-if="!pl.isSave"
                     @click="
                         handleSaveOnePlaylist(
-                            building.playlist,
-                            building.buildingName,
-                            building.nameTimestamp,
+                            pl.playlist,
+                            pl.buildingName,
+                            pl.nameTimestamp[0],
                             indexBuilding
                         )
                     "
@@ -666,8 +707,8 @@ const handleClickGenPlaylistBuilding = () => {
                 <VueDraggableNext
                     class="list-group"
                     tag="tbody"
-                    :handle="building.isSave ? 'don\'t-drag' : '.handle'"
-                    :list="building.playlist"
+                    :handle="pl.isSave ? 'don\'t-drag' : '.handle'"
+                    :list="pl.playlist"
                     v-bind="dragOptions"
                     @start="isDragging = true"
                     @end="isDragging = false"
@@ -675,7 +716,7 @@ const handleClickGenPlaylistBuilding = () => {
                     <transition-group type="transition" name="flip-list">
                         <tr
                             class="handle"
-                            v-for="(playlist, index) in building.playlist"
+                            v-for="(playlist, index) in pl.playlist"
                             :key="playlist.order"
                         >
                             <td>
@@ -701,7 +742,7 @@ const handleClickGenPlaylistBuilding = () => {
                             <td></td>
                             <td></td>
                             <td class="text-medium-emphasis">
-                                {{ building.playlist.reduce((a, b) => a + (b?.durations || 0), 0) }}
+                                {{ pl.playlist.reduce((a, b) => a + (b?.durations || 0), 0) }}
                             </td>
                             <td></td>
                             <td class="text-capitalize"></td>
@@ -710,7 +751,7 @@ const handleClickGenPlaylistBuilding = () => {
                     </transition-group>
                 </VueDraggableNext>
 
-                <tfoot v-show="!building.playlist.length">
+                <tfoot v-show="!pl.playlist.length">
                     <tr>
                         <td colspan="7" class="text-center">No data available</td>
                     </tr>
@@ -729,93 +770,93 @@ const handleClickGenPlaylistBuilding = () => {
 
 <style lang="scss">
 .app-user-search-filter {
-  inline-size: 24.0625rem;
+    inline-size: 24.0625rem;
 }
 
 .text-capitalize {
-  text-transform: capitalize;
+    text-transform: capitalize;
 }
 
 .user-list-name:not(:hover) {
-  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
 }
 </style>
 
 <style lang="scss" scope>
 .m-0 {
-  margin: 0 !important;
+    margin: 0 !important;
 }
 
 .user-pagination-select {
-  .v-field__input,
-  .v-field__append-inner {
-    padding-block-start: 0.3rem;
-  }
+    .v-field__input,
+    .v-field__append-inner {
+        padding-block-start: 0.3rem;
+    }
 }
 
 .position-absolute {
-  display: flex;
-  gap: 10px;
-  inset-block-start: 20px;
-  inset-inline-end: 20px;
+    display: flex;
+    gap: 10px;
+    inset-block-start: 20px;
+    inset-inline-end: 20px;
 }
 
 .flip-list-move {
-  transition: transform 0.5s;
+    transition: transform 0.5s;
 }
 
 .no-move {
-  transition: transform 0s;
+    transition: transform 0s;
 }
 
 .ghost {
-  background: #c8ebfb;
-  opacity: 0.5;
+    background: #c8ebfb;
+    opacity: 0.5;
 }
 
 .list-group {
-  min-block-size: 20px;
+    min-block-size: 20px;
 }
 
 .list-group-item {
-  cursor: move;
+    cursor: move;
 }
 
 .list-group-item i {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 .input-remark {
-  input {
-    block-size: 35px !important;
-    min-block-size: unset;
-    padding-block: 0;
-    padding-inline: 20px;
-  }
+    input {
+        block-size: 35px !important;
+        min-block-size: unset;
+        padding-block: 0;
+        padding-inline: 20px;
+    }
 }
 
 .input-name-building {
-  input {
-    block-size: 35px !important;
-    inline-size: 400px !important;
-    min-block-size: unset;
-  }
+    input {
+        block-size: 35px !important;
+        inline-size: 400px !important;
+        min-block-size: unset;
+    }
 }
 
 // table
 
 .th--table {
-  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
-  font-size: 12px;
-  font-weight: bold;
+    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+    font-size: 12px;
+    font-weight: bold;
 }
 
 .tr--table {
-  border-block-start: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
+    border-block-start: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
 
 .td--table {
-  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
-  font-size: 14px;
+    color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+    font-size: 14px;
 }
 </style>

@@ -3,6 +3,9 @@ import {
     IBuildingLandlord,
     IDetailBuilding,
     IBuildingRestriction,
+    IDetailBuildingGroup,
+    IBuildingLandlordGroup,
+    IBuildingRestrictionGroup,
 } from '@/model/building';
 import axiosIns from '@/plugins/axios';
 import _ from 'lodash';
@@ -109,18 +112,17 @@ export const useBuildingStore = defineStore('building', {
         async setListBuildingActive(
             ids: number[],
             callBack: (
-                LandlordAds: IBuildingLandlord[],
-                restriction: IBuildingRestriction[]
+                LandlordAds: IBuildingLandlordGroup[],
+                restriction: IBuildingRestrictionGroup[]
             ) => void
         ) {
             this.listIdBuildingActive = ids;
 
-            let arrLandLordAds: IBuildingLandlord[] = [];
-            let restriction: IBuildingRestriction[] = [];
+            let arrLandLordAds: IBuildingLandlordGroup[] = [];
+            let restriction: IBuildingRestrictionGroup[] = [];
             const details = await this.getDetailBuilding(ids);
-            const ok = mergeBuildings(details);
-            console.log('ok:', ok);
-            details.forEach((detail) => {
+            const groupBuilding = mergeBuildings(details) as IDetailBuildingGroup[];
+            groupBuilding.forEach((detail) => {
                 const landlordAds = detail.lanlordAds;
                 restriction.push({
                     buildingId: detail.id,
