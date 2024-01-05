@@ -30,47 +30,24 @@ const handleClose = () => {
 };
 
 const playlist = ref<IPlaylist[]>([]);
+const title = ref();
 
-watch(props, async (oldId, newId) => {
+watch(props, async () => {
     if (props.data) {
+        title.value = _.clone(props.data.title);
         playlist.value = JSON.parse(props.data.jsonPlaylist) as IPlaylist[];
     }
 });
-
-// const checkPlaylistInvalid = (playlist: IPlaylist[]) => {
-//     const exportPlaylist = new generatorPlaylist();
-
-//     const isCheckCategoriesCloselyTogether =
-//         exportPlaylist.checkCategoriesCloselyTogether(playlist);
-
-//     const listVideo: IVideos[] = playlist.map((x) => ({
-//         name: x.name,
-//         noBackToBack: listVideoActive.value.find((l) => x.key == l.video.keyNo)?.noBackToBack,
-//         key: x.key,
-//         loop: 1,
-//         subCategory: x.category || [],
-//         category: x.category || [],
-//         id: 1,
-//     }));
-
-//     const isCheckNoBackToBack = exportPlaylist.checkNoBackToBack(listVideo);
-//     if (isCheckCategoriesCloselyTogether) {
-//         showSnackbar('Category conflicts in playlists, please double-check?', 'error');
-//         return false;
-//     }
-
-//     if (isCheckNoBackToBack.status) {
-//         showSnackbar('Back to back conflicts in playlists, please double-check?', 'error');
-//         return false;
-//     }
-//     return true;
-// };
 
 const handleUpdate = () => {
     if (props.data) {
         isLoading.value = true;
         playlistStore
-            .updatePlaylist({ ...props.data, jsonPlaylist: JSON.stringify(playlist.value) })
+            .updatePlaylist({
+                ...props.data,
+                jsonPlaylist: JSON.stringify(playlist.value),
+                title: title.value,
+            })
             .then((res: any) => {
                 isLoading.value = false;
 
@@ -98,19 +75,18 @@ const dragOptions = () => {
 
 <template>
     <VDialog v-model="props.isDrawerOpen" max-width="1200">
-        <VCard title=" ">
-            <div class="position-absolute-left">
-                <VTextField v-if="data" v-model="data.title" />
+        <VCard :title="data?.buildings?.map((x) => x.buildingName).join(', ') || ' '">
+            <div class="position-absolute-right">
+                <VTextField v-if="data" v-model="title" />
+                <VBtn
+                    color="primary"
+                    :disabled="isLoading"
+                    :loading="isLoading"
+                    @click="handleUpdate"
+                >
+                    Save
+                </VBtn>
             </div>
-            <VBtn
-                color="primary"
-                :disabled="isLoading"
-                :loading="isLoading"
-                class="position-absolute-right"
-                @click="handleUpdate"
-            >
-                Save
-            </VBtn>
             <VCardText class="pt-8">
                 <VTable class="text-no-wrap">
                     <thead>
@@ -214,6 +190,13 @@ const dragOptions = () => {
     position: absolute;
     inset-block-start: 20px;
     inset-inline-end: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    input {
+        min-width: 400px !important;
+        min-height: 30px !important;
+    }
 }
 .position-absolute-left {
     position: absolute;

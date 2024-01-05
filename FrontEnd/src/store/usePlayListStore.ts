@@ -64,7 +64,8 @@ export const usePlaylistStore = defineStore('playlist', {
             id: number,
             keySearch: string,
             page: number,
-            pageSize: number
+            pageSize: number,
+            buildingId: number[]
         ) {
             this.isLoading = true;
             await axiosIns
@@ -73,6 +74,7 @@ export const usePlaylistStore = defineStore('playlist', {
                         keySearch,
                         page,
                         pageSize,
+                        buildingId: buildingId.join(', '),
                     },
                 })
                 .then((res) => {
@@ -91,9 +93,11 @@ export const usePlaylistStore = defineStore('playlist', {
 
         async updatePlaylist(data: IPostPlaylistStore) {
             return await axiosIns.patch('PlayList/' + data.id, data).then((res) => {
-                const index = this.data.findIndex((x: IPostPlaylistStore) => x.id == res.data?.id);
+                const index = this.playlistBuilding.playlist.findIndex(
+                    (x: IPostPlaylistStore) => x.id == res.data?.id
+                );
                 if (index >= 0) {
-                    this.data[index] = res.data;
+                    this.playlistBuilding.playlist[index] = res.data;
                 }
                 return res.data;
             });

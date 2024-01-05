@@ -5,6 +5,8 @@ namespace Showreel.Models;
 
 public partial class Buildingplaylist
 {
+    public int Id { get; set; }
+
     public int? BuildingId { get; set; }
 
     public int? PlaylistId { get; set; }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Showreel.Models;
 
@@ -22,4 +23,5 @@ public partial class Playlist
     public string? Creator { get; set; }
 
     public int? ParentId { get; set; }
+
 }

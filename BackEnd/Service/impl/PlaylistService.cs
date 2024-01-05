@@ -1,5 +1,5 @@
 ﻿using Showreel.Models;
-
+using Showreel.Models.ViewModels;
 namespace Showreel.Service.impl
 {
     public class PlaylistService : IPlaylistService
@@ -10,16 +10,33 @@ namespace Showreel.Service.impl
             _context = context;
         }
 
-        public Buildingplaylist AddBuildingPlayList(Buildingplaylist buildingplaylist)
+        public Buildingplaylist AddBuildingPlayList(Buildingplaylist buildingPlaylist)
         {
-            _context.Buildingplaylists.Add(buildingplaylist);
+            _context.Buildingplaylists.Add(buildingPlaylist);
             _context.SaveChanges();
-            return buildingplaylist;
+            return buildingPlaylist;
         }
 
-        public Playlist[] AddPlayList(Playlist[] playlist)
+        public PlaylistPost[] AddPlayList(PlaylistPost[] playlist)
         {
             _context.Playlists.AddRange(playlist);
+            _context.SaveChanges();
+
+            foreach (var pl in playlist)
+            {
+                List<Buildingplaylist> list = new List<Buildingplaylist>();
+
+                foreach (int buildingId in pl.buildingsId)
+                {
+                    list.Add(new Buildingplaylist
+                    {
+                        BuildingId = buildingId,
+                        PlaylistId = pl.Id
+                    });
+                }
+                _context.Buildingplaylists.AddRange(list);
+
+            }
             _context.SaveChanges();
             return playlist;
         }
@@ -93,12 +110,38 @@ namespace Showreel.Service.impl
             _context.SaveChanges();
         }
 
-        public IEnumerable<Playlist> GetPlayListByParent(string keySearch = "", int parentId = 0)
+        public IEnumerable<PlaylistWithBuilding> GetPlayListByParent(string keySearch = "", int parentId = 0, string buildingId = "")
         {
-            var query = _context.Playlists.Where(p => p.ParentId == parentId).AsQueryable();
+            var query = _context.Playlists.Select(x => new PlaylistWithBuilding
+            {
+                Id = x.Id,
+                Title = x.Title,
+                Creator = x.Creator,
+                JsonListVideo = x.JsonListVideo,
+                JsonPlaylist = x.JsonPlaylist,
+                ParentId = x.ParentId,
+                Status = x.Status,
+                EndDate = x.EndDate,
+                StartDate = x.StartDate,
+                Buildings = _context.Buildings
+               .Join(_context.Buildingplaylists, building => building.Id, buildingPlaylist => buildingPlaylist.BuildingId,
+               (building, buildingPlaylist) => new
+               {
+                   building,
+                   buildingPlaylist
+               }).Where(v => v.buildingPlaylist.PlaylistId == x.Id)
+               .Select(v => new BuildingDetail { Id = v.building.Id, BuildingName = v.building.BuildingName }).ToArray()
+            }).AsQueryable();
+
             if (!string.IsNullOrEmpty(keySearch))
             {
                 query = query.Where(b => b.Title.Contains(keySearch));
+            }
+
+            if (buildingId != null)
+            {
+                string[] listBuilding = buildingId.Split(", ");
+                query = query.Where(b => b.Buildings.Any(x => listBuilding.Contains(x.Id.ToString())));
             }
             query = query.OrderByDescending(b => b.Id);
             return query.ToList();

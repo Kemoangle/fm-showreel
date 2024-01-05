@@ -11,8 +11,8 @@ using Showreel.Models;
 namespace Showreel.Migrations
 {
     [DbContext(typeof(ShowreelContext))]
-    [Migration("20231225040458_add_json_list_video")]
-    partial class add_json_list_video
+    [Migration("20240105042218_init_migration")]
+    partial class init_migration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -83,6 +83,11 @@ namespace Showreel.Migrations
 
             modelBuilder.Entity("Showreel.Models.Buildingplaylist", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
                     b.Property<int?>("BuildingId")
                         .HasColumnType("int")
                         .HasColumnName("building_id");
@@ -90,6 +95,9 @@ namespace Showreel.Migrations
                     b.Property<int?>("PlaylistId")
                         .HasColumnType("int")
                         .HasColumnName("playlist_id");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
 
                     b.HasIndex(new[] { "BuildingId" }, "building_id");
 
@@ -124,23 +132,6 @@ namespace Showreel.Migrations
 
                     MySqlEntityTypeBuilderExtensions.HasCharSet(b, "utf8mb3");
                     MySqlEntityTypeBuilderExtensions.UseCollation(b, "utf8mb3_general_ci");
-                });
-
-            modelBuilder.Entity("Showreel.Models.Efmigrationshistory", b =>
-                {
-                    b.Property<string>("MigrationId")
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
-
-                    b.Property<string>("ProductVersion")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("varchar(32)");
-
-                    b.HasKey("MigrationId")
-                        .HasName("PRIMARY");
-
-                    b.ToTable("__efmigrationshistory", (string)null);
                 });
 
             modelBuilder.Entity("Showreel.Models.Landlordad", b =>
@@ -282,7 +273,8 @@ namespace Showreel.Migrations
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
-                    b.HasIndex(new[] { "BuildingId" }, "building_id");
+                    b.HasIndex(new[] { "BuildingId" }, "building_id")
+                        .HasDatabaseName("building_id1");
 
                     b.HasIndex(new[] { "CategoryId" }, "category_id");
 

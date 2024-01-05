@@ -7,26 +7,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Showreel.Migrations
 {
     /// <inheritdoc />
-    public partial class new_migrations : Migration
+    public partial class init_migration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
                 .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "__efmigrationshistory",
-                columns: table => new
-                {
-                    MigrationId = table.Column<string>(type: "varchar(150)", maxLength: 150, nullable: false, collation: "utf8mb3_general_ci"),
-                    ProductVersion = table.Column<string>(type: "varchar(32)", maxLength: 32, nullable: false, collation: "utf8mb3_general_ci")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PRIMARY", x => x.MigrationId);
-                })
-                .Annotation("Relational:Collation", "utf8mb3_general_ci");
 
             migrationBuilder.CreateTable(
                 name: "building",
@@ -84,12 +71,13 @@ namespace Showreel.Migrations
                     end_date = table.Column<DateTime>(type: "datetime(6)", maxLength: 6, nullable: true),
                     title = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true, collation: "utf8mb3_general_ci")
                         .Annotation("MySql:CharSet", "utf8mb3"),
-                    duration = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true, collation: "utf8mb3_general_ci")
-                        .Annotation("MySql:CharSet", "utf8mb3"),
                     JsonPlaylist = table.Column<string>(type: "longtext", nullable: true, collation: "utf8mb3_general_ci")
                         .Annotation("MySql:CharSet", "utf8mb3"),
+                    JsonListVideo = table.Column<string>(type: "longtext", nullable: true, collation: "utf8mb3_general_ci")
+                        .Annotation("MySql:CharSet", "utf8mb3"),
                     creator = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true, collation: "utf8mb3_general_ci")
-                        .Annotation("MySql:CharSet", "utf8mb3")
+                        .Annotation("MySql:CharSet", "utf8mb3"),
+                    ParentId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -180,11 +168,14 @@ namespace Showreel.Migrations
                 name: "buildingplaylist",
                 columns: table => new
                 {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     building_id = table.Column<int>(type: "int", nullable: true),
                     playlist_id = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
+                    table.PrimaryKey("PRIMARY", x => x.id);
                     table.ForeignKey(
                         name: "buildingplaylist_ibfk_1",
                         column: x => x.building_id,
@@ -380,7 +371,7 @@ namespace Showreel.Migrations
                 column: "video_id");
 
             migrationBuilder.CreateIndex(
-                name: "building_id",
+                name: "building_id1",
                 table: "restriction",
                 column: "building_id");
 
@@ -428,9 +419,6 @@ namespace Showreel.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "__efmigrationshistory");
-
             migrationBuilder.DropTable(
                 name: "buildingplaylist");
 

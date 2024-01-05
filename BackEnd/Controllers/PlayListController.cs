@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Showreel.Models;
+using Showreel.Models.ViewModels;
 using Showreel.Service;
 
 namespace BackEnd.Controllers
@@ -12,10 +13,13 @@ namespace BackEnd.Controllers
     [Route("api/[controller]")]
     public class PlayListController : ControllerBase
     {
+        private readonly ShowreelContext _context;
+
         private readonly IPlaylistService playlistService;
-        public PlayListController(IPlaylistService _playlistService)
+        public PlayListController(IPlaylistService _playlistService, ShowreelContext context)
         {
             playlistService = _playlistService;
+            _context = context;
         }
         [HttpGet]
         public ActionResult<Playlist> GetPagePlayList(string? keySearch = null, int page = 1, int pageSize = 10)
@@ -50,9 +54,18 @@ namespace BackEnd.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreatePlayList([FromBody] Playlist[] playlist)
+        public IActionResult CreatePlayList([FromBody] PlaylistPost[] playlists)
         {
-            var item = playlistService.AddPlayList(playlist);
+            foreach (var pl in playlists)
+            {
+                var playlist = _context.Playlists.Where(x => x.Title == pl.Title).FirstOrDefault();
+                if (playlist != null)
+                {
+                    ModelState.AddModelError("Playlist", "The name already exists");
+                    return BadRequest(ModelState);
+                }
+            }
+            var item = playlistService.AddPlayList(playlists);
             return Ok(item);
         }
 
@@ -97,9 +110,9 @@ namespace BackEnd.Controllers
         }
 
         [HttpGet("GetPlayListByParent/{id}")]
-        public ActionResult<Playlist> GetPlayListByParent(int id, string? keySearch = null, int page = 1, int pageSize = 10)
+        public ActionResult<Playlist> GetPlayListByParent(int id, string? keySearch = null, int page = 1, int pageSize = 10, string? buildingId = null)
         {
-            var query = playlistService.GetPlayListByParent(keySearch: keySearch, parentId: id);
+            var query = playlistService.GetPlayListByParent(keySearch: keySearch, parentId: id, buildingId: buildingId);
             int startIndex = (page - 1) * pageSize;
             int totalItems = query.Count();
             int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
@@ -114,6 +127,7 @@ namespace BackEnd.Controllers
             {
                 TotalItems = totalItems,
                 TotalPages = totalPages,
+                BuildingId = buildingId,
                 CurrentPage = page,
                 PageSize = pageSize,
                 Playlist = paginatedQuery.ToList()

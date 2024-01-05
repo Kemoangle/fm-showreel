@@ -45,3 +45,9 @@ export interface IDetailBuildingGroup {
     lanlordAds: IBuildingLandlord[];
     restriction: Restriction[];
 }
+
+export interface IListBuildingSelect extends Building {
+    value: number;
+    title: string;
+    landlordAds: Video;
+}

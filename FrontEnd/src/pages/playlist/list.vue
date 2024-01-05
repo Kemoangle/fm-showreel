@@ -85,6 +85,15 @@ const deleteBuilding = (id: number) => {
     });
 };
 
+const selectedBuilding = ref();
+const roles = [
+  { title: 'Admin', value: 'admin' },
+  { title: 'Author', value: 'author' },
+  { title: 'Editor', value: 'editor' },
+  { title: 'Maintainer', value: 'maintainer' },
+  { title: 'Subscriber', value: 'subscriber' },
+]
+
 </script>
 
 <template>

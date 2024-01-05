@@ -34,7 +34,8 @@ export interface IListPlaylist {
     id: number;
     listBuilding: number[];
     buildingName: string[];
-    nameTimestamp: string[];
+    nameTimestamp: string;
     playlist: IPlaylist[];
     isSave: boolean;
+    buildingsId: number[];
 }

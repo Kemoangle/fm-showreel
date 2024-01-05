@@ -8,6 +8,7 @@ import {
     IBuildingLandlordGroup,
     IBuildingRestriction,
     IBuildingRestrictionGroup,
+    IListBuildingSelect,
 } from '@/model/building';
 import { IListPlaylist, IPlaylist, IVideos } from '@/model/generatorPlaylist';
 import { IPostPlaylistStore } from '@/model/playlist';
@@ -24,12 +25,6 @@ import { VueDraggableNext } from 'vue-draggable-next';
 
 interface IListVideoSelect extends VideoList {
     value: number;
-}
-
-interface IListBuildingSelect extends Building {
-    value: number;
-    title: string;
-    landlordAds: Video;
 }
 
 interface IListPlaylistSelect extends IPostPlaylistStore {
@@ -192,20 +187,23 @@ const checkPlaylistInvalid = (playlist: IPlaylist[], nameBuilding?: string) => {
 const handleSaveOnePlaylist = (
     playlist: IPlaylist[],
     name: string,
-    nameTimestamp: string[],
+    nameTimestamp: string,
     indexBuilding: number
 ) => {
     if (checkPlaylistInvalid(playlist)) {
-        const data: IPostPlaylistStore[] = nameTimestamp.map((x) => ({
+        const buildingsId = listPlaylist.value ? listPlaylist.value[indexBuilding].buildingsId : [];
+        const data: IPostPlaylistStore = {
             id: 0,
             jsonPlaylist: JSON.stringify(playlist),
             status: 'active',
-            title: x,
+            title: nameTimestamp,
             creator: 'string',
             parentId: selectedPlaylist.value || 0,
-        }));
+            buildingsId: buildingsId,
+        };
+
         usePlaylist
-            .addNewPlaylist(data)
+            .addNewPlaylist([data])
             .then((data) => {
                 showSnackbar(`Save playlist ${name} Successfully`, 'success');
                 if (listPlaylist.value && listPlaylist.value[indexBuilding]) {
@@ -228,32 +226,45 @@ const handleClickSaveAll = () => {
                 return;
             }
         }
-        const getObjPlaylist = (child: IListPlaylist): IPostPlaylistStore[] => {
-            return !child.isSave
-                ? child.nameTimestamp.map((x) => ({
-                      id: 0,
-                      jsonPlaylist: JSON.stringify(child.playlist),
-                      status: 'active',
-                      title: x,
-                      creator: 'string',
-                      parentId: selectedPlaylist.value || 0,
-                  }))
-                : [];
-        };
+        // const getObjPlaylist = (child: IListPlaylist): IPostPlaylistStore[] => {
+        //     return !child.isSave
+        //         ? child.nameTimestamp.map((x) => ({
+        //               id: 0,
+        //               jsonPlaylist: JSON.stringify(child.playlist),
+        //               status: 'active',
+        //               title: x,
+        //               creator: 'string',
+        //               parentId: selectedPlaylist.value || 0,
+        //               buildingsId: child.buildingsId,
+        //           }))
+        //         : [];
+        // };
 
         const data: IPostPlaylistStore[] = [];
         listPlaylist.value.forEach((child) => {
-            data.push(...getObjPlaylist(child));
+            data.push({
+                id: 0,
+                jsonPlaylist: JSON.stringify(child.playlist),
+                status: 'active',
+                title: child.nameTimestamp,
+                creator: 'string',
+                parentId: selectedPlaylist.value || 0,
+                buildingsId: child.buildingsId,
+            });
         });
 
         usePlaylist
             .addNewPlaylist(data)
             .then((data) => {
-                showSnackbar(`Save all playlist Successfully`, 'success');
-                if (listPlaylist.value) {
-                    for (let i = 0; i < listPlaylist.value.length; i++) {
-                        listPlaylist.value[i].isSave = true;
+                if (data) {
+                    showSnackbar(`Save all playlist Successfully`, 'success');
+                    if (listPlaylist.value) {
+                        for (let i = 0; i < listPlaylist.value.length; i++) {
+                            listPlaylist.value[i].isSave = true;
+                        }
                     }
+                } else {
+                    showSnackbar(`Something went wrong!`, 'error');
                 }
                 isLoading.value = false;
             })
@@ -430,9 +441,10 @@ const handleGeneratorPlaylistBuildings = (
                         id: index + 1,
                         listBuilding: group.buildingId,
                         buildingName: nameBuilding,
-                        nameTimestamp: nameBuilding.map((x) => x + '-' + namePlaylistGeneric),
+                        nameTimestamp: nameBuilding.join('_') + '-' + namePlaylistGeneric,
                         playlist: pl,
                         isSave: false,
+                        buildingsId: group.buildingId,
                     });
                 });
 
@@ -461,7 +473,11 @@ const savePlaylistGeneric = (playlist: IPlaylist[]) => {
         usePlaylist
             .addNewPlaylist([data])
             .then((data) => {
-                showSnackbar(`Save ${namePlaylistGeneric.value} Successfully`, 'success');
+                if (data) {
+                    showSnackbar(`Save ${namePlaylistGeneric.value} Successfully`, 'success');
+                } else {
+                    showSnackbar(`Something went wrong!`, 'error');
+                }
             })
             .catch((err) => {
                 showSnackbar(`Something went wrong!`, 'error');
@@ -609,7 +625,13 @@ const handleClickEditNameGroupPlaylist = (playlistId: number) => {
                 <!-- <VBtn color="primary" @click="handleGeneratorPlaylistBuildings(playlistGeneric)">
                     Generator PlayList Buildings
                 </VBtn> -->
-                <VBtn color="primary" @click="savePlaylistGeneric(playlistGeneric)"> Save </VBtn>
+                <VBtn
+                    color="primary"
+                    @click="savePlaylistGeneric(playlistGeneric)"
+                    icon="mdi-content-save-all"
+                    variant="text"
+                >
+                </VBtn>
             </div>
             <VTable class="text-no-wrap">
                 <thead>
@@ -685,13 +707,13 @@ const handleClickEditNameGroupPlaylist = (playlistId: number) => {
             v-if="!isViewPlaylistGeneric"
         >
             <div class="position-absolute">
+                <!-- v-if="pl.listBuilding.length == 1" -->
                 <VTextField
-                    v-if="pl.listBuilding.length == 1"
                     class="input-name-building"
                     v-model="pl.nameTimestamp"
                     :disabled="pl.isSave"
                 />
-                <VBtn v-else @click="handleClickEditNameGroupPlaylist(pl.id)">Edit Name</VBtn>
+                <!-- <VBtn v-else @click="handleClickEditNameGroupPlaylist(pl.id)">Edit Name</VBtn> -->
                 <VBtn
                     color="primary"
                     size="40"

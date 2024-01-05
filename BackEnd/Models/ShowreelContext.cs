@@ -21,8 +21,6 @@ public partial class ShowreelContext : DbContext
 
     public virtual DbSet<Category> Categories { get; set; }
 
-    public virtual DbSet<Efmigrationshistory> Efmigrationshistories { get; set; }
-
     public virtual DbSet<Landlordad> Landlordads { get; set; }
 
     public virtual DbSet<Playlist> Playlists { get; set; }
@@ -43,7 +41,7 @@ public partial class ShowreelContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=127.0.0.1;uid=fmshowr_john;pwd=oyvU4Cy21Zzy;database=fmshowr_db;", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.33-mysql"));
+        => optionsBuilder.UseMySql("server=149.28.152.84;uid=fmshowr_john;pwd=oyvU4Cy21Zzy;database=fmshowr_db", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.33-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -88,16 +86,18 @@ public partial class ShowreelContext : DbContext
 
         modelBuilder.Entity<Buildingplaylist>(entity =>
         {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
             entity
-                .HasNoKey()
-                .ToTable("buildingplaylist")
-                .HasCharSet("utf8mb3")
-                .UseCollation("utf8mb3_general_ci");
+               .ToTable("buildingplaylist")
+               .HasCharSet("utf8mb3")
+               .UseCollation("utf8mb3_general_ci");
 
             entity.HasIndex(e => e.BuildingId, "building_id");
 
             entity.HasIndex(e => e.PlaylistId, "playlist_id");
 
+            entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.BuildingId).HasColumnName("building_id");
             entity.Property(e => e.PlaylistId).HasColumnName("playlist_id");
 
@@ -126,16 +126,6 @@ public partial class ShowreelContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("name");
             entity.Property(e => e.Parent).HasColumnName("parent");
-        });
-
-        modelBuilder.Entity<Efmigrationshistory>(entity =>
-        {
-            entity.HasKey(e => e.MigrationId).HasName("PRIMARY");
-
-            entity.ToTable("__efmigrationshistory");
-
-            entity.Property(e => e.MigrationId).HasMaxLength(150);
-            entity.Property(e => e.ProductVersion).HasMaxLength(32);
         });
 
         modelBuilder.Entity<Landlordad>(entity =>

@@ -1,5 +1,9 @@
 type statusPlaylist = 'pending' | 'active' | 'expired';
 
+interface IBuildingDetail {
+    id: number;
+    buildingName: string;
+}
 export interface IPostPlaylistStore {
     id: number;
     status: statusPlaylist;
@@ -10,4 +14,6 @@ export interface IPostPlaylistStore {
     JsonListVideo?: string;
     creator: string;
     parentId: number;
+    buildingsId?: number[];
+    buildings?: IBuildingDetail[];
 }
