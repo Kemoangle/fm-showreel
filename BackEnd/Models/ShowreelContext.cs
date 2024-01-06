@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using BackEnd.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Showreel.Models;
 
-public partial class ShowreelContext : DbContext
+public partial class ShowreelContext : IdentityDbContext<AppUser>
 {
     public ShowreelContext()
     {
@@ -41,10 +43,18 @@ public partial class ShowreelContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=127.0.0.1;uid=fmshowr_john;pwd=oyvU4Cy21Zzy;database=fmshowr_db", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.33-mysql"));
+        => optionsBuilder.UseMySql("server=149.28.152.84;uid=fmshowr_john;pwd=oyvU4Cy21Zzy;database=fmshowr_db", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.33-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var tableName = entityType.GetTableName();
+            if(tableName.StartsWith("AspNet")){
+                entityType.SetTableName(tableName.Substring(6));
+            }
+        }
         modelBuilder
             .UseCollation("utf8mb3_general_ci")
             .HasCharSet("utf8mb4");

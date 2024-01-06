@@ -1,6 +1,11 @@
-﻿using BackEnd.Service;
+﻿using System.Text;
+using BackEnd.Models;
+using BackEnd.Service;
 using BackEnd.Service.impl;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Showreel.Models;
 using Showreel.Service;
 using Showreel.Service.impl;
@@ -23,6 +28,7 @@ builder.Services.AddScoped<ILanlordAdsService, LandlordAdsService>();
 builder.Services.AddScoped<IRestrictionService, RestrcitionService>();
 builder.Services.AddScoped<IPlaylistService, PlaylistService>();
 builder.Services.AddScoped<IRuleService, RuleService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 //  builder.Services.AddCors(options =>
@@ -33,6 +39,27 @@ var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 //                            policy.WithOrigins("http://localhost:5173", "http://192.168.1.14:5173");
 //                        });
 //  });
+builder.Services.AddIdentity<AppUser, IdentityRole>()
+                .AddEntityFrameworkStores<ShowreelContext>()
+                .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(option => {
+    option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer("Bearer",options => {
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["JWT:ValidAudience"],
+        ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
+    };
+});
+
 
 builder.Services.AddCors(options =>
           {
@@ -65,6 +92,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+app.UseAuthentication();   // Phục hồi thông tin đăng nhập (xác thực)
 app.UseCors(MyAllowSpecificOrigins);
 app.MapControllers();
 
