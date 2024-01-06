@@ -5,18 +5,27 @@ import tree from '@images/pages/tree.png'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
 
+import axiosIns from '@/plugins/axios'
 import authV2LoginIllustrationBorderedDark from '@images/pages/auth-v2-login-illustration-bordered-dark.png'
 import authV2LoginIllustrationBorderedLight from '@images/pages/auth-v2-login-illustration-bordered-light.png'
 import authV2LoginIllustrationDark from '@images/pages/auth-v2-login-illustration-dark.png'
 import authV2LoginIllustrationLight from '@images/pages/auth-v2-login-illustration-light.png'
 import authV2MaskDark from '@images/pages/auth-v2-mask-dark.png'
 import authV2MaskLight from '@images/pages/auth-v2-mask-light.png'
+import { emailValidator, requiredValidator } from '@validators'
+import { VForm } from 'vuetify/components'
 
-const form = ref({
-  email: '',
-  password: '',
-  remember: false,
+const route = useRoute()
+const router = useRouter()
+const refVForm = ref<VForm>()
+const errors = ref<Record<string, string | undefined>>({
+  email: undefined,
+  password: undefined,
 })
+
+const email = ref('admin@demo.com')
+const password = ref('admin')
+const rememberMe = ref(false)
 
 const isPasswordVisible = ref(false)
 
@@ -28,6 +37,28 @@ const authThemeImg = useGenerateImageVariant(
   true)
 
 const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
+
+const login = () => {
+    axiosIns.post('Account/SignIn', { email: email.value, password: password.value })
+    .then(r => {
+      localStorage.setItem('accessToken', r.data)
+      router.replace(route.query.to ? String(route.query.to) : '/')
+    })
+    .catch(e => {
+      const { errors: formErrors } = e.response.data
+
+      errors.value = formErrors
+      console.error(e.response.data)
+    })
+}
+
+const onSubmit = () => {
+  refVForm.value?.validate()
+    .then(({ valid: isValid }) => {
+      if (isValid)
+        login();
+    })
+}
 </script>
 
 <template>
@@ -89,30 +120,35 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
             </p>
           </VCardText>
           <VCardText>
-            <VForm @submit.prevent="() => {}">
+            <VForm ref="refVForm"
+              @submit.prevent="onSubmit">
               <VRow>
                 <!-- email -->
                 <VCol cols="12">
-                  <VTextField
-                    v-model="form.email"
+                    <VTextField
+                    v-model="email"
                     label="Email"
                     type="email"
+                    :rules="[requiredValidator, emailValidator]"
+                    :error-messages="errors.email"
                   />
                 </VCol>
 
                 <!-- password -->
                 <VCol cols="12">
-                  <VTextField
-                    v-model="form.password"
+                    <VTextField
+                    v-model="password"
                     label="Password"
+                    :rules="[requiredValidator]"
                     :type="isPasswordVisible ? 'text' : 'password'"
+                    :error-messages="errors.password"
                     :append-inner-icon="isPasswordVisible ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
                     @click:append-inner="isPasswordVisible = !isPasswordVisible"
                   />
 
                   <div class="d-flex align-center flex-wrap justify-space-between mt-1 mb-4">
                     <VCheckbox
-                      v-model="form.remember"
+                      v-model="rememberMe"
                       label="Remember me"
                     />
                     <a
