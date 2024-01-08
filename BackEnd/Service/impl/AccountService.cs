@@ -33,8 +33,9 @@ namespace BackEnd.Service.impl
         }
         public async Task<string> SignInAsync(SignInModel signInModel)
         {
-            var result  = await signInManager.PasswordSignInAsync(signInModel.Email, signInModel.Password, false, false);
-            if(!result.Succeeded){
+            var result = await signInManager.PasswordSignInAsync(signInModel.Email, signInModel.Password, false, false);
+            if (!result.Succeeded)
+            {
                 return string.Empty;
             }
             var authClaims = new List<Claim>{
@@ -43,18 +44,29 @@ namespace BackEnd.Service.impl
             };
             var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
 
-            var token = new JwtSecurityToken(
-                audience : configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddMinutes(20),
-                claims: authClaims,
-                signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512Signature)
-            );
+            // var token = new JwtSecurityToken(
+            //     audience : configuration["JWT:ValidAudience"],
+            //     expires: DateTime.Now.AddMinutes(20),
+            //     claims: authClaims,
+            //     signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512Signature)
+            // );
+
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("ThisismySecretKey"));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken("John",
+              "John",
+              null,
+              expires: DateTime.Now.AddMinutes(120),
+              signingCredentials: credentials);
+
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         public async Task<IdentityResult> SignUpAsync(SignUpModel signUpModel)
         {
-            var user = new AppUser {
+            var user = new AppUser
+            {
                 Email = signUpModel.Email,
                 UserName = signUpModel.Email
             };
