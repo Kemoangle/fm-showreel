@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Showreel.Models;
 using Showreel.Models.ViewModels;
@@ -9,6 +10,7 @@ using Showreel.Service;
 
 namespace BackEnd.Controllers
 {
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiController]
     [Route("api/[controller]")]
     public class PlayListController : ControllerBase
