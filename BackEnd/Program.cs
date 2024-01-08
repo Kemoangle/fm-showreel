@@ -1,10 +1,11 @@
-﻿using System.Text;
+﻿﻿using System.Text;
 using BackEnd.Models;
 using BackEnd.Service;
 using BackEnd.Service.impl;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Showreel.Models;
 using Showreel.Service;
@@ -43,22 +44,70 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
                 .AddEntityFrameworkStores<ShowreelContext>()
                 .AddDefaultTokenProviders();
 
-builder.Services.AddAuthentication(option => {
-    option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer("Bearer",options => {
-    options.SaveToken = true;
-    options.RequireHttpsMetadata = false;
-    options.TokenValidationParameters = new TokenValidationParameters()
+// builder.Services.AddAuthentication(option =>
+// {
+//     option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//     option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//     option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+// }).AddJwtBearer("Bearer", options =>
+// {
+//     options.SaveToken = true;
+//     options.RequireHttpsMetadata = false;
+//     options.TokenValidationParameters = new TokenValidationParameters()
+//     {
+//         ValidateIssuer = true,
+//         ValidateAudience = true,
+//         ValidAudience = builder.Configuration["JWT:ValidAudience"],
+//         ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+//         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
+//     };
+// });
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidAudience = builder.Configuration["JWT:ValidAudience"],
-        ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
-    };
-});
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "John",
+            ValidAudience = "John",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("ThisismySecretKey"))
+        };
+    });
+// string SecurityKey = "this is my custom Secret key for authentication";
+// var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecurityKey));
+// builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//              .AddJwtBearer(options =>
+//              {
+//                  options.SaveToken = true;
+//                  options.RequireHttpsMetadata = false;
+//                  options.TokenValidationParameters = new TokenValidationParameters
+//                  {
+//                      ValidateIssuerSigningKey = true,
+//                      IssuerSigningKey = signingKey,
+//                      ValidateIssuer = true,
+//                      ValidIssuer = "RS",
+//                      ValidateAudience = true,
+//                      ValidAudience = "RS",
+//                      ValidateLifetime = true,
+//                      ClockSkew = TimeSpan.Zero
+//                  };
+//                  options.Events = new JwtBearerEvents
+//                  {
+//                      OnMessageReceived = context =>
+//                      {
+//                          if (context.Request.Query.TryGetValue("access_token", out StringValues token))
+//                          {
+//                              context.Token = token;
+//                          }
+
+//                          return Task.CompletedTask;
+//                      }
+//                  };
+//              });
+
 
 
 builder.Services.AddCors(options =>
@@ -90,9 +139,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
 app.UseCors(MyAllowSpecificOrigins);
+
+app.UseRouting();
+app.UseAuthorization();
+app.UseAuthentication();
 app.MapControllers();
 
 app.Run();
