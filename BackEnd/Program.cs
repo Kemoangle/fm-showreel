@@ -90,9 +90,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
-app.UseAuthentication();   // Phục hồi thông tin đăng nhập (xác thực)
 app.UseCors(MyAllowSpecificOrigins);
 app.MapControllers();
 

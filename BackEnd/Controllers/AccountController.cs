@@ -39,7 +39,7 @@ namespace BackEnd.Controllers
 
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
         [HttpGet]
         public IActionResult Protected()
         {
