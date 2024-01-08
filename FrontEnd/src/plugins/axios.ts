@@ -27,9 +27,7 @@ axiosIns.interceptors.response.use(
 
         if (error.response?.status === 403 || error.response?.status === 401) {
             // Forbidden or unauthorized
-            const router = useRouter();
-
-            await router.push('/not-authorized');
+            window.location.href = '/login';
         }
     }
 );

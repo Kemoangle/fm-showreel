@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import avatar1 from '@images/avatars/avatar-1.png'
+import avatar1 from '@images/avatars/avatar-1.png';
+const route = useRoute()
+const router = useRouter()
+const logOut = () => {
+    localStorage.removeItem("accessToken");
+    router.push('/login');
+}
 </script>
 
 <template>
@@ -109,7 +115,7 @@ import avatar1 from '@images/avatars/avatar-1.png'
           <VDivider class="my-2" />
 
           <!-- 👉 Logout -->
-          <VListItem to="/login">
+          <VListItem @click="logOut">
             <template #prepend>
               <VIcon
                 class="me-2"
