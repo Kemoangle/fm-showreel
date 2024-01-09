@@ -211,7 +211,11 @@ const handleSaveOnePlaylist = (
                 }
             })
             .catch((err) => {
-                showSnackbar(`Something went wrong!`, 'error');
+                if (err.data.error) {
+                    showSnackbar(err.data.error, 'error');
+                } else {
+                    showSnackbar(`Something went wrong!`, 'error');
+                }
             });
     }
 };
@@ -270,7 +274,11 @@ const handleClickSaveAll = () => {
             })
             .catch((err) => {
                 isLoading.value = false;
-                showSnackbar(`Something went wrong!`, 'error');
+                if (err.data.error) {
+                    showSnackbar(err.data.error, 'error');
+                } else {
+                    showSnackbar(`Something went wrong!`, 'error');
+                }
             });
     }
 };
@@ -420,8 +428,6 @@ const handleGeneratorPlaylistBuildings = (
                     return playlist;
                 };
 
-                const timestamp = getTimestamp();
-
                 LandlordAds.forEach((group, index) => {
                     const pl = genPlaylist(
                         group?.videos,
@@ -480,7 +486,11 @@ const savePlaylistGeneric = (playlist: IPlaylist[]) => {
                 }
             })
             .catch((err) => {
-                showSnackbar(`Something went wrong!`, 'error');
+                if (err.data.error) {
+                    showSnackbar(err.data.error, 'error');
+                } else {
+                    showSnackbar(`Something went wrong!`, 'error');
+                }
             });
     }
 };

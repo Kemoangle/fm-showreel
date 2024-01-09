@@ -63,7 +63,7 @@ namespace BackEnd.Controllers
                 var playlist = _context.Playlists.Where(x => x.Title == pl.Title).FirstOrDefault();
                 if (playlist != null)
                 {
-                    ModelState.AddModelError("Playlist", "The name already exists");
+                    ModelState.AddModelError("error", "The name already exists");
                     return BadRequest(ModelState);
                 }
             }
